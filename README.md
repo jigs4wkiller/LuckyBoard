@@ -6,15 +6,9 @@
 
 <p align="center">
   <a href="https://github.com/jasonwu1994/Gboard-patches/releases/latest"><img alt="Latest release" src="https://img.shields.io/github/v/release/jasonwu1994/Gboard-patches?display_name=tag&label=Release&style=for-the-badge"></a>
-  <a href="https://github.com/jasonwu1994/Gboard-patches"><img alt="GitHub stars" src="https://img.shields.io/github/stars/jasonwu1994/Gboard-patches?label=Stars&style=for-the-badge"></a>
   <a href="https://github.com/jasonwu1994/Gboard-patches"><img alt="Total downloads" src="https://img.shields.io/github/downloads/jasonwu1994/Gboard-patches/total?label=Downloads&style=for-the-badge"></a>
   <a href="https://morphe.software/add-source?github=jasonwu1994/Gboard-patches"><img alt="Add to Morphe" src="https://img.shields.io/badge/Morphe-Add%20Source-00A8FF?style=for-the-badge"></a>
-</p>
-
-<p align="center">
-  <img alt="Target package" src="https://img.shields.io/badge/Target-com.google.android.inputmethod.latin-111827?style=flat-square">
-  <img alt="Supported version" src="https://img.shields.io/badge/Supported-17.0.10.880768217--release--arm64--v8a-2563EB?style=flat-square">
-  <img alt="Patch bundle" src="https://img.shields.io/badge/Format-Morphe%20Patch%20Bundle-16A34A?style=flat-square">
+  <a href="https://github.com/jasonwu1994/Gboard-patches"><img alt="GitHub stars" src="https://img.shields.io/github/stars/jasonwu1994/Gboard-patches?style=social"></a>
 </p>
 
 ## Overview
