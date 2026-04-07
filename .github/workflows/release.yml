@@ -28,6 +28,9 @@ jobs:
       - name: Cache Gradle
         uses: burrunan/gradle-cache-action@v3
 
+      - name: Make Gradle wrapper executable
+        run: chmod +x ./gradlew
+
       - name: Build
         env:
           GITHUB_ACTOR: ${{ github.repository_owner }}
