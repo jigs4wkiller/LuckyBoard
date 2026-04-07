@@ -1,6 +1,25 @@
-# Gboard Patches
+<h1 align="center">Gboard Patches</h1>
 
-Gboard Patches is a Morphe patch bundle focused on improving the Gboard experience for users in Taiwan.
+<p align="center">
+  Morphe patches for Gboard focused on improving the experience for users in Taiwan.
+</p>
+
+<p align="center">
+  <a href="https://github.com/jasonwu1994/Gboard-patches/releases/latest"><img alt="Latest release" src="https://img.shields.io/github/v/release/jasonwu1994/Gboard-patches?display_name=tag&label=Release&style=for-the-badge"></a>
+  <a href="https://github.com/jasonwu1994/Gboard-patches"><img alt="GitHub stars" src="https://img.shields.io/github/stars/jasonwu1994/Gboard-patches?label=Stars&style=for-the-badge"></a>
+  <a href="https://github.com/jasonwu1994/Gboard-patches"><img alt="Total downloads" src="https://img.shields.io/github/downloads/jasonwu1994/Gboard-patches/total?label=Downloads&style=for-the-badge"></a>
+  <a href="https://morphe.software/add-source?github=jasonwu1994/Gboard-patches"><img alt="Add to Morphe" src="https://img.shields.io/badge/Morphe-Add%20Source-00A8FF?style=for-the-badge"></a>
+</p>
+
+<p align="center">
+  <img alt="Target package" src="https://img.shields.io/badge/Target-com.google.android.inputmethod.latin-111827?style=flat-square">
+  <img alt="Supported version" src="https://img.shields.io/badge/Supported-17.0.10.880768217--release--arm64--v8a-2563EB?style=flat-square">
+  <img alt="Patch bundle" src="https://img.shields.io/badge/Format-Morphe%20Patch%20Bundle-16A34A?style=flat-square">
+</p>
+
+## Overview
+
+Gboard Patches is a public Morphe source for a curated set of Gboard enhancements centered on Taiwan usage patterns. The current bundle includes Zhuyin slide input improvements, quick Traditional/Simplified switching, English QWERTY slide symbols, and optional package rename support for side-by-side installation.
 
 ## Included Patches
 
@@ -8,6 +27,13 @@ Gboard Patches is a Morphe patch bundle focused on improving the Gboard experien
 - `English QWERTY Slide Symbols`
 - `Zhuyin Slide Input`
 - `Zhuyin Quick Traditional/Simplified Toggle`
+
+## Install
+
+Add this repository as a Morphe source:
+
+- [Open in Morphe](https://morphe.software/add-source?github=jasonwu1994/Gboard-patches)
+- Or manually add `https://github.com/jasonwu1994/Gboard-patches`
 
 ## Build
 
