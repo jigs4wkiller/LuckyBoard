@@ -1,0 +1,121 @@
+name: Release from tag
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  release:
+    name: Release
+    permissions:
+      contents: write
+      packages: read
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Setup Java
+        uses: actions/setup-java@v5
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Cache Gradle
+        uses: burrunan/gradle-cache-action@v3
+
+      - name: Build
+        env:
+          GITHUB_ACTOR: ${{ github.repository_owner }}
+          GITHUB_TOKEN: ${{ secrets.MORPHE_PACKAGES_TOKEN }}
+        run: ./gradlew :patches:buildAndroid generatePatchesList clean
+
+      - name: Import GPG key
+        uses: crazy-max/ghaction-import-gpg@v6
+        with:
+          gpg_private_key: ${{ secrets.GPG_PRIVATE_KEY }}
+          passphrase: ${{ secrets.GPG_PASSPHRASE }}
+          fingerprint: ${{ vars.GPG_FINGERPRINT }}
+
+      - name: Validate synced release metadata
+        id: metadata
+        shell: pwsh
+        env:
+          REPO_SLUG: ${{ github.repository }}
+        run: |
+          $tag = $env:GITHUB_REF_NAME
+          if (-not $tag.StartsWith("v")) {
+              throw "Release tag must start with 'v'."
+          }
+
+          $expectedVersion = $tag.Substring(1)
+          $gradleText = Get-Content -LiteralPath "gradle.properties" -Raw
+          $match = [regex]::Match($gradleText, '(?m)^\s*version\s*=\s*([^\r\n#]+?)\s*$')
+          if (-not $match.Success) {
+              throw "Unable to resolve version from gradle.properties."
+          }
+
+          $actualVersion = $match.Groups[1].Value.Trim()
+          if ($actualVersion -ne $expectedVersion) {
+              throw "Tag version '$expectedVersion' does not match gradle.properties version '$actualVersion'."
+          }
+
+          $bundle = Get-Content -LiteralPath "patches-bundle.json" -Raw | ConvertFrom-Json
+          if ([string]$bundle.version -ne $actualVersion) {
+              throw "patches-bundle.json version '$($bundle.version)' does not match '$actualVersion'."
+          }
+
+          $expectedDownloadUrl = "https://github.com/$($env:REPO_SLUG)/releases/download/$tag/patches-$actualVersion.mpp"
+          $expectedSignatureUrl = "https://github.com/$($env:REPO_SLUG)/releases/download/$tag/patches-$actualVersion.mpp.asc"
+
+          if ([string]$bundle.download_url -ne $expectedDownloadUrl) {
+              throw "patches-bundle.json download_url does not match expected public release URL."
+          }
+          if ([string]$bundle.signature_download_url -ne $expectedSignatureUrl) {
+              throw "patches-bundle.json signature_download_url does not match expected public release URL."
+          }
+
+          "version=$actualVersion" >> $env:GITHUB_OUTPUT
+
+      - name: Sign patch bundle
+        shell: pwsh
+        env:
+          GPG_FINGERPRINT: ${{ vars.GPG_FINGERPRINT }}
+          GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
+        run: |
+          $version = "${{ steps.metadata.outputs.version }}"
+          $bundlePath = Join-Path $PWD "patches/build/libs/patches-$version.mpp"
+          if (-not (Test-Path -LiteralPath $bundlePath)) {
+              throw "Patch bundle not found: $bundlePath"
+          }
+
+          & gpg --batch --yes --pinentry-mode loopback --passphrase $env:GPG_PASSPHRASE --local-user $env:GPG_FINGERPRINT --armor --detach-sign --output "$bundlePath.asc" "$bundlePath"
+          if ($LASTEXITCODE -ne 0) {
+              throw "gpg signing failed with exit code $LASTEXITCODE."
+          }
+
+      - name: Prepare release notes
+        shell: pwsh
+        run: |
+          $bundle = Get-Content -LiteralPath "patches-bundle.json" -Raw | ConvertFrom-Json
+          $notes = [string]$bundle.description
+          if ([string]::IsNullOrWhiteSpace($notes)) {
+              $notes = "Public mirror release for $env:GITHUB_REF_NAME."
+          }
+          Set-Content -LiteralPath "release-notes.md" -Value $notes -Encoding utf8
+
+      - name: Publish GitHub release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_name }}
+          body_path: release-notes.md
+          prerelease: ${{ contains(github.ref_name, '-dev.') }}
+          files: |
+            patches/build/libs/patches-${{ steps.metadata.outputs.version }}.mpp
+            patches/build/libs/patches-${{ steps.metadata.outputs.version }}.mpp.asc
+            patches-list.json
+            patches-bundle.json
