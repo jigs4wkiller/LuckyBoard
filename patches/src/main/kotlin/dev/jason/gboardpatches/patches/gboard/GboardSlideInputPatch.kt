@@ -6,6 +6,8 @@ import dev.jason.gboardpatches.patches.shared.Constants.COMPATIBILITY_GBOARD
 import dev.jason.gboardpatches.patches.shared.Constants.GBOARD_PACKAGE_NAME
 import dev.jason.gboardpatches.patches.shared.Constants.GBOARD_PATCHED_PACKAGE_NAME
 import dev.jason.gboardpatches.patches.shared.Constants.GBOARD_PATCH_AUTHOR
+import dev.jason.gboardpatches.patches.shared.Constants.GBOARD_PATCH_AUTHOR_URL
+import dev.jason.gboardpatches.patches.shared.Constants.GBOARD_PATCH_REPOSITORY_URL
 import dev.jason.gboardpatches.patches.shared.Constants.GBOARD_PATCH_VERSION
 import org.w3c.dom.Document
 import org.w3c.dom.Element
@@ -282,7 +284,8 @@ private fun applyAboutPagePatch() {
             document = document,
             key = "gboard_about_author",
             title = "Author",
-            summary = GBOARD_PATCH_AUTHOR
+            summary = GBOARD_PATCH_AUTHOR,
+            intentUrl = GBOARD_PATCH_AUTHOR_URL
         )
         screen.insertAfter(authorPreference, versionPreference)
 
@@ -290,7 +293,8 @@ private fun applyAboutPagePatch() {
             document = document,
             key = "gboard_about_patch_version",
             title = "Patch Version",
-            summary = GBOARD_PATCH_VERSION
+            summary = GBOARD_PATCH_VERSION,
+            intentUrl = GBOARD_PATCH_REPOSITORY_URL
         )
         screen.insertAfter(patchVersionPreference, authorPreference)
     }
@@ -347,7 +351,8 @@ private fun ensureAboutPreference(
     document: Document,
     key: String,
     title: String,
-    summary: String
+    summary: String,
+    intentUrl: String? = null
 ): Element {
     val screen = document.documentElement
     val preference = screen.childElements().firstOrNull {
@@ -362,15 +367,26 @@ private fun ensureAboutPreference(
     preference.setAndroidAttribute("focusable", "false")
     preference.setAndroidAttribute("maxLines", "100")
     preference.setAndroidAttribute("title", title)
-    preference.setAndroidAttribute("selectable", "false")
+    preference.setAndroidAttribute("selectable", if (intentUrl != null) "true" else "false")
     preference.setAndroidAttribute("key", key)
     preference.setAndroidAttribute("summary", summary)
+    intentUrl?.let { url ->
+        preference.ensureIntent().apply {
+            setAndroidAttribute("action", "android.intent.action.VIEW")
+            setAndroidAttribute("data", url)
+        }
+    }
     return preference
 }
 
 private fun Element.setAndroidAttribute(localName: String, value: String) {
     setAttributeNS(ANDROID_NS, "android:$localName", value)
 }
+
+private fun Element.ensureIntent(): Element =
+    childElements("intent").firstOrNull() ?: ownerDocument.createElement("intent").also {
+        appendChild(it)
+    }
 
 private fun Node.insertAfter(newNode: Node, referenceNode: Node) {
     val parent = if (this.nodeType == Node.DOCUMENT_NODE) {
