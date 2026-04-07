@@ -37,13 +37,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.MORPHE_PACKAGES_TOKEN }}
         run: ./gradlew :patches:buildAndroid generatePatchesList
 
-      - name: Import GPG key
-        uses: crazy-max/ghaction-import-gpg@v6
-        with:
-          gpg_private_key: ${{ secrets.GPG_PRIVATE_KEY }}
-          passphrase: ${{ secrets.GPG_PASSPHRASE }}
-          fingerprint: ${{ vars.GPG_FINGERPRINT }}
-
       - name: Validate synced release metadata
         id: metadata
         shell: pwsh
@@ -73,33 +66,15 @@ jobs:
           }
 
           $expectedDownloadUrl = "https://github.com/$($env:REPO_SLUG)/releases/download/$tag/patches-$actualVersion.mpp"
-          $expectedSignatureUrl = "https://github.com/$($env:REPO_SLUG)/releases/download/$tag/patches-$actualVersion.mpp.asc"
 
           if ([string]$bundle.download_url -ne $expectedDownloadUrl) {
               throw "patches-bundle.json download_url does not match expected public release URL."
           }
-          if ([string]$bundle.signature_download_url -ne $expectedSignatureUrl) {
-              throw "patches-bundle.json signature_download_url does not match expected public release URL."
+          if (-not [string]::IsNullOrEmpty([string]$bundle.signature_download_url)) {
+              throw "patches-bundle.json signature_download_url must be empty for the public repo."
           }
 
           "version=$actualVersion" >> $env:GITHUB_OUTPUT
-
-      - name: Sign patch bundle
-        shell: pwsh
-        env:
-          GPG_FINGERPRINT: ${{ vars.GPG_FINGERPRINT }}
-          GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
-        run: |
-          $version = "${{ steps.metadata.outputs.version }}"
-          $bundlePath = Join-Path $PWD "patches/build/libs/patches-$version.mpp"
-          if (-not (Test-Path -LiteralPath $bundlePath)) {
-              throw "Patch bundle not found: $bundlePath"
-          }
-
-          & gpg --batch --yes --pinentry-mode loopback --passphrase $env:GPG_PASSPHRASE --local-user $env:GPG_FINGERPRINT --armor --detach-sign --output "$bundlePath.asc" "$bundlePath"
-          if ($LASTEXITCODE -ne 0) {
-              throw "gpg signing failed with exit code $LASTEXITCODE."
-          }
 
       - name: Prepare release notes
         shell: pwsh
@@ -119,6 +94,3 @@ jobs:
           prerelease: ${{ contains(github.ref_name, '-dev.') }}
           files: |
             patches/build/libs/patches-${{ steps.metadata.outputs.version }}.mpp
-            patches/build/libs/patches-${{ steps.metadata.outputs.version }}.mpp.asc
-            patches-list.json
-            patches-bundle.json
