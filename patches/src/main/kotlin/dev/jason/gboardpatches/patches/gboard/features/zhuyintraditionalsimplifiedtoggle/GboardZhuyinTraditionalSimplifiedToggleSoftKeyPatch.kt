@@ -1,15 +1,17 @@
-package dev.jason.gboardpatches.patches.gboard
+package dev.jason.gboardpatches.patches.gboard.features.zhuyintraditionalsimplifiedtoggle
 
 import app.morphe.patcher.extensions.InstructionExtensions.addInstructions
 import app.morphe.patcher.patch.BytecodePatchContext
 import app.morphe.patcher.patch.bytecodePatch
 import com.android.tools.smali.dexlib2.AccessFlags
+import dev.jason.gboardpatches.patches.gboard.shared.addHelperMethodIfMissing
+import dev.jason.gboardpatches.patches.gboard.shared.findMutableMethodOrThrow
 
 private const val SOFT_KEY_VIEW_CLASS =
     "Lcom/google/android/libraries/inputmethod/widgets/SoftKeyView;"
 
-internal val gboardZhuyinToggleSoftKeyPatch = bytecodePatch(
-    description = "修正注音繁簡切換鍵的 SoftKeyView bind-time metadata。"
+internal val gboardZhuyinTraditionalSimplifiedToggleSoftKeyPatch = bytecodePatch(
+    description = "修正注音 ㄥ 上滑繁簡切換鍵的 SoftKeyView bind-time metadata。"
 ) {
     execute {
         addHelperMethod()

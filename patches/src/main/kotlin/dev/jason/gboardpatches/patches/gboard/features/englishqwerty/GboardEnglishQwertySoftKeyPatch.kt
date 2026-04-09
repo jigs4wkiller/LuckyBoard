@@ -1,9 +1,13 @@
-package dev.jason.gboardpatches.patches.gboard
+package dev.jason.gboardpatches.patches.gboard.features.englishqwerty
 
 import app.morphe.patcher.extensions.InstructionExtensions.addInstructions
 import app.morphe.patcher.patch.BytecodePatchContext
 import app.morphe.patcher.patch.bytecodePatch
 import com.android.tools.smali.dexlib2.AccessFlags
+import dev.jason.gboardpatches.patches.gboard.shared.addHelperMethodIfMissing
+import dev.jason.gboardpatches.patches.gboard.shared.findMutableMethodOrThrow
+import dev.jason.gboardpatches.patches.gboard.shared.indexOfFirstConst4LiteralFollowedByIfEqz
+import dev.jason.gboardpatches.patches.gboard.shared.indexOfFirstMethodCall
 
 private const val SOFT_KEY_VIEW_CLASS =
     "Lcom/google/android/libraries/inputmethod/widgets/SoftKeyView;"

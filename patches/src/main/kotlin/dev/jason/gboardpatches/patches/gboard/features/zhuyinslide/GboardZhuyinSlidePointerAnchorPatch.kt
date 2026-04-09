@@ -1,9 +1,13 @@
-package dev.jason.gboardpatches.patches.gboard
+package dev.jason.gboardpatches.patches.gboard.features.zhuyinslide
 
 import app.morphe.patcher.extensions.InstructionExtensions.addInstructions
 import app.morphe.patcher.patch.BytecodePatchContext
 import app.morphe.patcher.patch.bytecodePatch
 import com.android.tools.smali.dexlib2.AccessFlags
+import dev.jason.gboardpatches.patches.gboard.shared.addFieldIfMissing
+import dev.jason.gboardpatches.patches.gboard.shared.addHelperMethodIfMissing
+import dev.jason.gboardpatches.patches.gboard.shared.findMutableMethodOrThrow
+import dev.jason.gboardpatches.patches.gboard.shared.indexOfFirstMethodCall
 
 private const val OFK_CLASS = "Lofk;"
 private const val ANCHOR_FIELD_NAME = "jasondevAnchorKey"
@@ -11,7 +15,7 @@ private const val ANCHOR_FIELD_TYPE = "Lcom/google/android/libraries/inputmethod
 private const val RESOLVE_ANCHOR_METHOD_NAME = "jasondevResolveAnchoredKey"
 private const val IS_ZHUYIN_METADATA_METHOD_NAME = "jasondevIsZhuyinMetadata"
 
-internal val gboardPointerAnchorPatch = bytecodePatch(
+internal val gboardZhuyinSlidePointerAnchorPatch = bytecodePatch(
     description = "讓注音垂直滑動在手勢期間固定錨定起始 SoftKeyView。"
 ) {
     execute {

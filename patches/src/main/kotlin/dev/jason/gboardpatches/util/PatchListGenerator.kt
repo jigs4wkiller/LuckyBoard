@@ -15,18 +15,13 @@ private val PATCH_ORDER = listOf(
     "Package Rename",
     "English QWERTY Slide Symbols",
     "Zhuyin Slide Input",
-    "Zhuyin Quick Traditional/Simplified Toggle"
+    "Zhuyin Quick Traditional/Simplified Toggle",
+    "Chinese Online Voice Input"
 )
 
 internal fun main() {
-    val patchFiles = setOf(
-        File("build/libs/").listFiles { file ->
-            val fileName = file.name
-            !fileName.contains("javadoc") &&
-                !fileName.contains("sources") &&
-                fileName.endsWith(".mpp")
-        }!!.first()
-    )
+    val patchBundle = resolvePatchBundleFile()
+    val patchFiles = setOf(patchBundle)
     val loadedPatches = loadPatchesFromJar(patchFiles)
     val patchClassLoader = URLClassLoader(patchFiles.map { it.toURI().toURL() }.toTypedArray())
     val manifest = patchClassLoader.getResources("META-INF/MANIFEST.MF")
@@ -39,6 +34,29 @@ internal fun main() {
                 generatePatchList(it, loadedPatches)
             }
     }
+}
+
+private fun resolvePatchBundleFile(): File {
+    val buildLibs = File("build/libs/")
+    val patchBundles = buildLibs.listFiles { file ->
+        val fileName = file.name
+        !fileName.contains("javadoc") &&
+            !fileName.contains("sources") &&
+            fileName.endsWith(".mpp")
+    }?.toList().orEmpty()
+
+    require(patchBundles.isNotEmpty()) { "No patch bundle found under ${buildLibs.path}" }
+
+    val currentVersion = Regex("""(?m)^\s*version\s*=\s*([^\r\n#]+?)\s*$""")
+        .find(File("../gradle.properties").readText())
+        ?.groupValues
+        ?.getOrNull(1)
+        ?.trim()
+
+    return patchBundles.firstOrNull { bundle ->
+        currentVersion != null && bundle.name == "patches-$currentVersion.mpp"
+    } ?: patchBundles.maxByOrNull(File::lastModified)
+    ?: error("Unable to resolve patch bundle from ${buildLibs.path}")
 }
 
 @Suppress("DEPRECATION")

@@ -13,7 +13,7 @@
 
 ## Overview
 
-Gboard Patches is a public Morphe source for a curated set of Gboard enhancements centered on Taiwan usage patterns. The current bundle includes Zhuyin slide input improvements, quick Traditional/Simplified switching, English QWERTY slide symbols, and optional package rename support for side-by-side installation.
+Gboard Patches is a public Morphe source for a curated set of Gboard enhancements focused on improving the overall Gboard experience for users in Taiwan, with emphasis on local input habits and day-to-day usability.
 
 ## Included Patches
 
@@ -21,6 +21,7 @@ Gboard Patches is a public Morphe source for a curated set of Gboard enhancement
 - `English QWERTY Slide Symbols`
 - `Zhuyin Slide Input`
 - `Zhuyin Quick Traditional/Simplified Toggle`
+- `Chinese Online Voice Input`
 
 ## Install
 

@@ -1,9 +1,12 @@
-package dev.jason.gboardpatches.patches.gboard
+package dev.jason.gboardpatches.patches.gboard.features.zhuyintraditionalsimplifiedtoggle
 
 import app.morphe.patcher.extensions.InstructionExtensions.addInstructions
 import app.morphe.patcher.patch.BytecodePatchContext
 import app.morphe.patcher.patch.bytecodePatch
 import com.android.tools.smali.dexlib2.AccessFlags
+import dev.jason.gboardpatches.patches.gboard.shared.addHelperMethodIfMissing
+import dev.jason.gboardpatches.patches.gboard.shared.findMutableMethodOrThrow
+import dev.jason.gboardpatches.patches.gboard.shared.indexOfFirstMethodCall
 
 private const val OFI_CLASS = "Lofi;"
 private const val SOFT_KEYBOARD_VIEW_CLASS =
@@ -11,8 +14,8 @@ private const val SOFT_KEYBOARD_VIEW_CLASS =
 private const val BASIC_POPUP_VIEW_CLASS =
     "Lcom/google/android/libraries/inputmethod/popup/BasicPopupView;"
 
-internal val gboardZhuyinToggleRuntimePatch = bytecodePatch(
-    description = "處理注音繁簡切換的 runtime 行為、可見鍵刷新與 popup 文案。"
+internal val gboardZhuyinTraditionalSimplifiedToggleRuntimePatch = bytecodePatch(
+    description = "處理注音 ㄥ 上滑繁簡切換的 runtime 行為、可見鍵刷新與 popup 文案。"
 ) {
     execute {
         patchOfiDispatch()
