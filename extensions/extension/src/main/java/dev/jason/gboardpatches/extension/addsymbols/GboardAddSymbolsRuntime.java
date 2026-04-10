@@ -1,20 +1,14 @@
 package dev.jason.gboardpatches.extension.addsymbols;
 
 import android.content.Context;
-import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.graphics.Path;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.Typeface;
 import android.os.SystemClock;
-import android.text.SpannableString;
-import android.text.Spanned;
-import android.text.style.ReplacementSpan;
 import android.util.Log;
-import android.util.LruCache;
 import android.util.TypedValue;
 import android.view.View;
 import android.view.ViewGroup;
@@ -61,23 +55,21 @@ public final class GboardAddSymbolsRuntime {
     private static final String CUSTOM_SYMBOL_RECENTS_KEY = "jasondev_symbol_recents";
     private static final String CUSTOM_SYMBOL_LAST_CATEGORY_KEY = "jasondev_symbol_last_category";
     private static final String CUSTOM_SYMBOL_RECENTS_DELIMITER = "\u0001";
-    private static final char TEXT_PRESENTATION_SELECTOR = '\uFE0E';
-    private static final char EMOJI_PRESENTATION_SELECTOR = '\uFE0F';
     private static final int CUSTOM_SYMBOL_RECENTS_LIMIT = 48;
 
     private static final int CUSTOM_EMOTICON_SPAN_COUNT = 8;
+    private static final int CUSTOM_EMOTICON_ITEM_VIEW_TYPE = 0x4843;
+    private static final int STOCK_EMOTICON_ITEM_LAYOUT_RES_ID = 0x7f0e00db;
+    private static final int STOCK_EMOTICON_ITEM_TEXT_COLOR_ATTR_RES_ID = 0x7f0404ed;
     private static final int CUSTOM_EMOTICON_ITEM_MARGIN_DP = 0;
     private static final int CUSTOM_EMOTICON_ITEM_PADDING_HORIZONTAL_DP = 0;
     private static final int CUSTOM_EMOTICON_ITEM_PADDING_VERTICAL_DP = 0;
-    private static final float CUSTOM_EMOTICON_ITEM_ICON_SIZE_HEIGHT_RATIO = 0.74f;
-    private static final float CUSTOM_EMOTICON_ITEM_GLYPH_HORIZONTAL_MARGIN_RATIO = 0.16f;
-    private static final float CUSTOM_EMOTICON_ITEM_GLYPH_VERTICAL_MARGIN_RATIO = 0.12f;
+    private static final int CUSTOM_EMOTICON_FALLBACK_TEXT_MIN_SIZE_DP = 30;
+    private static final float CUSTOM_EMOTICON_ITEM_ICON_SIZE_HEIGHT_RATIO = 0.92f;
+    private static final float CUSTOM_EMOTICON_ITEM_GLYPH_HORIZONTAL_MARGIN_RATIO = 0.04f;
+    private static final float CUSTOM_EMOTICON_ITEM_GLYPH_VERTICAL_MARGIN_RATIO = 0.02f;
     private static final float CUSTOM_EMOTICON_ITEM_GLYPH_TEXT_SCALE_X = 0.92f;
-    private static final int CUSTOM_EMOTICON_MANUAL_HEART_COLOR = 0xFFFF3B30;
-    private static final int CUSTOM_EMOTICON_MANUAL_DIAMOND_COLOR = 0xFFFF3B30;
-    private static final int CUSTOM_EMOTICON_MANUAL_SPADE_CLUB_COLOR = 0xFFB0B0B0;
     private static final int CUSTOM_EMOTICON_HEADER_START_EDGE_VIEW_ID = 0x7f0b05ef;
-    private static final int CUSTOM_EMOTICON_BITMAP_CACHE_MAX_KB = 8 * 1024;
 
     private static final Map<ClassLoader, Handles> REFLECTION_BY_LOADER =
             Collections.synchronizedMap(new WeakHashMap<>());
@@ -89,13 +81,11 @@ public final class GboardAddSymbolsRuntime {
             Collections.synchronizedMap(new WeakHashMap<>());
     private static final Map<Object, Boolean> CUSTOM_EMOTICON_RECYCLER_ADAPTERS =
             Collections.synchronizedMap(new WeakHashMap<>());
-    private static final LruCache<String, Bitmap> CUSTOM_EMOTICON_BITMAP_CACHE =
-            new LruCache<String, Bitmap>(CUSTOM_EMOTICON_BITMAP_CACHE_MAX_KB) {
-                @Override
-                protected int sizeOf(String key, Bitmap value) {
-                    return value == null ? 1 : Math.max(1, value.getByteCount() / 1024);
-                }
-            };
+    private static final Map<Object, Boolean> CUSTOM_EMOTICON_CONFIGURED_ITEM_VIEWS =
+            Collections.synchronizedMap(new WeakHashMap<>());
+    private static final Map<Object, android.content.res.ColorStateList>
+            STOCK_EMOTICON_TEXT_COLORS_BY_THEME =
+            Collections.synchronizedMap(new WeakHashMap<>());
 
     private static final ThreadLocal<Object> ACTIVE_CUSTOM_EMOTICON_HISTORY_WRITE_KEYBOARD =
             new ThreadLocal<>();
@@ -454,17 +444,70 @@ public final class GboardAddSymbolsRuntime {
                 return false;
             }
             String symbol = (String) value;
-            View view = (View) itemView;
-            if (!(view instanceof TextView)) {
+            if (!(itemView instanceof View view)) {
                 return false;
             }
-            configureCustomItemView(view);
-            configureCustomTextView((TextView) view, symbol);
+            if (view instanceof CustomEmoticonGlyphView glyphView) {
+                glyphView.bindSymbol(symbol);
+            } else if (view instanceof TextView textView) {
+                textView.setContentDescription(symbol);
+                textView.setIncludeFontPadding(false);
+                textView.setTypeface(Typeface.DEFAULT);
+                textView.setAllCaps(false);
+                textView.setGravity(android.view.Gravity.CENTER);
+                textView.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
+                textView.setSingleLine(true);
+                textView.setMinLines(1);
+                textView.setMaxLines(1);
+                textView.setLineSpacing(0f, 1f);
+                textView.setTextColor(resolveCustomEmoticonTextColors(textView.getContext()));
+                textView.setTextScaleX(CUSTOM_EMOTICON_ITEM_GLYPH_TEXT_SCALE_X);
+                textView.setTextSize(
+                        TypedValue.COMPLEX_UNIT_PX,
+                        resolveCustomEmoticonTextSizePx(textView));
+                textView.setText(symbol);
+            } else {
+                view.setContentDescription(symbol);
+            }
             Object clickConsumer = handles.emoticonRecyclerAdapterClickConsumerField.get(adapter);
             view.setOnClickListener(clicked -> invokeConsumerAccept(handles, clickConsumer, symbol));
+            tightenCustomEmoticonItemView(handles, viewHolder);
             return true;
         } catch (Throwable throwable) {
             return false;
+        }
+    }
+
+    public static int resolveCustomViewType(Object adapter, int position) {
+        if (adapter == null || !CUSTOM_EMOTICON_RECYCLER_ADAPTERS.containsKey(adapter)) {
+            return -1;
+        }
+        return CUSTOM_EMOTICON_ITEM_VIEW_TYPE;
+    }
+
+    public static Object createCustomViewHolder(
+            Object adapter,
+            Object parentObject,
+            int requestedViewType) {
+        if (adapter == null
+                || !(parentObject instanceof ViewGroup parent)
+                || !CUSTOM_EMOTICON_RECYCLER_ADAPTERS.containsKey(adapter)) {
+            return null;
+        }
+        try {
+            ClassLoader classLoader = adapter.getClass().getClassLoader();
+            if (classLoader == null) {
+                return null;
+            }
+            Handles handles = handles(classLoader);
+            Object itemViewHolder = createCustomEmoticonViewHolder(handles, adapter, parent);
+            if (itemViewHolder == null) {
+                return null;
+            }
+            tightenCustomEmoticonItemView(handles, itemViewHolder);
+            return itemViewHolder;
+        } catch (Throwable throwable) {
+            return null;
         }
     }
 
@@ -629,72 +672,161 @@ public final class GboardAddSymbolsRuntime {
         handles.emoticonRecyclerAdapterItemSpacingField.setInt(adapter, spacingPx);
     }
 
-    private static void configureCustomItemView(View itemView) {
-        if (itemView == null) {
-            return;
+    private static Object createCustomEmoticonViewHolder(
+            Handles handles,
+            Object adapter,
+            ViewGroup parent) throws Throwable {
+        if (handles == null || adapter == null || parent == null
+                || handles.recyclerViewViewHolderConstructor == null) {
+            return null;
         }
+        CustomEmoticonGlyphView itemView = new CustomEmoticonGlyphView(parent.getContext());
         Context context = itemView.getContext();
+        int itemHeightPx = handles.emoticonRecyclerAdapterItemHeightField.getInt(adapter);
+        ViewGroup.MarginLayoutParams layoutParams = new ViewGroup.MarginLayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                itemHeightPx > 0 ? itemHeightPx : ViewGroup.LayoutParams.WRAP_CONTENT);
         int marginPx = dpToPx(context, CUSTOM_EMOTICON_ITEM_MARGIN_DP);
-        int horizontalPaddingPx = dpToPx(context, CUSTOM_EMOTICON_ITEM_PADDING_HORIZONTAL_DP);
-        int verticalPaddingPx = dpToPx(context, CUSTOM_EMOTICON_ITEM_PADDING_VERTICAL_DP);
-        ViewGroup.LayoutParams params = itemView.getLayoutParams();
-        if (params instanceof ViewGroup.MarginLayoutParams) {
-            ViewGroup.MarginLayoutParams marginLayoutParams = (ViewGroup.MarginLayoutParams) params;
-            marginLayoutParams.setMargins(marginPx, 0, marginPx, 0);
-            itemView.setLayoutParams(marginLayoutParams);
-        }
-        itemView.setClipToOutline(false);
-        itemView.setScaleX(1f);
-        itemView.setScaleY(1f);
+        layoutParams.setMargins(marginPx, 0, marginPx, 0);
+        itemView.setLayoutParams(layoutParams);
         itemView.setBackgroundColor(Color.TRANSPARENT);
-        itemView.setPadding(horizontalPaddingPx, verticalPaddingPx,
-                horizontalPaddingPx, verticalPaddingPx);
-        itemView.setPaddingRelative(horizontalPaddingPx, verticalPaddingPx,
-                horizontalPaddingPx, verticalPaddingPx);
+        itemView.setPadding(0, 0, 0, 0);
+        itemView.setPaddingRelative(0, 0, 0, 0);
         itemView.setMinimumWidth(0);
         itemView.setMinimumHeight(0);
-        itemView.requestLayout();
-        itemView.invalidate();
+        itemView.setFocusable(true);
+        itemView.setClickable(true);
+        itemView.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_YES);
+        return handles.recyclerViewViewHolderConstructor.newInstance(itemView);
     }
 
-    private static void configureCustomTextView(TextView textView, String symbol) {
-        if (textView == null) {
+    private static void tightenCustomEmoticonItemView(
+            Handles handles,
+            Object itemViewHolder) throws Throwable {
+        if (handles == null || itemViewHolder == null
+                || !handles.recyclerViewViewHolderClass.isInstance(itemViewHolder)) {
             return;
         }
-        Context context = textView.getContext();
-        textView.setContentDescription(symbol);
-        textView.setIncludeFontPadding(false);
-        textView.setTypeface(Typeface.DEFAULT);
-        textView.setAllCaps(false);
-        textView.setGravity(android.view.Gravity.CENTER);
-        textView.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
-        textView.setSingleLine(true);
-        textView.setMinLines(1);
-        textView.setMaxLines(1);
-        textView.setLineSpacing(0f, 1f);
-        textView.setTextColor(resolvePrimaryTextColor(context));
-        textView.setTextScaleX(1f);
-        float textSizePx = resolveCustomEmoticonTextSizePx(textView);
-        textView.setTextSize(TypedValue.COMPLEX_UNIT_PX, textSizePx);
-        textView.setText(buildCustomEmoticonDisplayText(context, symbol, textSizePx));
+        Object itemView = handles.recyclerViewViewHolderItemViewField.get(itemViewHolder);
+        if (!(itemView instanceof View view)) {
+            return;
+        }
+        if (Boolean.TRUE.equals(CUSTOM_EMOTICON_CONFIGURED_ITEM_VIEWS.get(view))) {
+            return;
+        }
+        Context context = view.getContext();
+        int horizontalPaddingPx = dpToPx(context, CUSTOM_EMOTICON_ITEM_PADDING_HORIZONTAL_DP);
+        int verticalPaddingPx = dpToPx(context, CUSTOM_EMOTICON_ITEM_PADDING_VERTICAL_DP);
+        view.setClipToOutline(false);
+        view.setScaleX(1f);
+        view.setScaleY(1f);
+        view.setPadding(horizontalPaddingPx, verticalPaddingPx,
+                horizontalPaddingPx, verticalPaddingPx);
+        view.setPaddingRelative(horizontalPaddingPx, verticalPaddingPx,
+                horizontalPaddingPx, verticalPaddingPx);
+        view.setMinimumWidth(0);
+        view.setMinimumHeight(0);
+        view.setBackgroundColor(Color.TRANSPARENT);
+        if (view instanceof TextView textView) {
+            textView.setMinWidth(0);
+            textView.setMinHeight(0);
+            textView.setMinimumWidth(0);
+            textView.setMinimumHeight(0);
+            textView.setIncludeFontPadding(true);
+            textView.setGravity(android.view.Gravity.CENTER);
+            textView.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
+            textView.setAutoSizeTextTypeWithDefaults(TextView.AUTO_SIZE_TEXT_TYPE_NONE);
+            textView.setText("");
+            textView.setTextScaleX(1f);
+        }
+        ViewGroup.LayoutParams layoutParams = view.getLayoutParams();
+        if (layoutParams instanceof ViewGroup.MarginLayoutParams marginLayoutParams) {
+            int marginPx = dpToPx(context, CUSTOM_EMOTICON_ITEM_MARGIN_DP);
+            if (marginLayoutParams.leftMargin != marginPx
+                    || marginLayoutParams.topMargin != 0
+                    || marginLayoutParams.rightMargin != marginPx
+                    || marginLayoutParams.bottomMargin != 0) {
+                marginLayoutParams.setMargins(marginPx, 0, marginPx, 0);
+                view.setLayoutParams(marginLayoutParams);
+            }
+        }
+        CUSTOM_EMOTICON_CONFIGURED_ITEM_VIEWS.put(view, Boolean.TRUE);
+        view.requestLayout();
+        view.invalidate();
     }
 
-    private static CharSequence buildCustomEmoticonDisplayText(
-            Context context,
-            String symbol,
-            float glyphSidePx) {
-        String normalizedSymbol = normalizeSymbolForDisplay(symbol);
-        if (normalizedSymbol == null || normalizedSymbol.isBlank()) {
-            return "";
+    private static android.content.res.ColorStateList resolveCustomEmoticonTextColors(
+            Context context) {
+        if (context == null) {
+            return android.content.res.ColorStateList.valueOf(Color.WHITE);
         }
-        int spanSidePx = Math.max(1, Math.round(glyphSidePx));
-        SpannableString spannable = new SpannableString("\uFFFC");
-        spannable.setSpan(
-                new CustomEmoticonSpan(context, normalizedSymbol, spanSidePx),
-                0,
-                spannable.length(),
-                Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-        return spannable;
+        Object themeKey = context.getTheme();
+        if (themeKey != null) {
+            android.content.res.ColorStateList cached =
+                    STOCK_EMOTICON_TEXT_COLORS_BY_THEME.get(themeKey);
+            if (cached != null) {
+                return cached;
+            }
+        }
+        android.content.res.ColorStateList textColors =
+                resolveStockEmoticonTextColorsFromLayout(context);
+        if (textColors == null) {
+            textColors = resolveThemeColorStateList(context,
+                    STOCK_EMOTICON_ITEM_TEXT_COLOR_ATTR_RES_ID);
+        }
+        if (textColors == null) {
+            textColors = resolveThemeColorStateList(context, android.R.attr.textColorPrimary);
+        }
+        if (textColors == null) {
+            textColors = android.content.res.ColorStateList.valueOf(Color.WHITE);
+        }
+        if (themeKey != null) {
+            STOCK_EMOTICON_TEXT_COLORS_BY_THEME.put(themeKey, textColors);
+        }
+        return textColors;
+    }
+
+    private static android.content.res.ColorStateList resolveStockEmoticonTextColorsFromLayout(
+            Context context) {
+        if (context == null) {
+            return null;
+        }
+        try {
+            View stockItemView = android.view.LayoutInflater.from(context)
+                    .inflate(STOCK_EMOTICON_ITEM_LAYOUT_RES_ID, null, false);
+            if (stockItemView instanceof TextView textView) {
+                android.content.res.ColorStateList textColors = textView.getTextColors();
+                if (textColors != null) {
+                    return textColors;
+                }
+            }
+        } catch (Throwable ignored) {
+            // Fall back to theme attr lookup when the stock item layout cannot be inflated.
+        }
+        return null;
+    }
+
+    private static android.content.res.ColorStateList resolveThemeColorStateList(
+            Context context,
+            int attrResId) {
+        if (context == null) {
+            return null;
+        }
+        android.content.res.TypedArray typedArray = context.obtainStyledAttributes(
+                new int[] { attrResId });
+        try {
+            android.content.res.ColorStateList colorStateList = typedArray.getColorStateList(0);
+            if (colorStateList != null) {
+                return colorStateList;
+            }
+            if (!typedArray.hasValue(0)) {
+                return null;
+            }
+            return android.content.res.ColorStateList.valueOf(
+                    typedArray.getColor(0, Color.WHITE));
+        } finally {
+            typedArray.recycle();
+        }
     }
 
     private static float resolveCustomEmoticonTextSizePx(TextView textView) {
@@ -719,7 +851,7 @@ public final class GboardAddSymbolsRuntime {
         } else if (textView.getWidth() > 0) {
             itemWidthPx = textView.getWidth();
         }
-        float fallbackPx = dpToPx(context, 26);
+        float fallbackPx = dpToPx(context, CUSTOM_EMOTICON_FALLBACK_TEXT_MIN_SIZE_DP);
         if (itemHeightPx <= 0 && itemWidthPx <= 0) {
             return fallbackPx;
         }
@@ -736,32 +868,7 @@ public final class GboardAddSymbolsRuntime {
         availableHeight = Math.min(availableHeight,
                 itemHeightPx * CUSTOM_EMOTICON_ITEM_ICON_SIZE_HEIGHT_RATIO);
         float glyphSidePx = Math.max(1f, Math.min(availableWidth, availableHeight));
-        return Math.max(fallbackPx, glyphSidePx);
-    }
-
-    private static int resolvePrimaryTextColor(Context context) {
-        if (context == null) {
-            return Color.WHITE;
-        }
-        int textViewColor = new TextView(context).getCurrentTextColor();
-        if (textViewColor != 0) {
-            return textViewColor;
-        }
-        android.content.res.TypedArray typedArray = context.obtainStyledAttributes(
-                new int[] { android.R.attr.textColorPrimary });
-        try {
-            android.content.res.ColorStateList colorStateList = typedArray.getColorStateList(0);
-            if (colorStateList != null) {
-                int themedColor = colorStateList.getDefaultColor();
-                if (themedColor != 0) {
-                    return themedColor;
-                }
-            }
-            int fallbackColor = typedArray.getColor(0, Color.WHITE);
-            return fallbackColor != 0 ? fallbackColor : Color.WHITE;
-        } finally {
-            typedArray.recycle();
-        }
+        return Math.max(fallbackPx, glyphSidePx * 0.94f);
     }
 
     private static void relaxRecyclerViewBoundsForCustomEmoticon(Object recyclerView) {
@@ -1553,75 +1660,6 @@ public final class GboardAddSymbolsRuntime {
         return Math.round(dp * density);
     }
 
-    private static boolean isManualShapeSymbol(String symbol) {
-        String baseSymbol = stripVariationSelectors(symbol);
-        return "⚫".equals(baseSymbol)
-                || "⚪".equals(baseSymbol)
-                || "●".equals(baseSymbol)
-                || "○".equals(baseSymbol)
-                || "■".equals(baseSymbol)
-                || "□".equals(baseSymbol)
-                || "⬛".equals(baseSymbol)
-                || "⬜".equals(baseSymbol)
-                || "◆".equals(baseSymbol)
-                || "◇".equals(baseSymbol)
-                || "▲".equals(baseSymbol)
-                || "△".equals(baseSymbol)
-                || "▶".equals(baseSymbol)
-                || "▷".equals(baseSymbol)
-                || "▼".equals(baseSymbol)
-                || "▽".equals(baseSymbol)
-                || "◀".equals(baseSymbol)
-                || "◁".equals(baseSymbol)
-                || "◐".equals(baseSymbol)
-                || "◑".equals(baseSymbol)
-                || "♥".equals(baseSymbol)
-                || "❤".equals(baseSymbol)
-                || "♦".equals(baseSymbol)
-                || "♠".equals(baseSymbol)
-                || "♣".equals(baseSymbol);
-    }
-
-    private static String stripVariationSelectors(String symbol) {
-        if (symbol == null || symbol.isBlank()) {
-            return symbol;
-        }
-        return symbol.replace(String.valueOf(TEXT_PRESENTATION_SELECTOR), "")
-                .replace(String.valueOf(EMOJI_PRESENTATION_SELECTOR), "");
-    }
-
-    private static String normalizeSymbolForDisplay(String symbol) {
-        if (symbol == null || symbol.isBlank()) {
-            return symbol;
-        }
-        if (symbol.indexOf(TEXT_PRESENTATION_SELECTOR) >= 0) {
-            return symbol;
-        }
-        if (symbol.indexOf(EMOJI_PRESENTATION_SELECTOR) >= 0) {
-            return symbol.replace(EMOJI_PRESENTATION_SELECTOR, TEXT_PRESENTATION_SELECTOR);
-        }
-        if (symbol.codePointCount(0, symbol.length()) != 1) {
-            return symbol;
-        }
-        int codePoint = symbol.codePointAt(0);
-        return shouldForceTextPresentation(codePoint)
-                ? symbol + TEXT_PRESENTATION_SELECTOR
-                : symbol;
-    }
-
-    private static boolean shouldForceTextPresentation(int codePoint) {
-        return isCodePointInRange(codePoint, 0x2194, 0x21FF)
-                || isCodePointInRange(codePoint, 0x2300, 0x23FF)
-                || isCodePointInRange(codePoint, 0x2460, 0x24FF)
-                || isCodePointInRange(codePoint, 0x25A0, 0x25FF)
-                || isCodePointInRange(codePoint, 0x2600, 0x27BF)
-                || isCodePointInRange(codePoint, 0x2B00, 0x2BFF);
-    }
-
-    private static boolean isCodePointInRange(int codePoint, int start, int end) {
-        return codePoint >= start && codePoint <= end;
-    }
-
     private static String[] buildCustomCategoryKeys() {
         String[] keys = new String[GboardAddSymbolsDataset.CATEGORY_KEYS.length + 1];
         keys[0] = CUSTOM_CATEGORY_RECENTS;
@@ -1661,91 +1699,37 @@ public final class GboardAddSymbolsRuntime {
         return values.toString();
     }
 
-    private static final class CustomEmoticonSpan extends ReplacementSpan {
-        private final Context context;
-        private final String symbol;
-        private final int sidePx;
-
-        CustomEmoticonSpan(Context context, String symbol, int sidePx) {
-            this.context = context;
-            this.symbol = symbol;
-            this.sidePx = Math.max(1, sidePx);
-        }
-
-        @Override
-        public int getSize(
-                Paint paint,
-                CharSequence text,
-                int start,
-                int end,
-                Paint.FontMetricsInt fm) {
-            if (fm != null) {
-                int descent = Math.max(1, Math.round(sidePx * 0.08f));
-                fm.ascent = -(sidePx - descent);
-                fm.top = fm.ascent;
-                fm.descent = descent;
-                fm.bottom = descent;
-            }
-            return sidePx;
-        }
-
-        @Override
-        public void draw(
-                Canvas canvas,
-                CharSequence text,
-                int start,
-                int end,
-                float x,
-                int top,
-                int y,
-                int bottom,
-                Paint paint) {
-            int heightPx = Math.max(sidePx, bottom - top);
-            Bitmap bitmap = resolveCustomEmoticonBitmap(context, symbol, sidePx, heightPx);
-            if (bitmap == null || bitmap.isRecycled()) {
-                return;
-            }
-            canvas.save();
-            canvas.translate(x, top);
-            canvas.drawBitmap(bitmap, 0f, 0f, null);
-            canvas.restore();
-        }
-    }
-
-    private static final class CustomEmoticonGlyphView extends TextView {
+    private static final class CustomEmoticonGlyphView extends View {
         private final Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG | Paint.SUBPIXEL_TEXT_FLAG);
-        private final Paint shapePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         private final Rect bounds = new Rect();
+        private final RectF glyphBounds = new RectF();
+        private final android.content.res.ColorStateList textColors;
         private String symbol;
-        private boolean useFullGlyphBounds;
+        private boolean glyphLayoutDirty = true;
+        private float cachedDrawX;
+        private float cachedDrawY;
+        private float cachedTextSizePx;
+        private int cachedLayoutWidth = -1;
+        private int cachedLayoutHeight = -1;
 
         CustomEmoticonGlyphView(Context context) {
             super(context);
-            setWillNotDraw(false);
-            setIncludeFontPadding(false);
-            setGravity(android.view.Gravity.CENTER);
-            setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
-            setTypeface(Typeface.DEFAULT);
-            setTextColor(Color.TRANSPARENT);
-            setText("");
             paint.setTypeface(Typeface.DEFAULT);
             paint.setTextAlign(Paint.Align.LEFT);
-            paint.setColor(resolvePrimaryTextColor(context));
             paint.setTextScaleX(CUSTOM_EMOTICON_ITEM_GLYPH_TEXT_SCALE_X);
-            shapePaint.setStyle(Paint.Style.FILL);
+            textColors = resolveCustomEmoticonTextColors(context);
+            applyResolvedGlyphColor();
         }
 
         void bindSymbol(String value) {
-            symbol = normalizeSymbolForDisplay(value);
-            setText("");
-            paint.setColor(resolvePrimaryTextColor(getContext()));
+            if (!java.util.Objects.equals(symbol, value)) {
+                symbol = value;
+                markGlyphLayoutDirty();
+            }
+            applyResolvedGlyphColor();
             paint.setTextScaleX(CUSTOM_EMOTICON_ITEM_GLYPH_TEXT_SCALE_X);
             setContentDescription(value);
             invalidate();
-        }
-
-        void setUseFullGlyphBounds(boolean value) {
-            useFullGlyphBounds = value;
         }
 
         boolean hasSymbol() {
@@ -1753,135 +1737,21 @@ public final class GboardAddSymbolsRuntime {
         }
 
         @Override
-        protected void onAttachedToWindow() {
-            super.onAttachedToWindow();
-            restoreAncestorClipping(this);
-        }
-
-        @Override
         protected void onDraw(Canvas canvas) {
+            super.onDraw(canvas);
             if (!hasSymbol()) {
-                super.onDraw(canvas);
                 return;
             }
-            int viewWidth = getWidth();
-            int viewHeight = getHeight();
-            if (viewWidth <= 0 || viewHeight <= 0) {
+            applyResolvedGlyphColor();
+            if (!ensureGlyphLayout()) {
                 return;
             }
-            RectF glyphBounds = buildCenteredSquareGlyphBounds(viewWidth, viewHeight);
-            if (drawManualSymbol(canvas, viewWidth, viewHeight)) {
-                return;
-            }
-            float availableWidth = glyphBounds.width();
-            float availableHeight = glyphBounds.height();
-
             paint.setTextScaleX(CUSTOM_EMOTICON_ITEM_GLYPH_TEXT_SCALE_X);
-            paint.setTextSize(Math.max(1f, availableHeight));
-            paint.getTextBounds(symbol, 0, symbol.length(), bounds);
-            Paint.FontMetrics fontMetrics = paint.getFontMetrics();
-            float textWidth = Math.max(1f, Math.max(bounds.width(), paint.measureText(symbol)));
-            float textHeight = Math.max(1f, Math.max(bounds.height(),
-                    fontMetrics.descent - fontMetrics.ascent));
-            float scale = Math.min(availableWidth / textWidth, availableHeight / textHeight);
-            paint.setTextSize(Math.max(1f, paint.getTextSize() * Math.min(scale, 1f)));
-
-            paint.getTextBounds(symbol, 0, symbol.length(), bounds);
-            float x = (glyphBounds.centerX() - (bounds.width() / 2f)) - bounds.left;
-            float y = (glyphBounds.centerY() - (bounds.height() / 2f)) - bounds.top;
-            canvas.drawText(symbol, x, y, paint);
-        }
-
-        private boolean drawManualSymbol(Canvas canvas, int viewWidth, int viewHeight) {
-            String baseSymbol = stripVariationSelectors(symbol);
-            if (baseSymbol == null || baseSymbol.isBlank()) {
-                return false;
-            }
-            RectF content = buildCenteredSquareGlyphBounds(viewWidth, viewHeight);
-            int primaryColor = resolvePrimaryTextColor(getContext());
-            if ("⚫".equals(baseSymbol) || "●".equals(baseSymbol)) {
-                prepareFillPaint(primaryColor);
-                canvas.drawOval(content, shapePaint);
-                return true;
-            }
-            if ("⚪".equals(baseSymbol) || "○".equals(baseSymbol)) {
-                prepareStrokePaint(primaryColor, content.width() * 0.10f);
-                canvas.drawOval(content, shapePaint);
-                return true;
-            }
-            if ("■".equals(baseSymbol) || "⬛".equals(baseSymbol)) {
-                prepareFillPaint(primaryColor);
-                canvas.drawRoundRect(content, content.width() * 0.08f,
-                        content.width() * 0.08f, shapePaint);
-                return true;
-            }
-            if ("□".equals(baseSymbol) || "⬜".equals(baseSymbol)) {
-                prepareStrokePaint(primaryColor, content.width() * 0.10f);
-                canvas.drawRoundRect(content, content.width() * 0.08f,
-                        content.width() * 0.08f, shapePaint);
-                return true;
-            }
-            if ("◆".equals(baseSymbol)) {
-                prepareFillPaint(primaryColor);
-                drawDiamond(canvas, content);
-                return true;
-            }
-            if ("◇".equals(baseSymbol)) {
-                prepareStrokePaint(primaryColor, content.width() * 0.10f);
-                drawDiamond(canvas, insetRect(content, shapePaint.getStrokeWidth() / 2f));
-                return true;
-            }
-            if ("▲".equals(baseSymbol) || "▶".equals(baseSymbol)
-                    || "▼".equals(baseSymbol) || "◀".equals(baseSymbol)) {
-                prepareFillPaint(primaryColor);
-                drawTriangle(canvas, content, baseSymbol);
-                return true;
-            }
-            if ("△".equals(baseSymbol) || "▷".equals(baseSymbol)
-                    || "▽".equals(baseSymbol) || "◁".equals(baseSymbol)) {
-                prepareStrokePaint(primaryColor, content.width() * 0.09f);
-                drawTriangle(canvas, insetRect(content, shapePaint.getStrokeWidth() / 2f),
-                        baseSymbol);
-                return true;
-            }
-            if ("◐".equals(baseSymbol) || "◑".equals(baseSymbol)) {
-                drawHalfCircle(canvas, content, baseSymbol, primaryColor);
-                return true;
-            }
-            if ("♥".equals(baseSymbol) || "❤".equals(baseSymbol)) {
-                shapePaint.setColor(CUSTOM_EMOTICON_MANUAL_HEART_COLOR);
-                shapePaint.setStyle(Paint.Style.FILL);
-                drawHeart(canvas, content);
-                return true;
-            }
-            if ("♦".equals(baseSymbol)) {
-                shapePaint.setColor(CUSTOM_EMOTICON_MANUAL_DIAMOND_COLOR);
-                shapePaint.setStyle(Paint.Style.FILL);
-                drawDiamond(canvas, content);
-                return true;
-            }
-            if ("♠".equals(baseSymbol)) {
-                shapePaint.setColor(CUSTOM_EMOTICON_MANUAL_SPADE_CLUB_COLOR);
-                shapePaint.setStyle(Paint.Style.FILL);
-                drawSpade(canvas, content);
-                return true;
-            }
-            if ("♣".equals(baseSymbol)) {
-                shapePaint.setColor(CUSTOM_EMOTICON_MANUAL_SPADE_CLUB_COLOR);
-                shapePaint.setStyle(Paint.Style.FILL);
-                drawClub(canvas, content);
-                return true;
-            }
-            return false;
+            paint.setTextSize(cachedTextSizePx);
+            canvas.drawText(symbol, cachedDrawX, cachedDrawY, paint);
         }
 
         private RectF buildCenteredSquareGlyphBounds(int viewWidth, int viewHeight) {
-            if (useFullGlyphBounds) {
-                float side = Math.max(1f, Math.min(viewWidth, viewHeight));
-                float left = (viewWidth - side) / 2f;
-                float top = (viewHeight - side) / 2f;
-                return new RectF(left, top, left + side, top + side);
-            }
             float availableWidth = viewWidth
                     * (1f - (CUSTOM_EMOTICON_ITEM_GLYPH_HORIZONTAL_MARGIN_RATIO * 2f));
             float availableHeight = viewHeight
@@ -1894,185 +1764,78 @@ public final class GboardAddSymbolsRuntime {
             return new RectF(left, top, left + side, top + side);
         }
 
-        private void prepareFillPaint(int color) {
-            shapePaint.setColor(color);
-            shapePaint.setStyle(Paint.Style.FILL);
-            shapePaint.setStrokeWidth(0f);
+        private void markGlyphLayoutDirty() {
+            glyphLayoutDirty = true;
         }
 
-        private void prepareStrokePaint(int color, float strokeWidth) {
-            shapePaint.setColor(color);
-            shapePaint.setStyle(Paint.Style.STROKE);
-            shapePaint.setStrokeWidth(Math.max(1f, strokeWidth));
-            shapePaint.setStrokeJoin(Paint.Join.ROUND);
-            shapePaint.setStrokeCap(Paint.Cap.ROUND);
-        }
-
-        private RectF insetRect(RectF source, float inset) {
-            return new RectF(source.left + inset, source.top + inset,
-                    source.right - inset, source.bottom - inset);
-        }
-
-        private void drawHeart(Canvas canvas, RectF rect) {
-            float cx = rect.centerX();
-            float top = rect.top + (rect.height() * 0.12f);
-            float halfWidth = rect.width() * 0.28f;
-            float bottomY = rect.bottom;
-            Path path = new Path();
-            path.moveTo(cx, bottomY);
-            path.cubicTo(cx - (rect.width() * 0.56f), rect.centerY() + (rect.height() * 0.10f),
-                    rect.left - (rect.width() * 0.02f), top + (rect.height() * 0.10f),
-                    cx - halfWidth, top);
-            path.cubicTo(cx - (rect.width() * 0.12f), rect.top - (rect.height() * 0.02f),
-                    cx - (rect.width() * 0.02f), rect.top + (rect.height() * 0.18f),
-                    cx, rect.top + (rect.height() * 0.30f));
-            path.cubicTo(cx + (rect.width() * 0.02f), rect.top + (rect.height() * 0.18f),
-                    cx + (rect.width() * 0.12f), rect.top - (rect.height() * 0.02f),
-                    cx + halfWidth, top);
-            path.cubicTo(rect.right + (rect.width() * 0.02f), top + (rect.height() * 0.10f),
-                    cx + (rect.width() * 0.56f), rect.centerY() + (rect.height() * 0.10f),
-                    cx, bottomY);
-            path.close();
-            canvas.drawPath(path, shapePaint);
-        }
-
-        private void drawTriangle(Canvas canvas, RectF rect, String directionSymbol) {
-            Path path = new Path();
-            if ("▲".equals(directionSymbol) || "△".equals(directionSymbol)) {
-                path.moveTo(rect.centerX(), rect.top);
-                path.lineTo(rect.right, rect.bottom);
-                path.lineTo(rect.left, rect.bottom);
-            } else if ("▼".equals(directionSymbol) || "▽".equals(directionSymbol)) {
-                path.moveTo(rect.left, rect.top);
-                path.lineTo(rect.right, rect.top);
-                path.lineTo(rect.centerX(), rect.bottom);
-            } else if ("▶".equals(directionSymbol) || "▷".equals(directionSymbol)) {
-                path.moveTo(rect.left, rect.top);
-                path.lineTo(rect.right, rect.centerY());
-                path.lineTo(rect.left, rect.bottom);
-            } else {
-                path.moveTo(rect.right, rect.top);
-                path.lineTo(rect.left, rect.centerY());
-                path.lineTo(rect.right, rect.bottom);
+        private boolean ensureGlyphLayout() {
+            if (!hasSymbol()) {
+                return false;
             }
-            path.close();
-            canvas.drawPath(path, shapePaint);
-        }
-
-        private void drawHalfCircle(Canvas canvas, RectF rect, String baseSymbol, int color) {
-            prepareFillPaint(color);
-            canvas.save();
-            if ("◐".equals(baseSymbol)) {
-                canvas.clipRect(rect.left, rect.top, rect.centerX(), rect.bottom);
-            } else {
-                canvas.clipRect(rect.centerX(), rect.top, rect.right, rect.bottom);
+            int viewWidth = getWidth();
+            int viewHeight = getHeight();
+            if (viewWidth <= 0 || viewHeight <= 0) {
+                return false;
             }
-            canvas.drawOval(rect, shapePaint);
-            canvas.restore();
-            prepareStrokePaint(color, rect.width() * 0.08f);
-            canvas.drawOval(insetRect(rect, shapePaint.getStrokeWidth() / 2f), shapePaint);
-            shapePaint.setStyle(Paint.Style.FILL);
+            if (!glyphLayoutDirty
+                    && cachedLayoutWidth == viewWidth
+                    && cachedLayoutHeight == viewHeight) {
+                return true;
+            }
+            glyphBounds.set(buildCenteredSquareGlyphBounds(viewWidth, viewHeight));
+            float availableWidth = glyphBounds.width();
+            float availableHeight = glyphBounds.height();
+
+            paint.setTextScaleX(CUSTOM_EMOTICON_ITEM_GLYPH_TEXT_SCALE_X);
+            paint.setTextSize(Math.max(1f, availableHeight));
+            paint.getTextBounds(symbol, 0, symbol.length(), bounds);
+            Paint.FontMetrics fontMetrics = paint.getFontMetrics();
+            float textWidth = Math.max(1f, Math.max(bounds.width(), paint.measureText(symbol)));
+            float textHeight = Math.max(1f, Math.max(bounds.height(),
+                    fontMetrics.descent - fontMetrics.ascent));
+            float scale = Math.min(availableWidth / textWidth, availableHeight / textHeight);
+            cachedTextSizePx = Math.max(1f, paint.getTextSize() * Math.min(scale, 1f));
+            paint.setTextSize(cachedTextSizePx);
+
+            paint.getTextBounds(symbol, 0, symbol.length(), bounds);
+            cachedDrawX = (glyphBounds.centerX() - (bounds.width() / 2f)) - bounds.left;
+            cachedDrawY = (glyphBounds.centerY() - (bounds.height() / 2f)) - bounds.top;
+            cachedLayoutWidth = viewWidth;
+            cachedLayoutHeight = viewHeight;
+            glyphLayoutDirty = false;
+            return true;
         }
 
-        private void drawDiamond(Canvas canvas, RectF rect) {
-            Path path = new Path();
-            path.moveTo(rect.centerX(), rect.top);
-            path.lineTo(rect.right, rect.centerY());
-            path.lineTo(rect.centerX(), rect.bottom);
-            path.lineTo(rect.left, rect.centerY());
-            path.close();
-            canvas.drawPath(path, shapePaint);
+        private void applyResolvedGlyphColor() {
+            paint.setColor(resolveCurrentGlyphColor());
         }
 
-        private void drawSpade(Canvas canvas, RectF rect) {
-            float cx = rect.centerX();
-            float crownBottom = rect.top + (rect.height() * 0.72f);
-            Path path = new Path();
-            path.moveTo(cx, rect.top);
-            path.cubicTo(rect.left, rect.top + (rect.height() * 0.30f),
-                    rect.left + (rect.width() * 0.04f), crownBottom,
-                    cx, crownBottom);
-            path.cubicTo(rect.right - (rect.width() * 0.04f), crownBottom,
-                    rect.right, rect.top + (rect.height() * 0.30f),
-                    cx, rect.top);
-            path.close();
-            canvas.drawPath(path, shapePaint);
-            Path stem = new Path();
-            stem.moveTo(cx, rect.top + (rect.height() * 0.42f));
-            stem.lineTo(rect.left + (rect.width() * 0.34f), rect.bottom);
-            stem.lineTo(rect.right - (rect.width() * 0.34f), rect.bottom);
-            stem.close();
-            canvas.drawPath(stem, shapePaint);
-            RectF base = new RectF(
-                    rect.left + (rect.width() * 0.28f),
-                    rect.bottom - (rect.height() * 0.18f),
-                    rect.right - (rect.width() * 0.28f),
-                    rect.bottom);
-            canvas.drawRoundRect(base, base.height() / 2f, base.height() / 2f, shapePaint);
+        private int resolveCurrentGlyphColor() {
+            if (textColors == null) {
+                return Color.WHITE;
+            }
+            return textColors.getColorForState(getDrawableState(), textColors.getDefaultColor());
         }
 
-        private void drawClub(Canvas canvas, RectF rect) {
-            float radius = rect.width() * 0.19f;
-            float cx = rect.centerX();
-            float topCy = rect.top + (rect.height() * 0.28f);
-            float leftCy = rect.top + (rect.height() * 0.48f);
-            float rightCy = leftCy;
-            canvas.drawCircle(cx, topCy, radius, shapePaint);
-            canvas.drawCircle(cx - (rect.width() * 0.20f), leftCy, radius, shapePaint);
-            canvas.drawCircle(cx + (rect.width() * 0.20f), rightCy, radius, shapePaint);
-            Path stem = new Path();
-            stem.moveTo(cx, rect.top + (rect.height() * 0.44f));
-            stem.lineTo(rect.left + (rect.width() * 0.36f), rect.bottom);
-            stem.lineTo(rect.right - (rect.width() * 0.36f), rect.bottom);
-            stem.close();
-            canvas.drawPath(stem, shapePaint);
-            RectF base = new RectF(
-                    rect.left + (rect.width() * 0.30f),
-                    rect.bottom - (rect.height() * 0.16f),
-                    rect.right - (rect.width() * 0.30f),
-                    rect.bottom);
-            canvas.drawRoundRect(base, base.height() / 2f, base.height() / 2f, shapePaint);
+        @Override
+        protected void drawableStateChanged() {
+            super.drawableStateChanged();
+            applyResolvedGlyphColor();
         }
-    }
 
-    private static Bitmap resolveCustomEmoticonBitmap(
-            Context context,
-            String symbol,
-            int widthPx,
-            int heightPx) {
-        if (context == null || symbol == null || symbol.isBlank() || widthPx <= 0 || heightPx <= 0) {
-            return null;
+        @Override
+        protected void onAttachedToWindow() {
+            super.onAttachedToWindow();
+            restoreAncestorClipping(this);
         }
-        int primaryColor = resolvePrimaryTextColor(context);
-        String cacheKey = symbol + "|" + widthPx + "x" + heightPx + "|" + primaryColor;
-        synchronized (CUSTOM_EMOTICON_BITMAP_CACHE) {
-            Bitmap cached = CUSTOM_EMOTICON_BITMAP_CACHE.get(cacheKey);
-            if (cached != null && !cached.isRecycled()) {
-                return cached;
+
+        @Override
+        protected void onSizeChanged(int w, int h, int oldw, int oldh) {
+            super.onSizeChanged(w, h, oldw, oldh);
+            if (w != oldw || h != oldh) {
+                markGlyphLayoutDirty();
             }
         }
-
-        CustomEmoticonGlyphView glyphView = new CustomEmoticonGlyphView(context);
-        glyphView.setUseFullGlyphBounds(true);
-        glyphView.bindSymbol(symbol);
-        int widthSpec = View.MeasureSpec.makeMeasureSpec(widthPx, View.MeasureSpec.EXACTLY);
-        int heightSpec = View.MeasureSpec.makeMeasureSpec(heightPx, View.MeasureSpec.EXACTLY);
-        glyphView.measure(widthSpec, heightSpec);
-        glyphView.layout(0, 0, widthPx, heightPx);
-
-        Bitmap bitmap;
-        try {
-            bitmap = Bitmap.createBitmap(widthPx, heightPx, Bitmap.Config.ARGB_8888);
-        } catch (Throwable throwable) {
-            logWarn("resolveCustomEmoticonBitmap failed to allocate bitmap", throwable);
-            return null;
-        }
-        Canvas bitmapCanvas = new Canvas(bitmap);
-        glyphView.draw(bitmapCanvas);
-        synchronized (CUSTOM_EMOTICON_BITMAP_CACHE) {
-            CUSTOM_EMOTICON_BITMAP_CACHE.put(cacheKey, bitmap);
-        }
-        return bitmap;
     }
 
     private static void logInfo(String message) {
@@ -2131,6 +1894,7 @@ public final class GboardAddSymbolsRuntime {
         final Field emoticonRecyclerAdapterClickConsumerField;
         final Field emoticonRecyclerAdapterItemsField;
         final Field recyclerViewAdapterField;
+        final Constructor<?> recyclerViewViewHolderConstructor;
         final Field emoticonRecyclerSpanCountField;
         final Field recyclerViewLayoutManagerField;
         final Field recyclerViewViewHolderItemViewField;
@@ -2321,10 +2085,13 @@ public final class GboardAddSymbolsRuntime {
                     emoticonRecyclerAdapterClass.getDeclaredField("d");
             emoticonRecyclerAdapterItemsField.setAccessible(true);
 
-        recyclerViewAdapterField = supportRecyclerViewClass.getDeclaredField("k");
-        recyclerViewAdapterField.setAccessible(true);
-        emoticonRecyclerSpanCountField = emoticonRecyclerViewClass.getDeclaredField("aa");
-        emoticonRecyclerSpanCountField.setAccessible(true);
+            recyclerViewAdapterField = supportRecyclerViewClass.getDeclaredField("k");
+            recyclerViewAdapterField.setAccessible(true);
+            recyclerViewViewHolderConstructor =
+                    recyclerViewViewHolderClass.getDeclaredConstructor(View.class);
+            recyclerViewViewHolderConstructor.setAccessible(true);
+            emoticonRecyclerSpanCountField = emoticonRecyclerViewClass.getDeclaredField("aa");
+            emoticonRecyclerSpanCountField.setAccessible(true);
             recyclerViewLayoutManagerField = supportRecyclerViewClass.getDeclaredField("l");
             recyclerViewLayoutManagerField.setAccessible(true);
             recyclerViewViewHolderItemViewField =

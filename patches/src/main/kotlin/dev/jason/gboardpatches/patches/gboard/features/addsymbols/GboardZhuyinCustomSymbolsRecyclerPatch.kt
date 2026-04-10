@@ -15,6 +15,8 @@ internal val gboardZhuyinCustomSymbolsRecyclerPatch = bytecodePatch(
 
     execute {
         patchConstructor()
+        patchViewType()
+        patchCreateViewHolder()
         patchBindViewHolder()
     }
 }
@@ -53,6 +55,28 @@ private fun patchBindViewHolder() {
     mutableMethod.addInstructions(0, BIND_VIEW_HOLDER_DELEGATE)
 }
 
+context(BytecodePatchContext)
+private fun patchViewType() {
+    val mutableMethod = findMutableMethodOrThrow(
+        classType = BASE_RECYCLER_ADAPTER_CLASS,
+        name = "fW",
+        returnType = "I",
+        parameterTypes = listOf("I")
+    )
+    mutableMethod.addInstructions(0, VIEW_TYPE_DELEGATE)
+}
+
+context(BytecodePatchContext)
+private fun patchCreateViewHolder() {
+    val mutableMethod = findMutableMethodOrThrow(
+        classType = EMOTICON_RECYCLER_ADAPTER_CLASS,
+        name = "d",
+        returnType = "Lkm;",
+        parameterTypes = listOf("Landroid/view/ViewGroup;", "I")
+    )
+    mutableMethod.addInstructions(0, CREATE_VIEW_HOLDER_DELEGATE)
+}
+
 private val CONSTRUCTOR_DELEGATE = """
     invoke-static {p0}, Ldev/jason/gboardpatches/extension/addsymbols/GboardAddSymbolsRuntime;->onEmoticonRecyclerAdapterConstructed(Ljava/lang/Object;)V
 """.trimIndent()
@@ -65,6 +89,34 @@ private val BIND_VIEW_HOLDER_DELEGATE = """
     if-eqz v0, :jasondev_continue
 
     return-void
+
+    :jasondev_continue
+""".trimIndent()
+
+private val VIEW_TYPE_DELEGATE = """
+    invoke-static {p0, p1}, Ldev/jason/gboardpatches/extension/addsymbols/GboardAddSymbolsRuntime;->resolveCustomViewType(Ljava/lang/Object;I)I
+
+    move-result p0
+
+    const/4 p1, -0x1
+
+    if-eq p0, p1, :jasondev_continue
+
+    return p0
+
+    :jasondev_continue
+""".trimIndent()
+
+private val CREATE_VIEW_HOLDER_DELEGATE = """
+    invoke-static {p0, p1, p2}, Ldev/jason/gboardpatches/extension/addsymbols/GboardAddSymbolsRuntime;->createCustomViewHolder(Ljava/lang/Object;Ljava/lang/Object;I)Ljava/lang/Object;
+
+    move-result-object v0
+
+    if-eqz v0, :jasondev_continue
+
+    check-cast v0, Lkm;
+
+    return-object v0
 
     :jasondev_continue
 """.trimIndent()

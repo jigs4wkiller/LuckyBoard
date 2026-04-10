@@ -5,7 +5,9 @@ val utf8Bom = byteArrayOf(0xEF.toByte(), 0xBB.toByte(), 0xBF.toByte())
 
 val generatePatchBuildInfo by tasks.registering {
     val outputDir = generatedPatchInfoDir
+    val patchVersion = project.version.toString()
 
+    inputs.property("patchVersion", patchVersion)
     outputs.dir(outputDir)
 
     doLast {
@@ -17,7 +19,7 @@ val generatePatchBuildInfo by tasks.registering {
             package dev.jason.gboardpatches.patches.shared
 
             internal object PatchBuildInfo {
-                const val VERSION = "${project.version}"
+                const val VERSION = "$patchVersion"
             }
             """.trimIndent()
         )
