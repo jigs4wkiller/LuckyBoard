@@ -2,6 +2,12 @@ package dev.jason.gboardpatches.patches.gboard.registry
 
 import app.morphe.patcher.patch.resourcePatch
 import dev.jason.gboardpatches.patches.gboard.features.about.gboardAboutPageResourcePatch
+import dev.jason.gboardpatches.patches.gboard.features.addsymbols.gboardZhuyinCustomSymbolsCorpusPatch
+import dev.jason.gboardpatches.patches.gboard.features.addsymbols.gboardZhuyinCustomSymbolsEmoticonStatePatch
+import dev.jason.gboardpatches.patches.gboard.features.addsymbols.gboardZhuyinCustomSymbolsEntryPatch
+import dev.jason.gboardpatches.patches.gboard.features.addsymbols.gboardZhuyinCustomSymbolsHistoryPatch
+import dev.jason.gboardpatches.patches.gboard.features.addsymbols.gboardZhuyinCustomSymbolsRecyclerPatch
+import dev.jason.gboardpatches.patches.gboard.features.addsymbols.gboardZhuyinCustomSymbolsRoutingPatch
 import dev.jason.gboardpatches.patches.gboard.features.chinesevoice.gboardChineseOnlineVoiceBytecodePatch
 import dev.jason.gboardpatches.patches.gboard.features.chinesevoice.gboardChineseOnlineVoiceResourcePatch
 import dev.jason.gboardpatches.patches.gboard.features.englishqwerty.gboardEnglishQwertySlideResourcePatch
@@ -55,6 +61,25 @@ val gboardZhuyinQuickTraditionalSimplifiedTogglePatch = resourcePatch(
         gboardZhuyinSlideInputPatch,
         gboardZhuyinTraditionalSimplifiedToggleSoftKeyPatch,
         gboardZhuyinTraditionalSimplifiedToggleRuntimePatch
+    )
+}
+
+@Suppress("unused")
+val gboardCustomSymbolsPatch = resourcePatch(
+    name = "Custom Symbols",
+    description = "新增獨立的特殊符號分頁，長按逗號->愛心",
+    default = true
+) {
+    compatibleWith(COMPATIBILITY_GBOARD)
+
+    dependsOn(
+        gboardAboutPageResourcePatch,
+        gboardZhuyinCustomSymbolsEntryPatch,
+        gboardZhuyinCustomSymbolsCorpusPatch,
+        gboardZhuyinCustomSymbolsRoutingPatch,
+        gboardZhuyinCustomSymbolsEmoticonStatePatch,
+        gboardZhuyinCustomSymbolsHistoryPatch,
+        gboardZhuyinCustomSymbolsRecyclerPatch
     )
 }
 

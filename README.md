@@ -17,11 +17,41 @@ Gboard Patches is a public Morphe source for a curated set of Gboard enhancement
 
 ## Included Patches
 
-- `Package Rename`
-- `English QWERTY Slide Symbols`
-- `Zhuyin Slide Input`
-- `Zhuyin Quick Traditional/Simplified Toggle`
-- `Chinese Online Voice Input`
+<details>
+  <summary><code>Package Rename</code></summary>
+
+  Renames the patched package so it can be installed alongside the official Gboard app.
+</details>
+
+<details>
+  <summary><code>Custom Symbols</code></summary>
+
+  Adds a dedicated symbols tab and a quick access entry from the comma long-press popup.
+</details>
+
+<details>
+  <summary><code>English QWERTY Slide Symbols</code></summary>
+
+  On the English QWERTY keyboard, swipe down to enter symbols and swipe up to quickly enter letters in uppercase or lowercase without switching layers.
+</details>
+
+<details>
+  <summary><code>Zhuyin Slide Input</code></summary>
+
+  On the Zhuyin keyboard, swipe up or down to enter English letters without switching to another keyboard layout.
+</details>
+
+<details>
+  <summary><code>Zhuyin Quick Traditional/Simplified Toggle</code></summary>
+
+  Swipe up on the Zhuyin <code>ㄥ</code> key to quickly toggle between Traditional and Simplified Chinese.
+</details>
+
+<details>
+  <summary><code>Chinese Online Voice Input</code></summary>
+
+  Forces Gboard to use the built-in Chinese voice input flow.
+</details>
 
 ## Install
 

@@ -16,6 +16,7 @@ private val PATCH_ORDER = listOf(
     "English QWERTY Slide Symbols",
     "Zhuyin Slide Input",
     "Zhuyin Quick Traditional/Simplified Toggle",
+    "Custom Symbols",
     "Chinese Online Voice Input"
 )
 

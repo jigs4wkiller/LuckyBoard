@@ -9,10 +9,14 @@ import com.android.tools.smali.dexlib2.builder.MutableMethodImplementation
 import com.android.tools.smali.dexlib2.iface.instruction.NarrowLiteralInstruction
 import com.android.tools.smali.dexlib2.iface.instruction.OneRegisterInstruction
 import com.android.tools.smali.dexlib2.iface.instruction.ReferenceInstruction
+import com.android.tools.smali.dexlib2.iface.reference.FieldReference
 import com.android.tools.smali.dexlib2.iface.reference.MethodReference
 import com.android.tools.smali.dexlib2.immutable.ImmutableField
 import com.android.tools.smali.dexlib2.immutable.ImmutableMethod
 import com.android.tools.smali.dexlib2.immutable.ImmutableMethodParameter
+
+private fun String.normalizedOpcodeName(): String =
+    uppercase().replace('-', '_')
 
 internal fun BytecodePatchContext.mutableClass(type: String) = mutableClassDefBy(type)
 
@@ -88,20 +92,36 @@ internal fun MutableMethod.indexOfFirstMethodCall(
     returnType: String? = null,
     parameterTypes: List<String>? = null
 ): Int {
-    val instructions = implementation?.instructions ?: return -1
-    return instructions.indexOfFirst { instruction ->
-        val reference = (instruction as? ReferenceInstruction)?.reference as? MethodReference ?: return@indexOfFirst false
-        reference.definingClass == definingClass &&
+    return methodCallIndices(definingClass, name, returnType, parameterTypes).firstOrNull() ?: -1
+}
+
+internal fun MutableMethod.methodCallIndices(
+    definingClass: String,
+    name: String,
+    returnType: String? = null,
+    parameterTypes: List<String>? = null
+): List<Int> {
+    val instructions = implementation?.instructions ?: return emptyList()
+    return instructions.mapIndexedNotNull { index, instruction ->
+        val reference = (instruction as? ReferenceInstruction)?.reference as? MethodReference
+            ?: return@mapIndexedNotNull null
+        if (
+            reference.definingClass == definingClass &&
             reference.name == name &&
             (returnType == null || reference.returnType == returnType) &&
             (parameterTypes == null || reference.parameterTypes.toList() == parameterTypes)
+        ) {
+            index
+        } else {
+            null
+        }
     }
 }
 
 internal fun MutableMethod.indexOfFirstMoveResultAfter(instructionIndex: Int): Int {
     val instructions = implementation?.instructions ?: return -1
     for (index in (instructionIndex + 1) until instructions.size) {
-        val opcodeName = instructions[index].opcode.name
+        val opcodeName = instructions[index].opcode.name.normalizedOpcodeName()
         if (opcodeName.startsWith("MOVE_RESULT")) return index
     }
     return -1
@@ -111,9 +131,9 @@ internal fun MutableMethod.indexOfFirstConst4LiteralFollowedByIfEqz(literal: Int
     val instructions = implementation?.instructions ?: return -1
     for (index in 0 until instructions.lastIndex) {
         val instruction = instructions[index]
-        if (instruction.opcode.name == "CONST_4" &&
+        if (instruction.opcode.name.normalizedOpcodeName() == "CONST_4" &&
             (instruction as? NarrowLiteralInstruction)?.narrowLiteral == literal &&
-            instructions[index + 1].opcode.name == "IF_EQZ"
+            instructions[index + 1].opcode.name.normalizedOpcodeName() == "IF_EQZ"
         ) {
             return index
         }
@@ -125,5 +145,33 @@ internal fun MutableMethod.indexOfFirstInstructionWritingRegister(register: Int)
     val instructions = implementation?.instructions ?: return -1
     return instructions.indexOfFirst { instruction ->
         (instruction as? OneRegisterInstruction)?.registerA == register
+    }
+}
+
+internal fun MutableMethod.instructionIndices(opcodeName: String): List<Int> {
+    val instructions = implementation?.instructions ?: return emptyList()
+    val normalizedOpcodeName = opcodeName.normalizedOpcodeName()
+    return instructions.mapIndexedNotNull { index, instruction ->
+        if (instruction.opcode.name.normalizedOpcodeName() == normalizedOpcodeName) {
+            index
+        } else {
+            null
+        }
+    }
+}
+
+internal fun MutableMethod.indexOfFirstFieldAccess(
+    definingClass: String,
+    name: String,
+    type: String,
+    opcodeName: String? = null
+): Int {
+    val instructions = implementation?.instructions ?: return -1
+    return instructions.indexOfFirst { instruction ->
+        val reference = (instruction as? ReferenceInstruction)?.reference as? FieldReference ?: return@indexOfFirst false
+        reference.definingClass == definingClass &&
+            reference.name == name &&
+            reference.type == type &&
+            (opcodeName == null || instruction.opcode.name.normalizedOpcodeName() == opcodeName.normalizedOpcodeName())
     }
 }
