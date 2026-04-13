@@ -1,9 +1,45 @@
 {
-  "version": "1.3.1",
+  "version": "1.4.0",
   "patches": [
     {
-      "name": "Package Rename",
-      "description": "將套件名稱改成 dev.jason.com.google.android.inputmethod.latin 以便共存安裝",
+      "name": "Add Gboard Signature Bypass",
+      "description": "攔截 Gboard 的簽章白名單檢查並強制通過。",
+      "use": true,
+      "dependencies": [],
+      "compatiblePackages": {
+        "com.google.android.inputmethod.latin": [
+          "17.0.10.880768217-release-arm64-v8a"
+        ]
+      },
+      "options": []
+    },
+    {
+      "name": "Chinese Online Voice Input",
+      "description": "強制啟用中文語音",
+      "use": true,
+      "dependencies": [],
+      "compatiblePackages": {
+        "com.google.android.inputmethod.latin": [
+          "17.0.10.880768217-release-arm64-v8a"
+        ]
+      },
+      "options": []
+    },
+    {
+      "name": "Custom Symbols",
+      "description": "新增獨立的特殊符號分頁，長按逗號->愛心",
+      "use": true,
+      "dependencies": [],
+      "compatiblePackages": {
+        "com.google.android.inputmethod.latin": [
+          "17.0.10.880768217-release-arm64-v8a"
+        ]
+      },
+      "options": []
+    },
+    {
+      "name": "Enable Undo/Redo feature",
+      "description": "啟用 Undo/Redo 功能",
       "use": true,
       "dependencies": [],
       "compatiblePackages": {
@@ -26,8 +62,8 @@
       "options": []
     },
     {
-      "name": "Zhuyin Slide Input",
-      "description": "注音鍵盤支持上下滑輸入",
+      "name": "Package Rename",
+      "description": "將套件名稱改成 dev.jason.com.google.android.inputmethod.latin 以便共存安裝",
       "use": true,
       "dependencies": [],
       "compatiblePackages": {
@@ -52,20 +88,8 @@
       "options": []
     },
     {
-      "name": "Custom Symbols",
-      "description": "新增獨立的特殊符號分頁，長按逗號->愛心",
-      "use": true,
-      "dependencies": [],
-      "compatiblePackages": {
-        "com.google.android.inputmethod.latin": [
-          "17.0.10.880768217-release-arm64-v8a"
-        ]
-      },
-      "options": []
-    },
-    {
-      "name": "Chinese Online Voice Input",
-      "description": "強制啟用中文語音",
+      "name": "Zhuyin Slide Input",
+      "description": "注音鍵盤支持上下滑輸入",
       "use": true,
       "dependencies": [],
       "compatiblePackages": {

@@ -13,6 +13,8 @@ import dev.jason.gboardpatches.patches.gboard.features.chinesevoice.gboardChines
 import dev.jason.gboardpatches.patches.gboard.features.englishqwerty.gboardEnglishQwertySlideResourcePatch
 import dev.jason.gboardpatches.patches.gboard.features.englishqwerty.gboardEnglishQwertySoftKeyPatch
 import dev.jason.gboardpatches.patches.gboard.features.packagerename.gboardPackageRenameResourcePatch
+import dev.jason.gboardpatches.patches.gboard.features.signaturebypass.gboardSignatureBypassBytecodePatch
+import dev.jason.gboardpatches.patches.gboard.features.undoredoaccesspoint.gboardUndoRedoAccessPointBytecodePatch
 import dev.jason.gboardpatches.patches.gboard.features.zhuyinslide.gboardZhuyinSlidePointerAnchorPatch
 import dev.jason.gboardpatches.patches.gboard.features.zhuyinslide.gboardZhuyinSlideResourcePatch
 import dev.jason.gboardpatches.patches.gboard.features.zhuyintraditionalsimplifiedtoggle.gboardZhuyinTraditionalSimplifiedToggleRuntimePatch
@@ -84,6 +86,19 @@ val gboardCustomSymbolsPatch = resourcePatch(
 }
 
 @Suppress("unused")
+val gboardUndoRedoAccessPointPatch = resourcePatch(
+    name = "Enable Undo/Redo feature",
+    description = "啟用 Undo/Redo 功能",
+    default = true
+) {
+    compatibleWith(COMPATIBILITY_GBOARD)
+
+    dependsOn(
+        gboardUndoRedoAccessPointBytecodePatch
+    )
+}
+
+@Suppress("unused")
 val gboardChineseOnlineVoiceInputPatch = resourcePatch(
     name = "Chinese Online Voice Input",
     description = "強制啟用中文語音",
@@ -108,5 +123,18 @@ val gboardPackageRenamePatch = resourcePatch(
 
     dependsOn(
         gboardPackageRenameResourcePatch
+    )
+}
+
+@Suppress("unused")
+val gboardSignatureBypassPatch = resourcePatch(
+    name = "Add Gboard Signature Bypass",
+    description = "攔截 Gboard 的簽章白名單檢查並強制通過。",
+    default = true
+) {
+    compatibleWith(COMPATIBILITY_GBOARD)
+
+    dependsOn(
+        gboardSignatureBypassBytecodePatch
     )
 }

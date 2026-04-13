@@ -11,15 +11,6 @@ import java.util.jar.Manifest
 typealias PackageName = String
 typealias VersionName = String
 
-private val PATCH_ORDER = listOf(
-    "Package Rename",
-    "English QWERTY Slide Symbols",
-    "Zhuyin Slide Input",
-    "Zhuyin Quick Traditional/Simplified Toggle",
-    "Custom Symbols",
-    "Chinese Online Voice Input"
-)
-
 internal fun main() {
     val patchBundle = resolvePatchBundleFile()
     val patchFiles = setOf(patchBundle)
@@ -64,12 +55,7 @@ private fun resolvePatchBundleFile(): File {
 private fun generatePatchList(version: String, patches: Set<Patch<*>>) {
     val listJson = File("../patches-list.json")
 
-    val patchesMap = patches.sortedWith(
-        compareBy<Patch<*>>(
-            { PATCH_ORDER.indexOf(it.name).let { index -> if (index >= 0) index else Int.MAX_VALUE } },
-            { it.name }
-        )
-    ).map {
+    val patchesMap = patches.sortedBy { it.name }.map {
         JsonPatch(
             it.name!!,
             it.description,
