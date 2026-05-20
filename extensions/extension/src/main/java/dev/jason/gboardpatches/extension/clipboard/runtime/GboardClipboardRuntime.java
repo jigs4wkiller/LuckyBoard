@@ -27,7 +27,8 @@ public final class GboardClipboardRuntime {
             new GboardClipboardPruneHookAdapter(SUPPORT, RETENTION_FEATURE, MAX_COUNT_FEATURE);
     private static final GboardClipboardUiHookAdapter UI_HOOK_ADAPTER =
             new GboardClipboardUiHookAdapter(SUPPORT, MAX_COUNT_FEATURE, PREVIEW_LINES_FEATURE,
-                    COUNTDOWN_FEATURE, CREATION_TIME_FEATURE, ORDER_INDEX_FEATURE);
+                    COUNTDOWN_FEATURE, CREATION_TIME_FEATURE, ORDER_INDEX_FEATURE,
+                    LOADER_HOOK_ADAPTER);
     private static final GboardClipboardColumnCountHookAdapter COLUMN_COUNT_HOOK_ADAPTER =
             new GboardClipboardColumnCountHookAdapter(COLUMN_COUNT_FEATURE);
 

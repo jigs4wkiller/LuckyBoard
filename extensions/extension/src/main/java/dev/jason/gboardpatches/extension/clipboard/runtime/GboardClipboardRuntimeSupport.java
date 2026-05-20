@@ -66,6 +66,8 @@ final class GboardClipboardRuntimeSupport {
             Collections.synchronizedMap(new WeakHashMap<TextView, CountdownBinding>());
     final Map<TextView, Integer> activeMaxLinesOverrideByTextView =
             Collections.synchronizedMap(new WeakHashMap<TextView, Integer>());
+    final Map<Object, OrderIndexRefreshState> orderIndexRefreshStateByAdapter =
+            Collections.synchronizedMap(new WeakHashMap<Object, OrderIndexRefreshState>());
 
     final AtomicInteger loaderInvocationCount = new AtomicInteger(0);
     final AtomicInteger pruneInvocationCount = new AtomicInteger(0);
@@ -535,19 +537,21 @@ final class GboardClipboardRuntimeSupport {
         final ReflectionHandles handles;
         final TextView textView;
         final String originalText;
+        final long clipId;
         final long clipTimestamp;
         final boolean pinned;
         final boolean special;
         final long clipboardTtlMs;
-        final int clipOrder;
+        int clipOrder;
 
         CountdownBinding(GboardClipboardUiHookAdapter module, ReflectionHandles handles,
-                TextView textView, String originalText, long clipTimestamp, boolean pinned,
-                boolean special, long clipboardTtlMs, int clipOrder) {
+                TextView textView, String originalText, long clipId, long clipTimestamp,
+                boolean pinned, boolean special, long clipboardTtlMs, int clipOrder) {
             this.module = module;
             this.handles = handles;
             this.textView = textView;
             this.originalText = originalText == null ? "" : originalText;
+            this.clipId = clipId;
             this.clipTimestamp = clipTimestamp;
             this.pinned = pinned;
             this.special = special;
@@ -559,6 +563,11 @@ final class GboardClipboardRuntimeSupport {
         public void run() {
             module.onCountdownTick(this);
         }
+    }
+
+    static final class OrderIndexRefreshState {
+        boolean scheduled;
+        boolean rerunRequested;
     }
 
     static final class ReflectionHandles {

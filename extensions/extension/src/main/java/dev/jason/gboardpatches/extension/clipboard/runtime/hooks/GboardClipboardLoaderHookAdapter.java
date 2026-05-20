@@ -33,6 +33,24 @@ final class GboardClipboardLoaderHookAdapter {
         }, null);
     }
 
+    GboardClipboardRuntimeSupport.LoaderAssembly buildAssemblyForContext(
+            GboardClipboardRuntimeSupport.ReflectionHandles handles, Context context)
+            throws Throwable {
+        if (handles == null || context == null) {
+            return null;
+        }
+
+        long now = System.currentTimeMillis();
+        GboardClipboardRuntimeSupport.RuntimeSettings settings = support.runtimeSettings();
+        long lastVisibleTimestamp = support.readLastVisibleTimestamp(handles, context);
+        long overrideEffectiveCutoff = retentionFeature.effectiveVisibleCutoff(
+                now, settings.clipboardTtlMs, lastVisibleTimestamp);
+        List<Object> overrideQueryResult = queryClips(handles, context, overrideEffectiveCutoff);
+        GboardClipboardRuntimeSupport.ClipSections overrideSections =
+                splitClipSections(handles, overrideQueryResult);
+        return assembleVisibleSections(handles, context, overrideSections, settings);
+    }
+
     private ArrayList<Object> buildCustomLoaderResult(Object receiver) throws Throwable {
         GboardClipboardRuntimeSupport.ReflectionHandles handles =
                 support.reflectionHandles(receiver.getClass().getClassLoader());

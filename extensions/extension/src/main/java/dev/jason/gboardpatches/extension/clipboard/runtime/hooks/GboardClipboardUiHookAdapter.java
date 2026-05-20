@@ -5,10 +5,12 @@ import android.widget.TextView;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Set;
 
 final class GboardClipboardUiHookAdapter {
@@ -18,19 +20,22 @@ final class GboardClipboardUiHookAdapter {
     private final GboardClipboardCountdownFeature countdownFeature;
     private final GboardClipboardCreationTimeFeature creationTimeFeature;
     private final GboardClipboardOrderIndexFeature orderIndexFeature;
+    private final GboardClipboardLoaderHookAdapter loaderHookAdapter;
 
     GboardClipboardUiHookAdapter(GboardClipboardRuntimeSupport support,
             GboardClipboardMaxCountFeature maxCountFeature,
             GboardClipboardPreviewLinesFeature previewLinesFeature,
             GboardClipboardCountdownFeature countdownFeature,
             GboardClipboardCreationTimeFeature creationTimeFeature,
-            GboardClipboardOrderIndexFeature orderIndexFeature) {
+            GboardClipboardOrderIndexFeature orderIndexFeature,
+            GboardClipboardLoaderHookAdapter loaderHookAdapter) {
         this.support = support;
         this.maxCountFeature = maxCountFeature;
         this.previewLinesFeature = previewLinesFeature;
         this.countdownFeature = countdownFeature;
         this.creationTimeFeature = creationTimeFeature;
         this.orderIndexFeature = orderIndexFeature;
+        this.loaderHookAdapter = loaderHookAdapter;
     }
 
     void afterAdapterTrim(Object receiver) {
@@ -93,6 +98,10 @@ final class GboardClipboardUiHookAdapter {
             handles.adapterRecentCountField.setInt(receiver, allowedRecentCount);
             handles.adapterRefreshMethod.invoke(receiver);
         }
+        restoreAdapterAfterStockLiveTrim(receiver, handles, context, items,
+                handles.adapterRecentCountField.getInt(receiver),
+                handles.adapterPinnedVisibleCountField.getInt(receiver));
+        scheduleVisibleOrderIndexRefresh(receiver);
 
         int invocation = support.trimInvocationCount.incrementAndGet();
         support.logInfo(GboardClipboardRuntimeSupport.LOG_PREFIX + " trim#"
@@ -122,7 +131,7 @@ final class GboardClipboardUiHookAdapter {
             return;
         }
         TextView textView = (TextView) labelViewObject;
-        clearCountdownBinding(textView);
+        detachCountdownBinding(textView);
 
         List<Object> items = adapterItems(handles, receiver);
         if (items == null || position < 0 || position >= items.size()) {
@@ -142,6 +151,7 @@ final class GboardClipboardUiHookAdapter {
             return;
         }
         previewLinesFeature.applyConfiguredMaxLines(textView, position, settings);
+        long clipId = support.clipId(handles, clip);
         int clipOrder = settings.showOrderIndex
                 ? orderIndexFeature.computeClipOrder(
                         handles,
@@ -162,6 +172,7 @@ final class GboardClipboardUiHookAdapter {
                         handles,
                         textView,
                         originalText,
+                        clipId,
                         support.clipTimestamp(handles, clip),
                         support.isPinned(handles, clip),
                         support.isSpecial(handles, clip),
@@ -169,9 +180,10 @@ final class GboardClipboardUiHookAdapter {
                         clipOrder);
         support.activeCountdownByTextView.put(textView, binding);
         updateClipboardMetadataLabel(binding);
+        scheduleVisibleOrderIndexRefresh(receiver, textView);
         support.logLimited(support.countdownBindCount, 30,
                 GboardClipboardRuntimeSupport.LOG_PREFIX + " bind position=" + position
-                        + ", id=" + support.clipId(handles, clip)
+                        + ", id=" + clipId
                         + ", order=" + clipOrder
                         + ", ts=" + binding.clipTimestamp
                         + ", pinned=" + binding.pinned
@@ -330,6 +342,191 @@ final class GboardClipboardUiHookAdapter {
         if (currentText != null && !currentText.toString().contentEquals(strippedText)) {
             textView.setText(strippedText);
         }
+    }
+
+    private void detachCountdownBinding(TextView textView) {
+        GboardClipboardRuntimeSupport.CountdownBinding previousBinding =
+                support.activeCountdownByTextView.remove(textView);
+        if (previousBinding != null) {
+            textView.removeCallbacks(previousBinding);
+        }
+    }
+
+    private void scheduleVisibleOrderIndexRefresh(Object receiver) {
+        GboardClipboardRuntimeSupport.CountdownBinding binding = firstActiveBinding();
+        if (binding == null) {
+            return;
+        }
+        scheduleVisibleOrderIndexRefresh(receiver, binding.textView);
+    }
+
+    private void scheduleVisibleOrderIndexRefresh(Object receiver, TextView anchorView) {
+        if (receiver == null || anchorView == null) {
+            return;
+        }
+        synchronized (support.orderIndexRefreshStateByAdapter) {
+            GboardClipboardRuntimeSupport.OrderIndexRefreshState state =
+                    support.orderIndexRefreshStateByAdapter.get(receiver);
+            if (state == null) {
+                state = new GboardClipboardRuntimeSupport.OrderIndexRefreshState();
+                support.orderIndexRefreshStateByAdapter.put(receiver, state);
+            }
+            if (state.scheduled) {
+                state.rerunRequested = true;
+                return;
+            }
+            state.scheduled = true;
+        }
+        anchorView.post(() -> runVisibleOrderIndexRefresh(receiver));
+    }
+
+    private void runVisibleOrderIndexRefresh(Object receiver) {
+        support.runSafely("refresh visible clipboard order indices", () -> {
+            try {
+                if (receiver == null) {
+                    return;
+                }
+                GboardClipboardRuntimeSupport.ReflectionHandles handles =
+                        support.reflectionHandles(receiver.getClass().getClassLoader());
+                List<Object> items = adapterItems(handles, receiver);
+                refreshVisibleOrderIndices(handles, items, support.runtimeSettings());
+            } finally {
+                finishVisibleOrderIndexRefresh(receiver);
+            }
+        });
+    }
+
+    private void finishVisibleOrderIndexRefresh(Object receiver) {
+        TextView retryAnchorView = null;
+        synchronized (support.orderIndexRefreshStateByAdapter) {
+            GboardClipboardRuntimeSupport.OrderIndexRefreshState state =
+                    support.orderIndexRefreshStateByAdapter.get(receiver);
+            if (state == null) {
+                return;
+            }
+            if (state.rerunRequested) {
+                state.rerunRequested = false;
+                retryAnchorView = firstActiveBindingTextView();
+                if (retryAnchorView == null) {
+                    support.orderIndexRefreshStateByAdapter.remove(receiver);
+                    return;
+                }
+            } else {
+                support.orderIndexRefreshStateByAdapter.remove(receiver);
+                return;
+            }
+        }
+        retryAnchorView.post(() -> runVisibleOrderIndexRefresh(receiver));
+    }
+
+    private void refreshVisibleOrderIndices(
+            GboardClipboardRuntimeSupport.ReflectionHandles handles, List<Object> items,
+            GboardClipboardRuntimeSupport.RuntimeSettings settings) throws Throwable {
+        if (items == null || settings == null || !settings.showOrderIndex) {
+            return;
+        }
+
+        List<GboardClipboardRuntimeSupport.CountdownBinding> bindings;
+        synchronized (support.activeCountdownByTextView) {
+            if (support.activeCountdownByTextView.isEmpty()) {
+                return;
+            }
+            bindings = new ArrayList<GboardClipboardRuntimeSupport.CountdownBinding>(
+                    support.activeCountdownByTextView.values());
+        }
+
+        int visibleClipCount = 0;
+        Map<Long, Integer> visibleIndicesByClipId = new HashMap<Long, Integer>();
+        for (Object candidate : items) {
+            if (candidate == null || candidate == handles.recentHeader
+                    || candidate == handles.pinnedHeader
+                    || candidate == handles.specialHeader) {
+                continue;
+            }
+            visibleIndicesByClipId.put(
+                    Long.valueOf(support.clipId(handles, candidate)),
+                    Integer.valueOf(visibleClipCount));
+            visibleClipCount++;
+        }
+
+        for (GboardClipboardRuntimeSupport.CountdownBinding binding : bindings) {
+            if (binding == null || binding.handles != handles) {
+                continue;
+            }
+            Integer visibleIndex = visibleIndicesByClipId.get(Long.valueOf(binding.clipId));
+            binding.clipOrder = resolveClipOrder(
+                    visibleClipCount,
+                    visibleIndex,
+                    settings.clipboardOrderIndexMode);
+            updateClipboardMetadataLabel(binding);
+        }
+    }
+
+    private int resolveClipOrder(int visibleClipCount, Integer visibleIndex, String orderIndexMode) {
+        if (visibleIndex == null || visibleClipCount <= 0) {
+            return -1;
+        }
+        boolean oldestFirst =
+                GboardClipboardSettings.CLIPBOARD_ORDER_INDEX_MODE_OLDEST_FIRST.equals(
+                        orderIndexMode);
+        int clipVisibleIndex = visibleIndex.intValue();
+        return oldestFirst
+                ? visibleClipCount - clipVisibleIndex
+                : clipVisibleIndex + 1;
+    }
+
+    private GboardClipboardRuntimeSupport.CountdownBinding firstActiveBinding() {
+        synchronized (support.activeCountdownByTextView) {
+            for (GboardClipboardRuntimeSupport.CountdownBinding binding
+                    : support.activeCountdownByTextView.values()) {
+                if (binding != null) {
+                    return binding;
+                }
+            }
+        }
+        return null;
+    }
+
+    private TextView firstActiveBindingTextView() {
+        GboardClipboardRuntimeSupport.CountdownBinding binding = firstActiveBinding();
+        return binding == null ? null : binding.textView;
+    }
+
+    private void restoreAdapterAfterStockLiveTrim(
+            Object receiver,
+            GboardClipboardRuntimeSupport.ReflectionHandles handles,
+            Context context,
+            List<Object> items,
+            int currentRecentCount,
+            int currentPinnedVisibleCount) throws Throwable {
+        if (receiver == null || handles == null || context == null || items == null) {
+            return;
+        }
+
+        GboardClipboardRuntimeSupport.LoaderAssembly assembly =
+                loaderHookAdapter.buildAssemblyForContext(handles, context);
+        if (assembly == null) {
+            return;
+        }
+
+        boolean shouldRestore = assembly.visibleRecentCount > currentRecentCount
+                || assembly.visiblePinnedCount > currentPinnedVisibleCount
+                || assembly.result.size() > items.size();
+        if (!shouldRestore) {
+            return;
+        }
+
+        items.clear();
+        items.addAll(assembly.result);
+        handles.adapterRecentCountField.setInt(receiver, assembly.visibleRecentCount);
+        handles.adapterPinnedVisibleCountField.setInt(receiver, assembly.visiblePinnedCount);
+        handles.adapterRefreshMethod.invoke(receiver);
+        support.logInfo(GboardClipboardRuntimeSupport.LOG_PREFIX
+                + " restore-live-trim recentCount=" + currentRecentCount
+                + " -> " + assembly.visibleRecentCount
+                + ", pinnedVisibleCount=" + currentPinnedVisibleCount
+                + " -> " + assembly.visiblePinnedCount
+                + ", itemCount=" + items.size());
     }
 
     private int distinctTimestampCountForAdapter(

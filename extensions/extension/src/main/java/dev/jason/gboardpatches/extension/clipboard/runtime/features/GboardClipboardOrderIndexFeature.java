@@ -18,22 +18,25 @@ final class GboardClipboardOrderIndexFeature {
             boolean oldestFirst =
                     GboardClipboardSettings.CLIPBOARD_ORDER_INDEX_MODE_OLDEST_FIRST.equals(
                             orderIndexMode);
-            long targetTimestamp = support.clipTimestamp(handles, clip);
-            long targetId = support.clipId(handles, clip);
-            int order = 1;
+            int visibleClipCount = 0;
+            int clipVisibleIndex = -1;
             for (Object candidate : items) {
                 if (candidate == null || candidate == handles.recentHeader
                         || candidate == handles.pinnedHeader
                         || candidate == handles.specialHeader) {
                     continue;
                 }
-                long candidateTimestamp = support.clipTimestamp(handles, candidate);
-                long candidateId = support.clipId(handles, candidate);
-                if (shouldRankAhead(oldestFirst, candidateTimestamp, candidateId,
-                        targetTimestamp, targetId)) {
-                    order++;
+                if (candidate == clip) {
+                    clipVisibleIndex = visibleClipCount;
                 }
+                visibleClipCount++;
             }
+            if (clipVisibleIndex < 0) {
+                return Integer.valueOf(-1);
+            }
+            int order = oldestFirst
+                    ? visibleClipCount - clipVisibleIndex
+                    : clipVisibleIndex + 1;
             return Integer.valueOf(order);
         }, Integer.valueOf(-1)).intValue();
     }
@@ -46,14 +49,5 @@ final class GboardClipboardOrderIndexFeature {
 
     boolean isToken(String token) {
         return token != null && token.matches("\\d+");
-    }
-
-    private boolean shouldRankAhead(boolean oldestFirst, long candidateTimestamp,
-            long candidateId, long targetTimestamp, long targetId) {
-        if (candidateTimestamp == targetTimestamp) {
-            return oldestFirst ? candidateId < targetId : candidateId > targetId;
-        }
-        return oldestFirst ? candidateTimestamp < targetTimestamp
-                : candidateTimestamp > targetTimestamp;
     }
 }
