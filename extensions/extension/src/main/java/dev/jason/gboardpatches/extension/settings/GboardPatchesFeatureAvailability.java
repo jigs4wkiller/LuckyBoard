@@ -7,8 +7,8 @@ import android.os.Bundle;
 import android.util.Log;
 
 public final class GboardPatchesFeatureAvailability {
-    public static final String FEATURE_CLIPBOARD_RETENTION =
-            "dev.jason.gboardpatches.feature.clipboard_retention";
+    public static final String FEATURE_CLIPBOARD_ENHANCEMENTS =
+            "dev.jason.gboardpatches.feature.clipboard_enhancements";
     public static final String FEATURE_CLIPBOARD_ENTITY_EXTRACTION =
             "dev.jason.gboardpatches.feature.clipboard_entity_extraction";
     public static final String FEATURE_CLIPBOARD_ITEM_EDIT =

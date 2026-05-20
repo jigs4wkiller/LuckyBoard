@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import dev.jason.gboardpatches.extension.clipboard.GboardClipboardRetentionSettingsFeature;
+import dev.jason.gboardpatches.extension.clipboard.GboardClipboardSettingsFeature;
 import dev.jason.gboardpatches.extension.settingshomepage.GboardSettingsHomepageSettingsFeature;
 
 public final class GboardPatchesSettingsFeatureRegistry {
@@ -19,7 +19,7 @@ public final class GboardPatchesSettingsFeatureRegistry {
     public static List<GboardPatchesSettingsContract.Feature> features(Context context) {
         List<GboardPatchesSettingsContract.Feature> features =
                 new ArrayList<GboardPatchesSettingsContract.Feature>();
-        addIfAvailable(context, features, new GboardClipboardRetentionSettingsFeature());
+        addIfAvailable(context, features, new GboardClipboardSettingsFeature());
         addIfAvailable(context, features, new GboardSettingsHomepageSettingsFeature());
         return Collections.unmodifiableList(features);
     }

@@ -12,6 +12,7 @@ import dev.jason.gboardpatches.patches.gboard.features.chinesevoice.gboardChines
 import dev.jason.gboardpatches.patches.gboard.features.chinesevoice.gboardChineseOnlineVoiceResourcePatch
 import dev.jason.gboardpatches.patches.gboard.features.clipboard.gboardClipboardFeatureMarkerPatch
 import dev.jason.gboardpatches.patches.gboard.features.clipboard.gboardClipboardAdapterTrimPatch
+import dev.jason.gboardpatches.patches.gboard.features.clipboard.gboardClipboardColumnCountPatch
 import dev.jason.gboardpatches.patches.gboard.features.clipboard.gboardClipboardItemBindPatch
 import dev.jason.gboardpatches.patches.gboard.features.clipboard.gboardClipboardLoaderPatch
 import dev.jason.gboardpatches.patches.gboard.features.clipboard.gboardClipboardPrunePatch
@@ -129,9 +130,9 @@ val gboardChineseOnlineVoiceInputPatch = resourcePatch(
 }
 
 @Suppress("unused")
-val gboardClipboardRetentionPatch = resourcePatch(
-    name = "Clipboard Retention",
-    description = "自訂剪貼簿保留時間、數量上限與顯示資訊\nCustomize clipboard retention time, item count limit, and metadata display.",
+val gboardClipboardEnhancementsPatch = resourcePatch(
+    name = "Clipboard Enhancements",
+    description = "增強剪貼簿的保留時間、數量上限、預覽行數、倒數/建立時間、順序編號與欄數\nEnhance clipboard retention time, item count limit, preview lines, countdown/creation time labels, order index, and column count.",
     default = true
 ) {
     compatibleWith(COMPATIBILITY_GBOARD)
@@ -142,6 +143,7 @@ val gboardClipboardRetentionPatch = resourcePatch(
         gboardClipboardFeatureMarkerPatch,
         gboardClipboardLoaderPatch,
         gboardClipboardPrunePatch,
+        gboardClipboardColumnCountPatch,
         gboardClipboardAdapterTrimPatch,
         gboardClipboardItemBindPatch
     )
