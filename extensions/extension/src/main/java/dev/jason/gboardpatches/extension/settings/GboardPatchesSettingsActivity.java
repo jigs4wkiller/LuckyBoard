@@ -39,7 +39,9 @@ import android.widget.Switch;
 import android.widget.TextView;
 
 import java.lang.reflect.Proxy;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Deque;
 import java.util.List;
 
 import dev.jason.gboardpatches.extension.BuildConfig;
@@ -81,8 +83,9 @@ public class GboardPatchesSettingsActivity extends Activity
     private TextView headerSummaryView;
     private LinearLayout panelContainer;
     private ScrollView contentScrollView;
-    private List<GboardPatchesSettingsContract.Feature> features;
-    private GboardPatchesSettingsContract.Feature currentFeature;
+    private List<GboardPatchesSettingsContract.Feature> rootFeatures;
+    private final Deque<GboardPatchesSettingsContract.Feature> featureNavigationStack =
+            new ArrayDeque<GboardPatchesSettingsContract.Feature>();
     private Object backInvokedCallback;
     private boolean fatalFallbackShown;
     private final Handler screenRefreshHandler = new Handler(Looper.getMainLooper());
@@ -95,7 +98,7 @@ public class GboardPatchesSettingsActivity extends Activity
         try {
             fatalFallbackShown = false;
             palette = Palette.forConfiguration(getResources().getConfiguration());
-            features = GboardPatchesSettingsFeatureRegistry.features(this);
+            rootFeatures = GboardPatchesSettingsFeatureRegistry.features(this);
             configureWindow();
             View contentView = buildContentView();
             setContentView(contentView);
@@ -129,7 +132,7 @@ public class GboardPatchesSettingsActivity extends Activity
     @Override
     @SuppressLint("GestureBackNavigation")
     public void onBackPressed() {
-        if (navigateToRootIfNeeded()) {
+        if (navigateUpIfNeeded()) {
             return;
         }
         super.onBackPressed();
@@ -147,7 +150,10 @@ public class GboardPatchesSettingsActivity extends Activity
 
     @Override
     public void openFeature(GboardPatchesSettingsContract.Feature feature) {
-        currentFeature = feature;
+        if (feature == null) {
+            return;
+        }
+        featureNavigationStack.addLast(feature);
         renderCurrentScreenSafely();
     }
 
@@ -557,7 +563,7 @@ public class GboardPatchesSettingsActivity extends Activity
     }
 
     private void goBackOrFinish() {
-        if (navigateToRootIfNeeded()) {
+        if (navigateUpIfNeeded()) {
             return;
         }
         finish();
@@ -575,11 +581,11 @@ public class GboardPatchesSettingsActivity extends Activity
         }
     }
 
-    private boolean navigateToRootIfNeeded() {
-        if (currentFeature == null) {
+    private boolean navigateUpIfNeeded() {
+        if (featureNavigationStack.isEmpty()) {
             return false;
         }
-        currentFeature = null;
+        featureNavigationStack.removeLast();
         renderCurrentScreenSafely();
         return true;
     }
@@ -608,7 +614,7 @@ public class GboardPatchesSettingsActivity extends Activity
                             }
                         }
                         if ("onBackInvoked".equals(method.getName())) {
-                            if (!navigateToRootIfNeeded()) {
+                            if (!navigateUpIfNeeded()) {
                                 finish();
                             }
                         }
@@ -701,10 +707,11 @@ public class GboardPatchesSettingsActivity extends Activity
 
     private void renderCurrentScreen() {
         GboardPatchesSettingsContract.Screen screen;
+        GboardPatchesSettingsContract.Feature activeFeature = currentFeature();
         try {
-            screen = currentFeature == null
+            screen = activeFeature == null
                     ? buildRootScreen()
-                    : currentFeature.buildScreen(this);
+                    : activeFeature.buildScreen(this);
         } catch (Throwable throwable) {
             Log.w(TAG, "Failed to render settings screen", throwable);
             screen = buildFeatureErrorScreen();
@@ -786,7 +793,7 @@ public class GboardPatchesSettingsActivity extends Activity
     private GboardPatchesSettingsContract.Screen buildRootScreen() {
         List<GboardPatchesSettingsContract.Row> rows =
                 new ArrayList<GboardPatchesSettingsContract.Row>();
-        for (GboardPatchesSettingsContract.Feature feature : features) {
+        for (GboardPatchesSettingsContract.Feature feature : rootFeatures) {
             rows.add(new GboardPatchesSettingsContract.ActionRow(
                     feature.getEntryTitle(),
                     feature.getEntrySummary(),
@@ -814,8 +821,9 @@ public class GboardPatchesSettingsActivity extends Activity
     }
 
     private GboardPatchesSettingsContract.Screen buildFeatureErrorScreen() {
-        String toolbarTitle = currentFeature != null
-                ? currentFeature.getEntryTitle()
+        GboardPatchesSettingsContract.Feature activeFeature = currentFeature();
+        String toolbarTitle = activeFeature != null
+                ? activeFeature.getEntryTitle()
                 : TOOLBAR_TITLE_PATCHES;
         List<GboardPatchesSettingsContract.Row> rows =
                 new ArrayList<GboardPatchesSettingsContract.Row>();
@@ -829,6 +837,10 @@ public class GboardPatchesSettingsActivity extends Activity
                 ERROR_HEADER_TITLE,
                 ERROR_HEADER_SUMMARY,
                 rows);
+    }
+
+    private GboardPatchesSettingsContract.Feature currentFeature() {
+        return featureNavigationStack.peekLast();
     }
 
     private View createRowView(GboardPatchesSettingsContract.Row row) {

@@ -5,6 +5,7 @@ import dev.jason.gboardpatches.patches.gboard.features.about.gboardAboutPageReso
 import dev.jason.gboardpatches.patches.gboard.features.addsymbols.gboardZhuyinCustomSymbolsCorpusPatch
 import dev.jason.gboardpatches.patches.gboard.features.addsymbols.gboardZhuyinCustomSymbolsEmoticonStatePatch
 import dev.jason.gboardpatches.patches.gboard.features.addsymbols.gboardZhuyinCustomSymbolsEntryPatch
+import dev.jason.gboardpatches.patches.gboard.features.addsymbols.gboardCustomSymbolsFeatureMarkerPatch
 import dev.jason.gboardpatches.patches.gboard.features.addsymbols.gboardZhuyinCustomSymbolsHistoryPatch
 import dev.jason.gboardpatches.patches.gboard.features.addsymbols.gboardZhuyinCustomSymbolsRecyclerPatch
 import dev.jason.gboardpatches.patches.gboard.features.addsymbols.gboardZhuyinCustomSymbolsRoutingPatch
@@ -28,6 +29,8 @@ import dev.jason.gboardpatches.patches.gboard.features.packagerename.gboardPacka
 import dev.jason.gboardpatches.patches.gboard.features.settingshomepage.gboardSettingsHomepageBytecodePatch
 import dev.jason.gboardpatches.patches.gboard.features.settingshomepage.gboardSettingsHomepageFeatureMarkerPatch
 import dev.jason.gboardpatches.patches.gboard.features.signaturebypass.gboardSignatureBypassBytecodePatch
+import dev.jason.gboardpatches.patches.gboard.features.symbolfooter.gboardSymbolFooterOrderBytecodePatch
+import dev.jason.gboardpatches.patches.gboard.features.symbolfooter.gboardSymbolFooterOrderFeatureMarkerPatch
 import dev.jason.gboardpatches.patches.gboard.shared.gboardPatchesExtensionCarrierPatch
 import dev.jason.gboardpatches.patches.gboard.shared.gboardPatchesSettingsPatch
 import dev.jason.gboardpatches.patches.gboard.features.undoredoaccesspoint.gboardUndoRedoAccessPointBytecodePatch
@@ -92,12 +95,28 @@ val gboardCustomSymbolsPatch = resourcePatch(
 
     dependsOn(
         gboardAboutPageResourcePatch,
+        gboardCustomSymbolsFeatureMarkerPatch,
         gboardZhuyinCustomSymbolsEntryPatch,
         gboardZhuyinCustomSymbolsCorpusPatch,
         gboardZhuyinCustomSymbolsRoutingPatch,
         gboardZhuyinCustomSymbolsEmoticonStatePatch,
         gboardZhuyinCustomSymbolsHistoryPatch,
         gboardZhuyinCustomSymbolsRecyclerPatch
+    )
+}
+
+@Suppress("unused")
+val gboardSymbolsFooterOrderPatch = resourcePatch(
+    name = "Emojis, stickers & GIFs Tab Order",
+    description = "自訂 Gboard「Emojis, stickers & GIFs」底部 tabs 的排序，支援拖曳調整\nCustomize the bottom tab order in Gboard's Emojis, stickers & GIFs panel with drag-and-drop reordering.",
+    default = true
+) {
+    compatibleWith(COMPATIBILITY_GBOARD)
+
+    dependsOn(
+        gboardPatchesSettingsPatch,
+        gboardSymbolFooterOrderFeatureMarkerPatch,
+        gboardSymbolFooterOrderBytecodePatch
     )
 }
 

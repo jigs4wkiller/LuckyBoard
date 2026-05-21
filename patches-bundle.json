@@ -1,7 +1,7 @@
 {
-    "created_at":  "2026-05-21T00:08:07",
-    "description":  "## Fixes\n\n- Hardened the Gboard settings-style override flow with trial, timeout, recovery, and UI fail-safe protections to prevent crashes from locking users out of settings.\n\n## Note\n- Currently supports only the official Gboard 17.0.10.880768217-release-arm64-v8a.\n\n## 修正\n\n- 強化 Gboard 設定頁樣式切換流程，加入崩潰復原與 UI 保底保護，避免因異常閃退導致使用者無法再進入設定頁。\n\n## 注意\n- 目前只支援官方 Gboard 17.0.10.880768217-release-arm64-v8a",
-    "download_url":  "https://github.com/jasonwu1994/Gboard-patches/releases/download/v1.6.2/patches-1.6.2.mpp",
+    "created_at":  "2026-05-21T16:07:23",
+    "description":  "## Features\n- add Emojis, stickers \u0026 GIFs Tab Order patch\n\n## Note\n- Currently supports only the official Gboard 17.0.10.880768217-release-arm64-v8a.\n\n## 功能\n\n- 新增 Emojis, stickers \u0026 GIFs 分頁排序\n\n## 注意\n- 目前只支援官方 Gboard 17.0.10.880768217-release-arm64-v8a",
+    "download_url":  "https://github.com/jasonwu1994/Gboard-patches/releases/download/v1.7.0/patches-1.7.0.mpp",
     "signature_download_url":  "",
-    "version":  "1.6.2"
+    "version":  "1.7.0"
 }
