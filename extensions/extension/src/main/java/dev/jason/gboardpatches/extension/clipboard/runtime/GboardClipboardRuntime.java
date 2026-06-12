@@ -1,5 +1,20 @@
 package dev.jason.gboardpatches.extension.clipboard;
 
+import android.content.Context;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageManager;
+import dev.jason.gboardpatches.extension.clipboard.runtime.features.GboardClipboardColumnCountFeature;
+import dev.jason.gboardpatches.extension.clipboard.runtime.features.GboardClipboardCountdownFeature;
+import dev.jason.gboardpatches.extension.clipboard.runtime.features.GboardClipboardCreationTimeFeature;
+import dev.jason.gboardpatches.extension.clipboard.runtime.features.GboardClipboardMaxCountFeature;
+import dev.jason.gboardpatches.extension.clipboard.runtime.features.GboardClipboardOrderIndexFeature;
+import dev.jason.gboardpatches.extension.clipboard.runtime.features.GboardClipboardPreviewLinesFeature;
+import dev.jason.gboardpatches.extension.clipboard.runtime.features.GboardClipboardRetentionFeature;
+import dev.jason.gboardpatches.extension.clipboard.runtime.hooks.GboardClipboardColumnCountHookAdapter;
+import dev.jason.gboardpatches.extension.clipboard.runtime.hooks.GboardClipboardLoaderHookAdapter;
+import dev.jason.gboardpatches.extension.clipboard.runtime.hooks.GboardClipboardPruneHookAdapter;
+import dev.jason.gboardpatches.extension.clipboard.runtime.hooks.GboardClipboardUiHookAdapter;
+
 @SuppressWarnings("unused")
 public final class GboardClipboardRuntime {
     public static final String SETTINGS_PREF_FILE = "gboard_clipboard";
@@ -35,17 +50,30 @@ public final class GboardClipboardRuntime {
     private GboardClipboardRuntime() {
     }
 
+    private static boolean hasFeatureMarker(Context context, String feature) {
+        if (context == null) return false;
+        try {
+            ApplicationInfo ai = context.getPackageManager().getApplicationInfo(
+                context.getPackageName(), PackageManager.GET_META_DATA);
+            return ai.metaData != null && ai.metaData.getBoolean("dev.jason.gboardpatches.feature.clipboard_" + feature, false);
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
     public static boolean isClipboardEnabled() {
         return SUPPORT.isClipboardEnabled();
     }
 
     public static boolean shouldShowExpiryCountdown() {
-        return false;
+        return hasFeatureMarker(SUPPORT.applicationContext(), "countdown") 
+            && SUPPORT.runtimeSettings().showExpiryCountdown;
     }
 
     public static boolean shouldShowCreationTime() {
-    return false;
-}
+        return hasFeatureMarker(SUPPORT.applicationContext(), "creation_time")
+            && SUPPORT.runtimeSettings().showCreationTime;
+    }
 
     public static int configuredRetentionTtlMinutes() {
         return SUPPORT.configuredRetentionTtlMinutes();
@@ -56,34 +84,22 @@ public final class GboardClipboardRuntime {
     }
 
     public static int configuredPreviewLines() {
+        if (!hasFeatureMarker(SUPPORT.applicationContext(), "preview_lines")) {
+            return GboardClipboardRuntimeSupport.STOCK_CLIPBOARD_CONTENT_MAX_LINES;
+        }
         return SUPPORT.configuredPreviewLines();
     }
 
-    public static int configuredColumnCount() {
-        return false;
+    public static boolean shouldEnableOrderIndex() {
+        return hasFeatureMarker(SUPPORT.applicationContext(), "order_index")
+            && SUPPORT.runtimeSettings().showOrderIndex;
     }
 
-    public static boolean defaultShowExpiryCountdown() {
-        return false;
+    public static boolean shouldEnableColumnCount() {
+        return hasFeatureMarker(SUPPORT.applicationContext(), "column_count");
     }
 
-    public static boolean defaultShowCreationTime() {
-        return false;
-    }
-
-    public static int defaultRetentionTtlMinutes() {
-        return GboardClipboardRuntimeSupport.DEFAULT_TTL_MINUTES;
-    }
-
-    public static int defaultMaxCount() {
-        return GboardClipboardRuntimeSupport.DEFAULT_MAX_COUNT;
-    }
-
-    public static int defaultPreviewLines() {
-        return GboardClipboardRuntimeSupport.DEFAULT_PREVIEW_LINES;
-    }
-
-    public static void registerApplicationContext(android.content.Context context) {
+    public static void registerApplicationContext(Context context) {
         SUPPORT.registerApplicationContext(context);
     }
 
@@ -104,6 +120,7 @@ public final class GboardClipboardRuntime {
     }
 
     public static Integer resolveColumnCountOverride(Object receiver) {
+        if (!shouldEnableColumnCount()) return null;
         return COLUMN_COUNT_HOOK_ADAPTER.resolveColumnCountOverride(receiver);
     }
 }

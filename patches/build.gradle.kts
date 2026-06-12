@@ -77,7 +77,7 @@ patches {
         name = "Gboard Patches"
         description = "Morphe patches for Gboard."
         source = "https://github.com/jasonwu1994/gboard-patches"
-        author = "Jason Wu"
+        author = "jigs4wkiller"
         contact = "https://github.com/jasonwu1994/gboard-patches/issues"
         website = "https://github.com/jasonwu1994/gboard-patches"
         license = "GPLv3"
