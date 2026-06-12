@@ -40,7 +40,7 @@ public final class GboardClipboardRuntime {
     }
 
     public static boolean shouldShowExpiryCountdown() {
-        return SUPPORT.shouldShowExpiryCountdown();
+        return false;
     }
 
     public static boolean shouldShowCreationTime() {
@@ -60,11 +60,11 @@ public final class GboardClipboardRuntime {
     }
 
     public static int configuredColumnCount() {
-        return SUPPORT.configuredColumnCount();
+        return false;
     }
 
     public static boolean defaultShowExpiryCountdown() {
-        return true;
+        return false;
     }
 
     public static boolean defaultShowCreationTime() {
