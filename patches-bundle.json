@@ -3,5 +3,5 @@
 "description":  "\nAdded **Web Clipboard**.\n\nOnce enabled, it allows clipboard content to be synced between desktop browsers on the same local network and a patched Gboard instance, with support for:\n\n- Sending text from the browser to the phone\n- Syncing the phone clipboard to the browser\n- 4-digit pairing code verification\n- Quick Settings toggle\n- Built-in Web UI bundled directly with the patch\n\n## 功能\n\n新增 **Web Clipboard** 功能。\n\n啟用後，可以讓同一個區域網路中的桌面瀏覽器與已套用 patch 的 Gboard 之間同步剪貼簿內容，支援：\n\n- 瀏覽器傳送文字到手機\n- 手機剪貼簿同步到瀏覽器\n- 4 碼配對碼驗證\n- 快速設定開關\n- 內建 Web UI，直接隨 patch 一起提供",
     "download_url":  "https://github.com/jasonwu1994/Gboard-patches/releases/download/v1.8.0/patches-1.8.0.mpp",
     "signature_download_url":  "",
-    "version":  "1.8.0"
+    "version":  "1.8.1"
 }
