@@ -44,8 +44,8 @@ public final class GboardClipboardRuntime {
     }
 
     public static boolean shouldShowCreationTime() {
-        return SUPPORT.shouldShowCreationTime();
-    }
+    return false;
+}
 
     public static int configuredRetentionTtlMinutes() {
         return SUPPORT.configuredRetentionTtlMinutes();

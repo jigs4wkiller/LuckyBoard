@@ -98,17 +98,15 @@ final class GboardClipboardRuntimeSupport {
     }
 
     boolean shouldShowExpiryCountdown() {
+        // return false;   // ← Timer komplett deaktiviert
         Context context = applicationContext();
-        return context == null
-                ? GboardClipboardSettings.DEFAULT_CLIPBOARD_SHOW_COUNTDOWN
-                : GboardClipboardSettings.readClipboardShowCountdown(context);
+        return false;   // Immer deaktiviert (auch wenn Einstellung an ist)
     }
 
     boolean shouldShowCreationTime() {
+        // return false;   // ← Creation Time komplett deaktiviert
         Context context = applicationContext();
-        return context == null
-                ? GboardClipboardSettings.DEFAULT_CLIPBOARD_SHOW_CREATION_TIME
-                : GboardClipboardSettings.readClipboardShowCreationTime(context);
+        return false;   // Immer deaktiviert
     }
 
     int configuredRetentionTtlMinutes() {
@@ -139,11 +137,9 @@ final class GboardClipboardRuntimeSupport {
     }
 
     int configuredColumnCount() {
+        // return false;   // ← Timer komplett deaktiviert
         Context context = applicationContext();
-        return context == null
-                ? GboardClipboardSettings.DEFAULT_CLIPBOARD_COLUMN_COUNT
-                : sanitizeClipboardColumnCount(
-                        GboardClipboardSettings.readClipboardColumnCount(context));
+        return false;   // Immer deaktiviert (auch wenn Einstellung an ist)
     }
 
     void registerApplicationContext(Context context) {

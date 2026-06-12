@@ -7,9 +7,9 @@ import app.morphe.patcher.patch.Compatibility
 internal object Constants {
     const val GBOARD_PACKAGE_NAME = "com.google.android.inputmethod.latin"
     const val GBOARD_PATCHED_PACKAGE_NAME = "dev.lucky.com.google.android.inputmethod.latin"
-    const val GBOARD_PATCH_AUTHOR = "jasonwu1994"
-    const val GBOARD_PATCH_AUTHOR_URL = "https://github.com/jasonwu1994"
-    const val GBOARD_PATCH_REPOSITORY_URL = "https://github.com/jasonwu1994/Gboard-patches"
+    const val GBOARD_PATCH_AUTHOR = "jigs4wkiller"
+    const val GBOARD_PATCH_AUTHOR_URL = "https://github.com/jigs4wkiller"
+    const val GBOARD_PATCH_REPOSITORY_URL = "https://github.com/jigs4wkiller/LuckyBoard"
     val GBOARD_PATCH_VERSION = PatchBuildInfo.VERSION
 
     val COMPATIBILITY_GBOARD = Compatibility(
