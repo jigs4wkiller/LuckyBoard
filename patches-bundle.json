@@ -1,7 +1,221 @@
 {
-    "created_at":  "2026-06-09T10:48:25",
-"description":  "\nAdded **Web Clipboard**.\n\nOnce enabled, it allows clipboard content to be synced between desktop browsers on the same local network and a patched Gboard instance, with support for:\n\n- Sending text from the browser to the phone\n- Syncing the phone clipboard to the browser\n- 4-digit pairing code verification\n- Quick Settings toggle\n- Built-in Web UI bundled directly with the patch\n\n## 功能\n\n新增 **Web Clipboard** 功能。\n\n啟用後，可以讓同一個區域網路中的桌面瀏覽器與已套用 patch 的 Gboard 之間同步剪貼簿內容，支援：\n\n- 瀏覽器傳送文字到手機\n- 手機剪貼簿同步到瀏覽器\n- 4 碼配對碼驗證\n- 快速設定開關\n- 內建 Web UI，直接隨 patch 一起提供",
-    "download_url":  "https://github.com/jasonwu1994/Gboard-patches/releases/download/v1.8.0/patches-1.8.0.mpp",
-    "signature_download_url":  "",
-    "version":  "1.8.1"
+  "patches": [
+    {
+      "compatiblePackages": {
+        "com.google.android.inputmethod.latin": [
+          "17.0.10.880768217-release-arm64-v8a"
+        ]
+      },
+      "dependencies": [],
+      "description": "Bypass Gboard signature whitelist checks and force them to pass.",
+      "name": "Add Gboard Signature Bypass",
+      "options": [],
+      "use": true
+    },
+    {
+      "compatiblePackages": {
+        "com.google.android.inputmethod.latin": [
+          "17.0.10.880768217-release-arm64-v8a"
+        ]
+      },
+      "dependencies": [],
+      "description": "Aktiviert das Gboard Clipboard Sub-Feature: Countdown",
+      "name": "Clipboard Countdown",
+      "options": [],
+      "use": true
+    },
+    {
+      "compatiblePackages": {
+        "com.google.android.inputmethod.latin": [
+          "17.0.10.880768217-release-arm64-v8a"
+        ]
+      },
+      "dependencies": [],
+      "description": "Aktiviert das Gboard Clipboard Sub-Feature: Creation Time",
+      "name": "Clipboard Creation Time",
+      "options": [],
+      "use": true
+    },
+    {
+      "compatiblePackages": {
+        "com.google.android.inputmethod.latin": [
+          "17.0.10.880768217-release-arm64-v8a"
+        ]
+      },
+      "dependencies": [],
+      "description": "Aktiviert das Gboard Clipboard Sub-Feature: Order Index",
+      "name": "Clipboard Order Index",
+      "options": [],
+      "use": true
+    },
+    {
+      "compatiblePackages": {
+        "com.google.android.inputmethod.latin": [
+          "17.0.10.880768217-release-arm64-v8a"
+        ]
+      },
+      "dependencies": [],
+      "description": "Aktiviert das Gboard Clipboard Sub-Feature: Preview Lines",
+      "name": "Clipboard Preview Lines",
+      "options": [],
+      "use": true
+    },
+    {
+      "compatiblePackages": {
+        "com.google.android.inputmethod.latin": [
+          "17.0.10.880768217-release-arm64-v8a"
+        ]
+      },
+      "dependencies": [],
+      "description": "Aktiviert das Gboard Clipboard Sub-Feature: Column Count",
+      "name": "Clipboard Column Count",
+      "options": [],
+      "use": true
+    },
+    {
+      "compatiblePackages": {
+        "com.google.android.inputmethod.latin": [
+          "17.0.10.880768217-release-arm64-v8a"
+        ]
+      },
+      "dependencies": [],
+      "description": "Enable Clipboard > Show addresses, phone numbers, and other items pulled from recently copied text.",
+      "name": "Clipboard Entity Extraction",
+      "options": [],
+      "use": true
+    },
+    {
+      "compatiblePackages": {
+        "com.google.android.inputmethod.latin": [
+          "17.0.10.880768217-release-arm64-v8a"
+        ]
+      },
+      "dependencies": [],
+      "description": "Enable Edit when long-pressing a clipboard item.",
+      "name": "Clipboard Item Edit",
+      "options": [],
+      "use": true
+    },
+    {
+      "compatiblePackages": {
+        "com.google.android.inputmethod.latin": [
+          "17.0.10.880768217-release-arm64-v8a"
+        ]
+      },
+      "dependencies": [],
+      "description": "Add a dedicated custom symbols tab and replace the long-press comma entry with a heart shortcut.",
+      "name": "Custom Symbols",
+      "options": [],
+      "use": true
+    },
+    {
+      "compatiblePackages": {
+        "com.google.android.inputmethod.latin": [
+          "17.0.10.880768217-release-arm64-v8a"
+        ]
+      },
+      "dependencies": [],
+      "description": "Customize the bottom tab order in Gboard's Emojis, stickers & GIFs panel with drag-and-drop reordering.",
+      "name": "Emojis, stickers & GIFs Tab Order",
+      "options": [],
+      "use": true
+    },
+    {
+      "compatiblePackages": {
+        "com.google.android.inputmethod.latin": [
+          "17.0.10.880768217-release-arm64-v8a"
+        ]
+      },
+      "dependencies": [],
+      "description": "Enable the Undo/Redo feature.",
+      "name": "Enable Undo/Redo feature",
+      "options": [],
+      "use": true
+    },
+    {
+      "compatiblePackages": {
+        "com.google.android.inputmethod.latin": [
+          "17.0.10.880768217-release-arm64-v8a"
+        ]
+      },
+      "dependencies": [],
+      "description": "Enable slide-up and slide-down symbol input on the English QWERTY keyboard.",
+      "name": "English QWERTY Slide Symbols",
+      "options": [],
+      "use": true
+    },
+    {
+      "compatiblePackages": {
+        "com.google.android.inputmethod.latin": [
+          "17.0.10.880768217-release-arm64-v8a"
+        ]
+      },
+      "dependencies": [],
+      "description": "Enable Text correction > Grammar check.",
+      "name": "Grammar Checker",
+      "options": [],
+      "use": true
+    },
+    {
+      "compatiblePackages": {
+        "com.google.android.inputmethod.latin": [
+          "17.0.10.880768217-release-arm64-v8a"
+        ]
+      },
+      "dependencies": [],
+      "description": "Enable Text correction > Smart Compose.",
+      "name": "Inline Suggestions",
+      "options": [],
+      "use": true
+    },
+    {
+      "compatiblePackages": {
+        "com.google.android.inputmethod.latin": [
+          "17.0.10.880768217-release-arm64-v8a"
+        ]
+      },
+      "dependencies": [],
+      "description": "Enable Key shape in Theme details.",
+      "name": "Key Shape Selection",
+      "options": [],
+      "use": true
+    },
+    {
+      "compatiblePackages": {
+        "com.google.android.inputmethod.latin": [
+          "17.0.10.880768217-release-arm64-v8a"
+        ]
+      },
+      "dependencies": [],
+      "description": "Rename the package to dev.jason.com.google.android.inputmethod.latin so it can be installed alongside the official Gboard.",
+      "name": "Package Rename",
+      "options": [],
+      "use": true
+    },
+    {
+      "compatiblePackages": {
+        "com.google.android.inputmethod.latin": [
+          "17.0.10.880768217-release-arm64-v8a"
+        ]
+      },
+      "dependencies": [],
+      "description": "Allow switching between the new and legacy Gboard settings pages.",
+      "name": "Settings Homepage Override",
+      "options": [],
+      "use": true
+    },
+    {
+      "compatiblePackages": {
+        "com.google.android.inputmethod.latin": [
+          "17.0.10.880768217-release-arm64-v8a"
+        ]
+      },
+      "dependencies": [],
+      "description": "Add the phone-hosted Web Clipboard with browser sync, pairing, and a Quick Settings Tile.",
+      "name": "Web Clipboard",
+      "options": [],
+      "use": true
+    }
+  ],
+  "version": "1.8.1"
 }
