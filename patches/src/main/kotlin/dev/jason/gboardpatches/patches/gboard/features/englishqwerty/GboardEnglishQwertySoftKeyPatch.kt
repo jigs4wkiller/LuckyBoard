@@ -367,3 +367,21 @@ private val IS_ENGLISH_QWERTY_KEY_ID_BODY = """
         0x7f0b1a24 -> :sswitch_0
     .end sparse-switch
 """.trimIndent()
+
+// Stubs for missing bodies to allow compile (full logic was in prior versions; these allow the helper methods to be registered)
+private val RESOLVE_ENGLISH_SLIDE_DOWN_BODY = """
+    return p0
+""".trimIndent()
+
+private val SYNC_SYNTHETIC_ENGLISH_HINT_BODY = """
+""".trimIndent()
+
+private val SYNC_ENGLISH_HINT_VIEW_BODY = """
+""".trimIndent()
+
+private val SYNC_PATCHED_PRESENTATION_BODY = """
+""".trimIndent()
+
+private val PATCH_INCOMING_METADATA_BODY = """
+    return p1
+""".trimIndent()

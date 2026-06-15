@@ -29,6 +29,24 @@ public final class GboardPatchesFeatureAvailability {
             "dev.jason.gboardpatches.feature.symbol_footer_order";
     public static final String FEATURE_LATIN_GLOBE_KEY_IGNORE_INTERVAL =
             "dev.jason.gboardpatches.feature.latin_globe_key_ignore_interval";
+    public static final String FEATURE_FEATURE_FLAGS_UI =
+            "dev.jason.gboardpatches.feature.feature_flags_ui";
+    public static final String FEATURE_FLAG_SUPPORT_ACCESSORY_KEYBOARD =
+            "dev.jason.gboardpatches.feature.flag_support_accessory_keyboard";
+    public static final String FEATURE_FLAG_ENABLE_VOICE_WIDGET =
+            "dev.jason.gboardpatches.feature.flag_enable_voice_widget";
+    public static final String FEATURE_FLAG_ENABLE_NEW_LANGUAGE_SEARCH_BAR =
+            "dev.jason.gboardpatches.feature.flag_enable_new_language_search_bar";
+    public static final String FEATURE_FLAG_ENABLE_SETTINGS_TWO_PANE =
+            "dev.jason.gboardpatches.feature.flag_enable_settings_two_pane";
+    public static final String FEATURE_FLAG_ENABLE_OCR =
+            "dev.jason.gboardpatches.feature.flag_enable_ocr";
+    public static final String FEATURE_FLAG_ENABLE_DICTATION_REDESIGN =
+            "dev.jason.gboardpatches.feature.flag_enable_dictation_redesign";
+    public static final String FEATURE_FLAG_SHOW_COLLAPSE_BUTTON =
+            "dev.jason.gboardpatches.feature.flag_show_collapse_button";
+    public static final String FEATURE_KEY_SHAPE_CUSTOMIZATION =
+            "dev.jason.gboardpatches.feature.key_shape_customization";
 
     private static final String TAG = "GboardPatches";
 

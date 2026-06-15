@@ -1,7 +1,7 @@
 package dev.jason.gboardpatches.patches.gboard.features.incognito
 
 import app.morphe.patcher.patch.resourcePatch
-import dev.jason.gboardpatches.patches.gboard.features.signaturebypass.gboardSignatureBypassPatch
+import dev.jason.gboardpatches.patches.gboard.registry.gboardSignatureBypassPatch
 import dev.jason.gboardpatches.patches.shared.Constants.COMPATIBILITY_GBOARD
 
 @Suppress("unused")

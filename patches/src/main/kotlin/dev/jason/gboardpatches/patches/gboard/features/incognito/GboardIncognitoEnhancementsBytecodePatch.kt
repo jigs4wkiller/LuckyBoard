@@ -1,5 +1,6 @@
 package dev.jason.gboardpatches.patches.gboard.features.incognito
 
+import app.morphe.patcher.extensions.InstructionExtensions.addInstructions
 import app.morphe.patcher.extensions.InstructionExtensions.getInstruction
 import app.morphe.patcher.extensions.InstructionExtensions.removeInstructions
 import app.morphe.patcher.extensions.InstructionExtensions.replaceInstruction
@@ -71,7 +72,7 @@ internal val gboardIncognitoEnhancementsBytecodePatch = bytecodePatch(
                 getInstruction<OneRegisterInstruction>(isIncognitoEnabledIndex)
             val isIncognitoEnabledRegister = isIncognitoEnabledInstruction.registerA
 
-            addInstruction(
+            addInstructions(
                 index = isIncognitoEnabledIndex,
                 smaliInstructions = "const/4 v$isIncognitoEnabledRegister, 0x0"
             )
