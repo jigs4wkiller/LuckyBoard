@@ -276,8 +276,16 @@ val gboardSignatureBypassPatch = resourcePatch(
     )
 }
 
-@Suppress("unused")
-val gboardFeatureFlagsPatch = dev.jason.gboardpatches.patches.gboard.features.featureflags.gboardFeatureFlagsPatch
+// NOTE: The rebind aliases below are commented out because they trigger a
+// NullPointerException in PatchLoader.getPatchMethods (null cast to Patch<*>) 
+// when the pure buildAndroid .mpp is loaded by Morphe CLI / Manager / URV.
+// The patches are still discovered via their @Suppress("unused") definitions
+// in the feature subpackages, so the full 18 patches load correctly in the
+// pure build output (the recommended format for the apps).
+// See history for the loader crash details.
 
-@Suppress("unused")
-val gboardIncognitoEnhancementsPatch = dev.jason.gboardpatches.patches.gboard.features.incognito.gboardIncognitoEnhancementsPatch
+// @Suppress("unused")
+// val gboardFeatureFlagsPatch = dev.jason.gboardpatches.patches.gboard.features.featureflags.gboardFeatureFlagsPatch
+
+// @Suppress("unused")
+// val gboardIncognitoEnhancementsPatch = dev.jason.gboardpatches.patches.gboard.features.incognito.gboardIncognitoEnhancementsPatch
