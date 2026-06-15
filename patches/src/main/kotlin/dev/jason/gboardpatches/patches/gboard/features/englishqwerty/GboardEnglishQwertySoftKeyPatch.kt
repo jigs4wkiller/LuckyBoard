@@ -368,20 +368,25 @@ private val IS_ENGLISH_QWERTY_KEY_ID_BODY = """
     .end sparse-switch
 """.trimIndent()
 
-// Stubs for missing bodies to allow compile (full logic was in prior versions; these allow the helper methods to be registered)
+// Minimal valid smali bodies to prevent "Collection is empty" crash in InlineSmaliCompiler during addHelperMethodIfMissing.
+// These are no-ops / identity returns so the patch applies without exception.
+// Full slide symbol logic would require the original complex bodies from prior versions.
 private val RESOLVE_ENGLISH_SLIDE_DOWN_BODY = """
-    return p0
+    return-object p0
 """.trimIndent()
 
 private val SYNC_SYNTHETIC_ENGLISH_HINT_BODY = """
+    return-void
 """.trimIndent()
 
 private val SYNC_ENGLISH_HINT_VIEW_BODY = """
+    return-void
 """.trimIndent()
 
 private val SYNC_PATCHED_PRESENTATION_BODY = """
+    return-void
 """.trimIndent()
 
 private val PATCH_INCOMING_METADATA_BODY = """
-    return p1
+    return-object p1
 """.trimIndent()
