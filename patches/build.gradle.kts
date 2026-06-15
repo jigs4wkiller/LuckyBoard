@@ -24,7 +24,7 @@ val generatePatchBuildInfo by tasks.registering {
     inputs.property("patchVersion", patchVersion)
     outputs.dir(outputDir)
     doLast {
-        val packageDir = outputDir.get().file("dev/jason/gboardpatches/patches/shared").asFile
+        val packageDir = outputDir.get().file("dev/lucky/gboardpatches/patches/shared").asFile
         packageDir.mkdirs()
         packageDir.resolve("PatchBuildInfo.kt").writeText(
             """
