@@ -49,8 +49,9 @@ private fun cleanDocument(doc: org.w3c.dom.Document, docPath: String) {
     if (docPath.endsWith("settings.xml") || docPath.endsWith("settings_legacy.xml")) {
         // Precise removal based on decompiled APK structure (from provided tar.xz):
         // In the bottom PreferenceCategory (the one with our "gboard_patches_entry"),
-        // remove Privacy (0x7f140aca), Hilfe/Feedback (0x7f140acc + 0x7f140ac4), Rate (0x7f140acb), Info/About (0x7f140abb).
-        // Keep Patches entry and footer.
+        // remove the native entries for Privacy/Datenschutz, Hilfe&Feedback, Rate/Bewerten, Info/About.
+        // Keep our Patches entry and footer.
+        // Use stable class names (HeaderPreference, RateUsPreference) for robustness across Gboard versions.
         walkElementNodes(root) { elem ->
             if (elem.tagName == "androidx.preference.PreferenceCategory") {
                 var hasPatches = false
@@ -62,10 +63,12 @@ private fun cleanDocument(doc: org.w3c.dom.Document, docPath: String) {
                         val key = getAttr(child, "key")
                         if (key == "gboard_patches_entry") {
                             hasPatches = true
-                        } else if (key != null && (key.contains("0x7f140aca") || key.contains("0x7f140acb") || 
-                                key.contains("0x7f140abb") || key.contains("0x7f140acc") || key.contains("0x7f140ac4"))) {
-                            // Privacy (Datenschutz), Rate (Bewerten), About/Info, Hilfe&Feedback (from decompile)
-                            childrenToRemove.add(child)
+                        } else {
+                            val tag = child.tagName
+                            if (tag.contains("HeaderPreference") || tag.contains("RateUsPreference")) {
+                                // These are the native ones to remove (Privacy, Hilfe, Rate, Info etc. in this category)
+                                childrenToRemove.add(child)
+                            }
                         }
                     }
                 }
