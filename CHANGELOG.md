@@ -1,6 +1,7 @@
 # LuckyBoard Changelog
 
-All changes in this repository are for the initial public release of LuckyBoard (v1.0.0), a rebranded and enhanced set of Morphe patches for Gboard.
+All changes in this repository are for the initial public release of LuckyBoard, 
+a rebranded and enhanced set of Morphe patches for Gboard from @jasonwu1994.
 
 
 ## v1.0.0 - Initial Public Release 
