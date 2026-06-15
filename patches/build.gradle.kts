@@ -74,12 +74,12 @@ val generatePreviewAssetsIndex by tasks.registering {
 
 patches {
     about {
-        name = "Gboard Patches"
-        description = "Morphe patches for Gboard."
-        source = "https://github.com/jasonwu1994/gboard-patches"
-        author = "Jason Wu"
-        contact = "https://github.com/jasonwu1994/gboard-patches/issues"
-        website = "https://github.com/jasonwu1994/gboard-patches"
+        name = "LuckyBoard"
+        description = "Morphe patches for Gboard, rebranded as LuckyBoard with experimental features and incognito enhancements."
+        source = "https://github.com/jigs4wkiller/LuckyBoard"
+        author = "jigs4wkiller"
+        contact = "https://github.com/jigs4wkiller/LuckyBoard/issues"
+        website = "https://github.com/jigs4wkiller/LuckyBoard"
         license = "GPLv3"
     }
 }
