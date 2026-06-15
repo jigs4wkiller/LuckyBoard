@@ -69,8 +69,8 @@ public final class GboardPatchesSettingsActivity extends Activity
             "dev.jason.gboardpatches.extension.extra.OPEN_WEB_CLIPBOARD";
     private static final int TOOLBAR_HEIGHT_DP = 56;
     private static final String TOOLBAR_TITLE_PATCHES = "Patches";
-    private static final String HEADER_BADGE = "Gboard";
-    private static final String HEADER_TITLE = "Patch settings";
+    private static final String HEADER_BADGE = "LuckyBoard";
+    private static final String HEADER_TITLE = "LuckyBoard settings";
     private static final String HEADER_SUMMARY = "";
     private static final String ERROR_HEADER_TITLE = "Feature unavailable";
     private static final String ERROR_HEADER_SUMMARY =
@@ -81,7 +81,7 @@ public final class GboardPatchesSettingsActivity extends Activity
     private static final String FATAL_FALLBACK_TITLE = "Patches temporarily unavailable";
     private static final String FATAL_FALLBACK_SUMMARY =
             "This screen hit an internal error and was safely disabled. "
-                    + "Gboard stays alive. Reopen settings and try again.";
+                    + "LuckyBoard stays alive. Reopen settings and try again.";
     private static final String ABOUT_AUTHOR_TITLE = "Author";
     private static final String ABOUT_PATCH_VERSION_TITLE = "Patch Version";
     private static final String PREFERENCES_SECTION_TITLE = "Preferences";
@@ -100,9 +100,9 @@ public final class GboardPatchesSettingsActivity extends Activity
     private static final String CURRENT_VALUE_LABEL = "Current";
     private static final String PREVIEW_LABEL = "Preview";
     private static final String CONFIRM_ACTION = "Confirm";
-    private static final String ABOUT_AUTHOR_URL = "https://github.com/jasonwu1994";
+    private static final String ABOUT_AUTHOR_URL = "https://github.com/jigs4wkiller";
     private static final String ABOUT_PATCH_REPOSITORY_URL =
-            "https://github.com/jasonwu1994/Gboard-patches";
+            "https://github.com/jigs4wkiller/LuckyBoard";
     private Palette palette;
     private LinearLayout toolbarView;
     private TextView toolbarTitleView;
