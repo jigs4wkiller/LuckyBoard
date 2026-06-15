@@ -52,12 +52,12 @@ private fun addHelperMethods() = with(context) {
     )
     addHelperMethodIfMissing(
         classType = SOFT_KEY_VIEW_CLASS,
-        name = "jasondevIsQwertyKeyId",
+        name = "jasondevIsEnglishQwertyKeyId",
         parameterTypes = listOf("I"),
         returnType = "Z",
         accessFlags = AccessFlags.PRIVATE.value or AccessFlags.STATIC.value,
         registerCount = 2,
-        body = IS_QWERTY_KEY_ID_BODY
+        body = IS_ENGLISH_QWERTY_KEY_ID_BODY
     )
     addHelperMethodIfMissing(
         classType = SOFT_KEY_VIEW_CLASS,
@@ -299,7 +299,71 @@ private val RESOLVE_PRIMARY_LABEL_BODY = """
     return-object p0
 """.trimIndent()
 
-private val IS_QWERTY_KEY_ID_BODY = """
-    const/4 p0, 0x1
+private val IS_ENGLISH_QWERTY_KEY_ID_BODY = """
+    sparse-switch p0, :sswitch_data_0
+
+    const/4 p0, 0x0
+
     return p0
+
+    :sswitch_0
+    const/4 p0, 0x1
+
+    return p0
+
+    :sswitch_data_0
+    .sparse-switch
+        0x7f0b1819 -> :sswitch_0
+        0x7f0b1828 -> :sswitch_0
+        0x7f0b182a -> :sswitch_0
+        0x7f0b1831 -> :sswitch_0
+        0x7f0b1836 -> :sswitch_0
+        0x7f0b1848 -> :sswitch_0
+        0x7f0b184a -> :sswitch_0
+        0x7f0b1855 -> :sswitch_0
+        0x7f0b185a -> :sswitch_0
+        0x7f0b186b -> :sswitch_0
+        0x7f0b186d -> :sswitch_0
+        0x7f0b1871 -> :sswitch_0
+        0x7f0b1875 -> :sswitch_0
+        0x7f0b1879 -> :sswitch_0
+        0x7f0b1882 -> :sswitch_0
+        0x7f0b1897 -> :sswitch_0
+        0x7f0b1899 -> :sswitch_0
+        0x7f0b189a -> :sswitch_0
+        0x7f0b189e -> :sswitch_0
+        0x7f0b18a7 -> :sswitch_0
+        0x7f0b18b1 -> :sswitch_0
+        0x7f0b18c4 -> :sswitch_0
+        0x7f0b18c6 -> :sswitch_0
+        0x7f0b18c9 -> :sswitch_0
+        0x7f0b18ca -> :sswitch_0
+        0x7f0b18ce -> :sswitch_0
+        0x7f0b18f5 -> :sswitch_0
+        0x7f0b1905 -> :sswitch_0
+        0x7f0b190a -> :sswitch_0
+        0x7f0b1917 -> :sswitch_0
+        0x7f0b1924 -> :sswitch_0
+        0x7f0b193a -> :sswitch_0
+        0x7f0b193e -> :sswitch_0
+        0x7f0b194d -> :sswitch_0
+        0x7f0b1953 -> :sswitch_0
+        0x7f0b1964 -> :sswitch_0
+        0x7f0b1968 -> :sswitch_0
+        0x7f0b1970 -> :sswitch_0
+        0x7f0b197c -> :sswitch_0
+        0x7f0b1982 -> :sswitch_0
+        0x7f0b198e -> :sswitch_0
+        0x7f0b19a4 -> :sswitch_0
+        0x7f0b19aa -> :sswitch_0
+        0x7f0b19ad -> :sswitch_0
+        0x7f0b19b7 -> :sswitch_0
+        0x7f0b19df -> :sswitch_0
+        0x7f0b19ff -> :sswitch_0
+        0x7f0b1a14 -> :sswitch_0
+        0x7f0b1a17 -> :sswitch_0
+        0x7f0b1a1b -> :sswitch_0
+        0x7f0b1a1e -> :sswitch_0
+        0x7f0b1a24 -> :sswitch_0
+    .end sparse-switch
 """.trimIndent()
