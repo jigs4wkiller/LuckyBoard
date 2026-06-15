@@ -5,15 +5,18 @@ import app.morphe.patcher.patch.resourcePatch
 import dev.jason.gboardpatches.patches.gboard.shared.elements
 import dev.jason.gboardpatches.patches.shared.Constants.GBOARD_PACKAGE_NAME
 import dev.jason.gboardpatches.patches.shared.Constants.GBOARD_PATCHED_PACKAGE_NAME
+import dev.jason.gboardpatches.patches.shared.Constants.LUCKYBOARD_APP_NAME
 
 internal val gboardPackageRenameResourcePatch = resourcePatch(
-    description = "將套件名稱改成可共存安裝的自訂值。"
+    description = "Rename the package to allow side-by-side installation with the official Gboard and rename the app to \"LuckyBoard\"."
 ) {
     finalize {
         applyManifestPackageOverride(
             originalPackageName = GBOARD_PACKAGE_NAME,
             packageNameOverride = GBOARD_PATCHED_PACKAGE_NAME
         )
+        // Additionally rename the visible app name (launcher/settings) to LuckyBoard.
+        applyAppNameRename(LUCKYBOARD_APP_NAME)
     }
 }
 
@@ -39,6 +42,17 @@ private fun applyManifestPackageOverride(
                     attribute.nodeValue = updatedValue
                 }
             }
+        }
+    }
+}
+
+context(context: ResourcePatchContext)
+private fun applyAppNameRename(appName: String) = with(context) {
+    document("AndroidManifest.xml").use { document ->
+        // Set the app label on all <application> elements (usually one).
+        // This renames the app to "LuckyBoard" in the launcher and settings.
+        document.getElementsByTagName("application").elements().forEach { element ->
+            element.setAttribute("android:label", appName)
         }
     }
 }
