@@ -28,8 +28,11 @@ private const val KEY_SHAPE_CUSTOMIZATION_FEATURE_MARKER_NAME =
 context(context: ResourcePatchContext)
 private fun addExtendedKeyShapes() = with(context) {
     val resDir = get("res")
+    // Only touch likely preference/theme XMLs to avoid corrupting unrelated resources.
+    // The key shape picker UI in Gboard is mostly flag-driven + some theme XMLs.
     resDir.walkTopDown()
-        .filter { f -> f.isFile && f.name.endsWith(".xml") && (f.name.contains("shape") || f.name.contains("key") || f.name.contains("theme")) }
+        .filter { f -> f.isFile && f.name.endsWith(".xml") &&
+                (f.name.contains("setting") || f.name.contains("preference") || f.name.contains("theme") || f.name.contains("key")) }
         .forEach { xmlFile ->
             val rel = xmlFile.relativeTo(resDir).invariantSeparatorsPath
             val docPath = "res/$rel"

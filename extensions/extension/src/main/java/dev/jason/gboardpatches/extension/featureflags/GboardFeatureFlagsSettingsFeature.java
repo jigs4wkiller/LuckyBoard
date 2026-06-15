@@ -15,11 +15,11 @@ public final class GboardFeatureFlagsSettingsFeature
     private static final String TAG = "GboardFeatureFlags";
     private static final String ENTRY_TITLE = "Feature Flags";
     private static final String ENTRY_SUMMARY =
-            "Toggle Gboard internal rollout flags at runtime. Changes take effect immediately for most features.";
+            "Toggle Gboard internal rollout flags at runtime. Some changes (e.g. key shapes, incognito) require restarting Gboard to take effect.";
     private static final String HEADER_BADGE = "LuckyBoard";
     private static final String HEADER_TITLE = "Feature Flags";
     private static final String HEADER_SUMMARY =
-            "These flags appear because they were selected during patching. They start DISABLED. Flip the switches ON here to activate the corresponding Gboard features. Each flag has a short description.";
+            "These flags appear because they were selected during patching. They start DISABLED. Flip the switches ON here to activate the corresponding Gboard features. Each flag has a short description. Use the Restart button below for changes that need a full Gboard restart.";
 
     @Override
     public String getEntryTitle() {
@@ -82,6 +82,14 @@ public final class GboardFeatureFlagsSettingsFeature
                     "No flags available",
                     "No feature flags were enabled at patch time for this build, or the UI was not included.",
                     false));
+        } else {
+            // Add restart button - flag changes often require Gboard restart to fully apply in the picker/UI
+            rows.add(new GboardPatchesSettingsContract.CommandRow(
+                    "Restart Gboard to apply",
+                    "Most flag toggles (especially key shapes, incognito, voice etc.) require a full restart of Gboard to take effect.",
+                    true,
+                    () -> restartGboard(context)
+            ));
         }
 
         return new GboardPatchesSettingsContract.Screen(
@@ -111,5 +119,18 @@ public final class GboardFeatureFlagsSettingsFeature
             return GboardPatchesFeatureAvailability.FEATURE_KEY_SHAPE_SELECTION;
         }
         return "dev.jason.gboardpatches.feature." + internalName; // fallback
+    }
+
+    private void restartGboard(Context context) {
+        try {
+            android.widget.Toast.makeText(context, "Restarting Gboard...", android.widget.Toast.LENGTH_SHORT).show();
+        } catch (Exception ignored) {}
+        // Kill the current Gboard process. It will restart automatically on next keyboard use.
+        // This is the standard way in Gboard patches to apply flag changes.
+        new android.os.Handler(android.os.Looper.getMainLooper()).postDelayed(() -> {
+            try {
+                android.os.Process.killProcess(android.os.Process.myPid());
+            } catch (Exception ignored) {}
+        }, 600);
     }
 }

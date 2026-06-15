@@ -22,23 +22,17 @@ internal val gboardSettingsCleanUpResourcePatch = resourcePatch(
 context(context: ResourcePatchContext)
 private fun applySettingsCleanUp() = with(context) {
     val resDir = get("res")
-    // Target main settings files and privacy/about specifically, based on decompiled APK structure
+    // Only target the actual Gboard settings XML files identified from decompiled APK.
+    // We saw the bottom category (with our injected Patches entry) in settings.xml and settings_legacy.xml.
+    // Privacy subs live in setting_privacy.xml.
+    // This avoids touching random xml_0x* files (which are layouts, drawables, etc.), which was causing
+    // "Unexpected end of document" SAX errors in ResourceIdProcessor during Morphe's resource re-encoding.
     listOf("res/xml/settings.xml", "res/xml/settings_legacy.xml", "res/xml/setting_privacy.xml", "res/xml/setting_about.xml")
         .forEach { docPath ->
             if (get(docPath).exists()) {
                 document(docPath).use { doc ->
                     cleanDocument(doc, docPath)
                 }
-            }
-        }
-    // Also walk any other xml_0x for robustness in obfuscated builds
-    resDir.walkTopDown()
-        .filter { f -> f.isFile && f.name.endsWith(".xml") && f.name.startsWith("xml_0x") }
-        .forEach { xmlFile ->
-            val rel = xmlFile.relativeTo(resDir).invariantSeparatorsPath
-            val docPath = "res/$rel"
-            document(docPath).use { doc ->
-                cleanDocument(doc, docPath)
             }
         }
 }
@@ -75,6 +69,17 @@ private fun cleanDocument(doc: org.w3c.dom.Document, docPath: String) {
                 if (hasPatches) {
                     childrenToRemove.forEach { elem.removeChild(it) }
                 }
+            }
+        }
+    }
+
+    // Also remove by exact decompiled keys in case the class based misses some (for robustness)
+    val keysToRemove = setOf("0x7f140aca", "0x7f140acc", "0x7f140acb", "0x7f140abb", "0x7f140ac4")
+    walkElementNodes(root) { elem ->
+        if (isPreferenceLike(elem)) {
+            val key = getAttr(elem, "key") ?: ""
+            if (keysToRemove.any { key.contains(it) }) {
+                elem.parentNode?.removeChild(elem)
             }
         }
     }
