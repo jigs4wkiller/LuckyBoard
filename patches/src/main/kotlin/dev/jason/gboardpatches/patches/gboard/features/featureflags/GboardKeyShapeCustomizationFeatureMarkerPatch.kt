@@ -39,7 +39,12 @@ private fun addExtendedKeyShapes() = with(context) {
         "res/xml/settings_legacy.xml",
         "res/xml/setting_physical_keyboard.xml",
         "res/xml/setting_theme.xml",
-        "res/xml/xml_0x7f170002.xml"  // from decompile contained belka_rounded references
+        "res/xml/xml_0x7f170002.xml",  // from decompile contained belka_rounded references
+        // Previously successful insertion targets (from decompile of prior patched APKs) to ensure
+        // the custom less_rounded / horizontal_lines ExtendedPreferences get declared where Gboard
+        // shape/keyboard prefs are defined. The flag forcing is the main enabler; this helps UI.
+        "res/xml/setting_japanese_12keys.xml",
+        "res/xml/setting_japanese_softwarekeyboard.xml"
     ).forEach { docPath ->
         if (get(docPath).exists()) {
             document(docPath).use { doc ->
