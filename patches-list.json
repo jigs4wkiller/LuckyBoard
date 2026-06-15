@@ -222,6 +222,77 @@
       "options": []
     },
     {
+      "name": "Universal Drawable Density Cleaner",
+      "description": "Removes unused DPI resources (drawable-*/mipmap-*) by keeping only the files from the user-selected density. User chooses via patch options which DPI remains (no auto-detect). Works on any app (universal).",
+      "use": true,
+      "dependencies": [],
+      "compatiblePackages": null,
+      "options": [
+        {
+          "key": "keep_ldpi",
+          "title": "Keep ldpi",
+          "description": "Keep only ldpi drawables/mipmaps and remove duplicates from other densities.",
+          "required": false,
+          "type": "kotlin.Boolean",
+          "default": false,
+          "values": null
+        },
+        {
+          "key": "keep_mdpi",
+          "title": "Keep mdpi",
+          "description": "Keep only mdpi drawables/mipmaps and remove duplicates from other densities.",
+          "required": false,
+          "type": "kotlin.Boolean",
+          "default": false,
+          "values": null
+        },
+        {
+          "key": "keep_hdpi",
+          "title": "Keep hdpi",
+          "description": "Keep only hdpi drawables/mipmaps and remove duplicates from other densities.",
+          "required": false,
+          "type": "kotlin.Boolean",
+          "default": false,
+          "values": null
+        },
+        {
+          "key": "keep_xhdpi",
+          "title": "Keep xhdpi",
+          "description": "Keep only xhdpi drawables/mipmaps and remove duplicates from other densities.",
+          "required": false,
+          "type": "kotlin.Boolean",
+          "default": false,
+          "values": null
+        },
+        {
+          "key": "keep_xxhdpi",
+          "title": "Keep xxhdpi",
+          "description": "Keep only xxhdpi drawables/mipmaps and remove duplicates from other densities.",
+          "required": false,
+          "type": "kotlin.Boolean",
+          "default": true,
+          "values": null
+        },
+        {
+          "key": "keep_xxxhdpi",
+          "title": "Keep xxxhdpi",
+          "description": "Keep only xxxhdpi drawables/mipmaps and remove duplicates from other densities.",
+          "required": false,
+          "type": "kotlin.Boolean",
+          "default": false,
+          "values": null
+        }
+      ]
+    },
+    {
+      "name": "Universal PNG Optimizer",
+      "description": "Optimizes PNG and *.9.png files in the decompiled APK by quantizing colors and re-compressing the image data. Excludes build/, original/, smali* and kotlin* directories. UNIVERSAL patch - works on any application when used in Morphe.",
+      "use": true,
+      "dependencies": [],
+      "compatiblePackages": null,
+      "options": []
+    },
+    {
       "name": "Web Clipboard",
       "description": "Add the phone-hosted Web Clipboard with browser sync, pairing, and a Quick Settings Tile.",
       "use": true,
