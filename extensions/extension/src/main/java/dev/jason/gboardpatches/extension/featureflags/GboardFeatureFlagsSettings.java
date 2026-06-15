@@ -36,6 +36,15 @@ public final class GboardFeatureFlagsSettings {
         map.put("enable_inline_suggestions_on_client_side", new FlagInfo("Inline Suggestions", "Enables Smart Compose and inline text suggestions."));
         map.put("enable_clipboard_entity_extraction", new FlagInfo("Clipboard Entity Extraction", "Shows detected addresses, phones, links etc. from clipboard items."));
         map.put("enable_clipboard_text_editor", new FlagInfo("Clipboard Item Edit", "Allows editing clipboard items directly from the long-press menu."));
+
+        // New flags from decompiled Gboard APK exploration (pdk registrations + community Rboard patterns).
+        map.put("enable_adjust_default_keyboard_height", new FlagInfo("Adjust Default Keyboard Height", "Allow adjusting the default on-screen keyboard height."));
+        map.put("silk_theme", new FlagInfo("Silk Theme", "Enable Silk / smooth Material You theme effects."));
+        map.put("material3_theme", new FlagInfo("Material 3 Theme", "Enable Material 3 theming in Gboard."));
+        map.put("silk_popup", new FlagInfo("Silk Popups", "Use refined Silk-style popups and suggestions."));
+        map.put("enable_ai_core_smart_reply", new FlagInfo("AI Smart Reply", "Enable AI core smart reply suggestions."));
+        map.put("keyboard_redesign_google_sans", new FlagInfo("Keyboard Redesign Google Sans", "Apply Google Sans in modern keyboard redesign layouts."));
+        map.put("bright_key_on_dynamic_color_dark_theme", new FlagInfo("Bright Keys on Dynamic Color Dark", "Use brighter key colors with dynamic color dark themes."));
         ALL_FLAGS = Collections.unmodifiableMap(map);
     }
 

@@ -102,6 +102,58 @@ val gboardFeatureFlagsPatch = resourcePatch(
         default = true
     )
 
+    // Additional good flags discovered by inspecting the decompiled Gboard APK (mainly pdk.smali flag registrations
+    // + other smali). Sourced from Rboard/GboardThemes community patterns for useful experimental/power-user features
+    // (keyboard sizing, modern Silk/Material3 theming, AI, redesigns, etc.). Keep in sync with runtime map and settings.
+    val enableAdjustKeyboardHeight = booleanOption(
+        key = "enable_adjust_default_keyboard_height",
+        title = "Adjust Default Keyboard Height",
+        description = "Allow fine-grained adjustment of the default keyboard height (useful for different screen sizes or preferences).",
+        default = true
+    )
+
+    val enableSilkTheme = booleanOption(
+        key = "silk_theme",
+        title = "Silk Theme",
+        description = "Enable Silk theme effects and smooth animations (Material You related).",
+        default = true
+    )
+
+    val enableMaterial3Theme = booleanOption(
+        key = "material3_theme",
+        title = "Material 3 Theme",
+        description = "Enable Material 3 theming support for Gboard.",
+        default = true
+    )
+
+    val enableSilkPopup = booleanOption(
+        key = "silk_popup",
+        title = "Silk Popups",
+        description = "Use Silk style for suggestion popups and UI elements.",
+        default = true
+    )
+
+    val enableAiSmartReply = booleanOption(
+        key = "enable_ai_core_smart_reply",
+        title = "AI Core Smart Reply",
+        description = "Enable AI-powered smart reply suggestions.",
+        default = true
+    )
+
+    val enableKeyboardRedesignGoogleSans = booleanOption(
+        key = "keyboard_redesign_google_sans",
+        title = "Keyboard Redesign (Google Sans)",
+        description = "Use Google Sans font in keyboard redesign / modern layouts.",
+        default = true
+    )
+
+    val enableBrightKeyOnDynamicColor = booleanOption(
+        key = "bright_key_on_dynamic_color_dark_theme",
+        title = "Bright Keys on Dynamic Color Dark Theme",
+        description = "Use brighter key colors on dynamic color dark themes.",
+        default = true
+    )
+
     // Additional from existing project for consolidation (grammar, suggestions, clipboard entity etc.)
     val enableGrammarChecker = booleanOption(
         key = "enable_grammar_checker",
@@ -161,6 +213,27 @@ val gboardFeatureFlagsPatch = resourcePatch(
         }
         if (java.lang.Boolean.TRUE == enableCollapseButton.value) {
             applyFeatureMarker("dev.jason.gboardpatches.feature.flag_show_collapse_button")
+        }
+        if (java.lang.Boolean.TRUE == enableAdjustKeyboardHeight.value) {
+            applyFeatureMarker("dev.jason.gboardpatches.feature.flag_enable_adjust_default_keyboard_height")
+        }
+        if (java.lang.Boolean.TRUE == enableSilkTheme.value) {
+            applyFeatureMarker("dev.jason.gboardpatches.feature.flag_silk_theme")
+        }
+        if (java.lang.Boolean.TRUE == enableMaterial3Theme.value) {
+            applyFeatureMarker("dev.jason.gboardpatches.feature.flag_material3_theme")
+        }
+        if (java.lang.Boolean.TRUE == enableSilkPopup.value) {
+            applyFeatureMarker("dev.jason.gboardpatches.feature.flag_silk_popup")
+        }
+        if (java.lang.Boolean.TRUE == enableAiSmartReply.value) {
+            applyFeatureMarker("dev.jason.gboardpatches.feature.flag_enable_ai_core_smart_reply")
+        }
+        if (java.lang.Boolean.TRUE == enableKeyboardRedesignGoogleSans.value) {
+            applyFeatureMarker("dev.jason.gboardpatches.feature.flag_keyboard_redesign_google_sans")
+        }
+        if (java.lang.Boolean.TRUE == enableBrightKeyOnDynamicColor.value) {
+            applyFeatureMarker("dev.jason.gboardpatches.feature.flag_bright_key_on_dynamic_color_dark_theme")
         }
         if (java.lang.Boolean.TRUE == enableGrammarChecker.value) {
             applyFeatureMarker("dev.jason.gboardpatches.feature.grammar_checker")

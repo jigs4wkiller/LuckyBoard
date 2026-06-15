@@ -48,6 +48,23 @@ public final class GboardPatchesFeatureAvailability {
     public static final String FEATURE_KEY_SHAPE_CUSTOMIZATION =
             "dev.jason.gboardpatches.feature.key_shape_customization";
 
+    // Additional good flags discovered in decompiled Gboard (pdk registration + other smali)
+    // from Rboard/GboardThemes community patterns and useful experimental features.
+    public static final String FEATURE_FLAG_ENABLE_ADJUST_DEFAULT_KEYBOARD_HEIGHT =
+            "dev.jason.gboardpatches.feature.flag_enable_adjust_default_keyboard_height";
+    public static final String FEATURE_FLAG_SILK_THEME =
+            "dev.jason.gboardpatches.feature.flag_silk_theme";
+    public static final String FEATURE_FLAG_MATERIAL3_THEME =
+            "dev.jason.gboardpatches.feature.flag_material3_theme";
+    public static final String FEATURE_FLAG_SILK_POPUP =
+            "dev.jason.gboardpatches.feature.flag_silk_popup";
+    public static final String FEATURE_FLAG_ENABLE_AI_CORE_SMART_REPLY =
+            "dev.jason.gboardpatches.feature.flag_enable_ai_core_smart_reply";
+    public static final String FEATURE_FLAG_KEYBOARD_REDESIGN_GOOGLE_SANS =
+            "dev.jason.gboardpatches.feature.flag_keyboard_redesign_google_sans";
+    public static final String FEATURE_FLAG_BRIGHT_KEY_ON_DYNAMIC_COLOR_DARK_THEME =
+            "dev.jason.gboardpatches.feature.flag_bright_key_on_dynamic_color_dark_theme";
+
     private static final String TAG = "GboardPatches";
 
     private GboardPatchesFeatureAvailability() {

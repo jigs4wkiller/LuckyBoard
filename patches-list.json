@@ -178,6 +178,69 @@
           "values": null
         },
         {
+          "key": "enable_adjust_default_keyboard_height",
+          "title": "Adjust Default Keyboard Height",
+          "description": "Allow fine-grained adjustment of the default keyboard height (useful for different screen sizes or preferences).",
+          "required": false,
+          "type": "kotlin.Boolean",
+          "default": true,
+          "values": null
+        },
+        {
+          "key": "silk_theme",
+          "title": "Silk Theme",
+          "description": "Enable Silk theme effects and smooth animations (Material You related).",
+          "required": false,
+          "type": "kotlin.Boolean",
+          "default": true,
+          "values": null
+        },
+        {
+          "key": "material3_theme",
+          "title": "Material 3 Theme",
+          "description": "Enable Material 3 theming support for Gboard.",
+          "required": false,
+          "type": "kotlin.Boolean",
+          "default": true,
+          "values": null
+        },
+        {
+          "key": "silk_popup",
+          "title": "Silk Popups",
+          "description": "Use Silk style for suggestion popups and UI elements.",
+          "required": false,
+          "type": "kotlin.Boolean",
+          "default": true,
+          "values": null
+        },
+        {
+          "key": "enable_ai_core_smart_reply",
+          "title": "AI Core Smart Reply",
+          "description": "Enable AI-powered smart reply suggestions.",
+          "required": false,
+          "type": "kotlin.Boolean",
+          "default": true,
+          "values": null
+        },
+        {
+          "key": "keyboard_redesign_google_sans",
+          "title": "Keyboard Redesign (Google Sans)",
+          "description": "Use Google Sans font in keyboard redesign / modern layouts.",
+          "required": false,
+          "type": "kotlin.Boolean",
+          "default": true,
+          "values": null
+        },
+        {
+          "key": "bright_key_on_dynamic_color_dark_theme",
+          "title": "Bright Keys on Dynamic Color Dark Theme",
+          "description": "Use brighter key colors on dynamic color dark themes.",
+          "required": false,
+          "type": "kotlin.Boolean",
+          "default": true,
+          "values": null
+        },
+        {
           "key": "enable_grammar_checker",
           "title": "Grammar Checker",
           "description": "Enable Text correction > Grammar check (existing flag).",

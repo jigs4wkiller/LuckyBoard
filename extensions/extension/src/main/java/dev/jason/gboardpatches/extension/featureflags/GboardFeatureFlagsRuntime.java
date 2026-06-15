@@ -37,6 +37,18 @@ public final class GboardFeatureFlagsRuntime {
     public static final String FLAG_SHOW_COLLAPSE_BUTTON =
             "show_collapse_button";
 
+    // Additional flags from APK decompile (pdk.smali registrations + broader searches)
+    // Useful for power users: keyboard sizing, modern themes (silk/material3), AI, redesigns.
+    public static final String FLAG_ENABLE_ADJUST_DEFAULT_KEYBOARD_HEIGHT =
+            "enable_adjust_default_keyboard_height";
+    public static final String FLAG_SILK_THEME = "silk_theme";
+    public static final String FLAG_MATERIAL3_THEME = "material3_theme";
+    public static final String FLAG_SILK_POPUP = "silk_popup";
+    public static final String FLAG_ENABLE_AI_CORE_SMART_REPLY = "enable_ai_core_smart_reply";
+    public static final String FLAG_KEYBOARD_REDESIGN_GOOGLE_SANS = "keyboard_redesign_google_sans";
+    public static final String FLAG_BRIGHT_KEY_ON_DYNAMIC_COLOR_DARK_THEME =
+            "bright_key_on_dynamic_color_dark_theme";
+
     private static final Map<String, String> FLAG_TO_FEATURE_KEY =
             createFlagToFeatureKeyMap();
     private static final Map<String, Boolean> FEATURE_ENABLED_CACHE =
@@ -146,6 +158,29 @@ public final class GboardFeatureFlagsRuntime {
         featureKeys.put(
                 FLAG_SHOW_COLLAPSE_BUTTON,
                 GboardPatchesFeatureAvailability.FEATURE_FLAG_SHOW_COLLAPSE_BUTTON);
+
+        // New ones from decompile
+        featureKeys.put(
+                FLAG_ENABLE_ADJUST_DEFAULT_KEYBOARD_HEIGHT,
+                GboardPatchesFeatureAvailability.FEATURE_FLAG_ENABLE_ADJUST_DEFAULT_KEYBOARD_HEIGHT);
+        featureKeys.put(
+                FLAG_SILK_THEME,
+                GboardPatchesFeatureAvailability.FEATURE_FLAG_SILK_THEME);
+        featureKeys.put(
+                FLAG_MATERIAL3_THEME,
+                GboardPatchesFeatureAvailability.FEATURE_FLAG_MATERIAL3_THEME);
+        featureKeys.put(
+                FLAG_SILK_POPUP,
+                GboardPatchesFeatureAvailability.FEATURE_FLAG_SILK_POPUP);
+        featureKeys.put(
+                FLAG_ENABLE_AI_CORE_SMART_REPLY,
+                GboardPatchesFeatureAvailability.FEATURE_FLAG_ENABLE_AI_CORE_SMART_REPLY);
+        featureKeys.put(
+                FLAG_KEYBOARD_REDESIGN_GOOGLE_SANS,
+                GboardPatchesFeatureAvailability.FEATURE_FLAG_KEYBOARD_REDESIGN_GOOGLE_SANS);
+        featureKeys.put(
+                FLAG_BRIGHT_KEY_ON_DYNAMIC_COLOR_DARK_THEME,
+                GboardPatchesFeatureAvailability.FEATURE_FLAG_BRIGHT_KEY_ON_DYNAMIC_COLOR_DARK_THEME);
         return Collections.unmodifiableMap(featureKeys);
     }
 
