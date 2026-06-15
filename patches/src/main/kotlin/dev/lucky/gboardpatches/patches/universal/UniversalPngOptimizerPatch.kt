@@ -8,35 +8,36 @@ import java.util.zip.Deflater
 import java.util.zip.Inflater
 
 /**
- * Universal PNG Optimizer - PURE JDK IMPLEMENTATION (no external libraries whatsoever).
+ * Universal PNG Optimizer - PURE JDK IMPLEMENTATION (NO EXTERNAL LIBS).
  *
- * Goal: Provide structural PNG optimization without any ext lib (no pngtastic, no AWT, no javax.imageio).
- * This completely eliminates the "ClassNotFound com.googlecode.pngtastic.ant.PngOptimizerTask" problem
- * that made the bundle "corrupted" in Morphe Manager.
+ * This replaces the old pngtastic version completely.
+ * Goal: provide useful PNG/9-patch size reduction inside Morphe without ever
+ * pulling in pngtastic (and its ant/ subpackage that caused the ClassNotFound /
+ * "corrupted bundle" crash in the manager).
  *
- * Technique (minimal but effective, self-contained):
- * - Parse PNG chunks (IHDR not even needed for basic re-compress).
- * - Collect all IDAT data, decompress to get the filtered image stream.
- * - Re-compress the stream with Deflater(BEST_COMPRESSION).
- * - Rebuild the PNG with a single new IDAT chunk + correct CRCs/lengths.
- * - Only replace the file if the result is strictly smaller.
+ * How it works (self-contained, only JDK):
+ * - Same discovery logic as before (excludes build/, original/, smali*, kotlin*).
+ * - Minimal PNG chunk parser.
+ * - Collects all IDAT data, decompresses it.
+ * - Re-compresses the raw stream with Deflater(BEST_COMPRESSION).
+ * - Rebuilds the PNG with one new IDAT chunk and correct CRCs/lengths.
+ * - Only overwrites the file if the result is strictly smaller.
  *
- * This is "optipng-like" in spirit (better compression on the data) but without full filter enumeration
- * or pixel-level work (those would require a full decoder and are left for desktop tools anyway).
+ * This is "structural" optimization (better compression on existing filtered data).
+ * It does NOT do full filter re-selection or lossy quantization (those are best
+ * left to desktop pngquant + optipng anyway, as noted in the original description).
  *
- * The previous pngtastic version is completely replaced. No stripping, no extra deps in the .mpp.
- *
- * UNIVERSAL, safe for 9-patches, reports stats, same exclusion logic as before.
+ * The patch remains UNIVERSAL and safe for 9-patches.
  */
 internal val universalPngOptimizerPatch = resourcePatch(
     name = "Universal PNG Optimizer",
-    description = "Optimizes PNG and *.9.png using 100% pure JDK (Deflater + CRC32 only). No external libs at all. Re-compresses IDAT data for smaller size. Safe for 9-patches. UNIVERSAL - works on any app.",
+    description = "Optimizes PNG and *.9.png using only JDK classes (Deflater + CRC32). No external libraries. Re-compresses IDAT data for smaller files. Safe for 9-patches. UNIVERSAL patch.",
     default = true
 ) {
     finalize {
         val resDir = get("res") as? File
         if (resDir == null || !resDir.exists() || !resDir.isDirectory) {
-            println("  [UniversalPngOptimizer] No res/ directory found.")
+            println("  [UniversalPngOptimizer] No res/ directory.")
             return@finalize
         }
         val root = resDir.parentFile ?: resDir
@@ -45,7 +46,7 @@ internal val universalPngOptimizerPatch = resourcePatch(
             return@finalize
         }
 
-        println("  PngOptimizer (pure-JDK) working...")
+        println("  PngOptimizer (pure JDK, no ext libs) working...")
         println("  Target: ${root.absolutePath}")
 
         val startAt = java.time.LocalTime.now().toString()
@@ -60,12 +61,19 @@ internal val universalPngOptimizerPatch = resourcePatch(
         }
 
         val regularPngs = root.walkTopDown()
-            .filter { f -> f.isFile && f.name.endsWith(".png", ignoreCase = true) && !f.name.endsWith(".9.png", ignoreCase = true) && !isExcluded(f.invariantSeparatorsPath) }
-            .toList()
+            .filter { f ->
+                f.isFile &&
+                f.name.endsWith(".png", ignoreCase = true) &&
+                !f.name.endsWith(".9.png", ignoreCase = true) &&
+                !isExcluded(f.invariantSeparatorsPath)
+            }.toList()
 
         val ninePngs = root.walkTopDown()
-            .filter { f -> f.isFile && f.name.endsWith(".9.png", ignoreCase = true) && !isExcluded(f.invariantSeparatorsPath) }
-            .toList()
+            .filter { f ->
+                f.isFile &&
+                f.name.endsWith(".9.png", ignoreCase = true) &&
+                !isExcluded(f.invariantSeparatorsPath)
+            }.toList()
 
         println("  Found ${regularPngs.size} regular PNG(s), ${ninePngs.size} 9.png file(s).")
 
@@ -76,29 +84,30 @@ internal val universalPngOptimizerPatch = resourcePatch(
         val sAfter = calculateTotalSize(root)
         val freed = (sBefore - sAfter) / 1024
 
-        println("  Done (pure JDK)! Processed: $processed, Freed: $freed Kb")
-        println("  (No external libs - fully self-contained in the .mpp)")
+        println("  Done (pure JDK)! Processed: $processed, freed: $freed Kb")
+        println("  (No external libs - the implementation is fully self-contained.)")
     }
 }
 
-private fun calculateTotalSize(dir: File): Long = dir.walkTopDown().filter { it.isFile }.sumOf { it.length() }
+private fun calculateTotalSize(dir: File): Long =
+    dir.walkTopDown().filter { it.isFile }.sumOf { it.length() }
 
-/** Pure JDK PNG re-compressor. Returns true if file was made smaller. */
+/** Pure JDK IDAT re-compressor. Returns true if the file was made smaller. */
 private fun optimizePngPure(file: File): Boolean {
     val orig = file.readBytes()
     if (orig.size < 8 || !isPngSig(orig)) return false
 
     try {
         val chunks = parseChunks(orig)
-        val idatBytes = ByteArrayOutputStream()
-        chunks.filter { it.type == "IDAT" }.forEach { idatBytes.write(it.data) }
-        if (idatBytes.size() == 0) return false
+        val idatOut = ByteArrayOutputStream()
+        chunks.filter { it.type == "IDAT" }.forEach { idatOut.write(it.data) }
+        if (idatOut.size() == 0) return false
 
-        val compressed = idatBytes.toByteArray()
+        val comp = idatOut.toByteArray()
 
-        // Decompress
+        // decompress
         val inf = Inflater()
-        inf.setInput(compressed)
+        inf.setInput(comp)
         val raw = ByteArrayOutputStream()
         val buf = ByteArray(4096)
         while (!inf.finished()) {
@@ -109,7 +118,7 @@ private fun optimizePngPure(file: File): Boolean {
         val rawData = raw.toByteArray()
         if (rawData.isEmpty()) return false
 
-        // Re-compress best
+        // re-compress best
         val def = Deflater(Deflater.BEST_COMPRESSION, true)
         def.setInput(rawData)
         def.finish()
@@ -121,14 +130,17 @@ private fun optimizePngPure(file: File): Boolean {
         def.end()
         val newIdat = newComp.toByteArray()
 
-        if (newIdat.size >= compressed.size) return false
+        if (newIdat.size >= comp.size) return false
 
-        // Rebuild with one IDAT
+        // rebuild PNG with single IDAT
         val newChunks = mutableListOf<Chunk>()
         var replaced = false
         chunks.forEach { c ->
             if (c.type == "IDAT") {
-                if (!replaced) { newChunks += Chunk("IDAT", newIdat); replaced = true }
+                if (!replaced) {
+                    newChunks += Chunk("IDAT", newIdat)
+                    replaced = true
+                }
             } else {
                 newChunks += c
             }
@@ -141,7 +153,7 @@ private fun optimizePngPure(file: File): Boolean {
             return true
         }
     } catch (_: Exception) {
-        // safe: keep original on any error
+        // keep original on any error - safe
     }
     return false
 }
@@ -149,7 +161,7 @@ private fun optimizePngPure(file: File): Boolean {
 private data class Chunk(val type: String, val data: ByteArray)
 
 private fun isPngSig(b: ByteArray): Boolean {
-    val sig = byteArrayOf(0x89.toByte(),0x50,0x4E,0x47,0x0D,0x0A,0x1A,0x0A)
+    val sig = byteArrayOf(0x89.toByte(), 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A)
     return b.size >= 8 && sig.indices.all { b[it] == sig[it] }
 }
 
@@ -157,30 +169,35 @@ private fun parseChunks(b: ByteArray): List<Chunk> {
     val out = mutableListOf<Chunk>()
     var p = 8
     while (p + 12 <= b.size) {
-        val len = ((b[p].toInt() and 0xFF) shl 24) or ((b[p+1].toInt() and 0xFF) shl 16) or ((b[p+2].toInt() and 0xFF) shl 8) or (b[p+3].toInt() and 0xFF)
+        val len = ((b[p].toInt() and 0xff) shl 24) or
+                  ((b[p+1].toInt() and 0xff) shl 16) or
+                  ((b[p+2].toInt() and 0xff) shl 8) or
+                  (b[p+3].toInt() and 0xff)
         if (p + 12 + len > b.size) break
-        val type = String(b, p+4, 4, Charsets.US_ASCII)
-        val data = if (len > 0) b.copyOfRange(p+8, p+8+len) else ByteArray(0)
-        out.add(Chunk(type, data))
+        val typ = String(b, p + 4, 4, Charsets.US_ASCII)
+        val dat = if (len == 0) ByteArray(0) else b.copyOfRange(p + 8, p + 8 + len)
+        out += Chunk(typ, dat)
         p += 12 + len
-        if (type == "IEND") break
+        if (typ == "IEND") break
     }
     return out
 }
 
 private fun buildPng(chunks: List<Chunk>): ByteArray {
     val out = ByteArrayOutputStream()
-    out.write(byteArrayOf(0x89.toByte(),0x50,0x4E,0x47,0x0D,0x0A,0x1A,0x0A))
-    val crc32 = CRC32()
+    out.write(byteArrayOf(0x89.toByte(), 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A))
+    val crc = CRC32()
     for (c in chunks) {
         val tb = c.type.toByteArray(Charsets.US_ASCII)
-        val len = c.data.size
-        out.write((len ushr 24) and 0xFF); out.write((len ushr 16) and 0xFF); out.write((len ushr 8) and 0xFF); out.write(len and 0xFF)
+        val l = c.data.size
+        out.write((l ushr 24) and 0xff); out.write((l ushr 16) and 0xff)
+        out.write((l ushr 8) and 0xff); out.write(l and 0xff)
         out.write(tb)
         out.write(c.data)
-        crc32.reset(); crc32.update(tb); crc32.update(c.data)
-        val cv = crc32.value.toInt()
-        out.write((cv ushr 24) and 0xFF); out.write((cv ushr 16) and 0xFF); out.write((cv ushr 8) and 0xFF); out.write(cv and 0xFF)
+        crc.reset(); crc.update(tb); crc.update(c.data)
+        val cv = crc.value.toInt()
+        out.write((cv ushr 24) and 0xff); out.write((cv ushr 16) and 0xff)
+        out.write((cv ushr 8) and 0xff); out.write(cv and 0xff)
     }
     return out.toByteArray()
 }
