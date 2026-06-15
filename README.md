@@ -162,6 +162,10 @@ Generated outputs:
 - `patches-list.json`
 - `patches-bundle.json`
 
+## Credits
+
+- Incognito Enhancements patch (Enable clipboard in incognito, Enable voice typing in incognito, Always-incognito mode) ported from [Adobo by jkennethcarino](https://github.com/jkennethcarino/adobo).
+
 ## License
 
 Released under the [GNU General Public License v3.0](LICENSE).

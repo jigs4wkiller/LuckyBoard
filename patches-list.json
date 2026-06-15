@@ -182,6 +182,30 @@
       "options": []
     },
     {
+      "name": "Web Clipboard",
+      "description": "Add the phone-hosted Web Clipboard with browser sync, pairing, and a Quick Settings Tile.",
+      "use": true,
+      "dependencies": [],
+      "compatiblePackages": {
+        "com.google.android.inputmethod.latin": [
+          "17.0.10.880768217-release-arm64-v8a"
+        ]
+      },
+      "options": []
+    },
+    {
+      "name": "Incognito Enhancements",
+      "description": "Enable clipboard and voice typing in incognito mode. Also force Gboard to always open in incognito mode to disable typing history collection and personalization. (Ported from Adobo patches by jkennethcarino)",
+      "use": true,
+      "dependencies": [],
+      "compatiblePackages": {
+        "com.google.android.inputmethod.latin": [
+          "17.0.10.880768217-release-arm64-v8a"
+        ]
+      },
+      "options": []
+    },
+    {
       "name": "Feature Flags",
       "description": "Toggle many Gboard hidden/experimental rollout flags individually (use the gear icon). Includes accessory/floating keyboard, voice widgets, OCR scan text, dictation redesign, settings UI improvements, language search, collapsible keyboard, grammar checker, inline suggestions, clipboard entity extraction, and more. Top option adds a Feature Flags section to Gboard's settings (LuckyBoard area) for runtime control with descriptions. Flags start disabled by default.",
       "use": true,

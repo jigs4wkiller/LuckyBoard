@@ -15,6 +15,8 @@ import dev.jason.gboardpatches.patches.gboard.features.webclipboard.gboardWebCli
 import dev.jason.gboardpatches.patches.gboard.features.webclipboard.gboardWebClipboardManifestPatch
 import dev.jason.gboardpatches.patches.gboard.features.englishqwerty.gboardEnglishQwertySlideResourcePatch
 import dev.jason.gboardpatches.patches.gboard.features.englishqwerty.gboardEnglishQwertySoftKeyPatch
+import dev.jason.gboardpatches.patches.gboard.features.incognito.gboardIncognitoEnhancementsBytecodePatch
+import dev.jason.gboardpatches.patches.gboard.features.incognito.gboardIncognitoEnhancementsPatch
 import dev.jason.gboardpatches.patches.gboard.features.featureflags.gboardClipboardEntityExtractionFeatureMarkerPatch
 import dev.jason.gboardpatches.patches.gboard.features.featureflags.gboardClipboardItemEditFeatureMarkerPatch
 import dev.jason.gboardpatches.patches.gboard.features.featureflags.gboardFeatureFlagsBytecodePatch
@@ -255,6 +257,20 @@ val gboardSignatureBypassPatch = resourcePatch(
 
     dependsOn(
         gboardSignatureBypassBytecodePatch
+    )
+}
+
+@Suppress("unused")
+val gboardIncognitoEnhancementsPatch = resourcePatch(
+    name = "Incognito Enhancements",
+    description = "Enable clipboard and voice typing in incognito mode. Also force Gboard to always open in incognito mode to disable typing history collection and personalization. (Ported from Adobo patches by jkennethcarino)",
+    default = true
+) {
+    compatibleWith(COMPATIBILITY_GBOARD)
+
+    dependsOn(
+        gboardSignatureBypassPatch,
+        gboardIncognitoEnhancementsBytecodePatch
     )
 }
 
