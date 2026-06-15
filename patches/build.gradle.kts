@@ -12,6 +12,45 @@ configurations.named(patchMetadataSourceSet.implementationConfigurationName) {
     extendsFrom(configurations["implementation"])
 }
 
+// Configuration to resolve pngtastic for stripping (we exclude the ant subpackage
+// that causes NoClassDefFound for org.apache.tools.ant.Task in the patcher runtime
+// used by both CLI and Morphe app).
+val pngtasticConfig = configurations.create("pngtasticForStrip") {
+    isCanBeConsumed = false
+    isCanBeResolved = true
+    isTransitive = true
+}
+
+dependencies {
+    pngtasticConfig("com.github.depsypher:pngtastic:1.8")
+}
+
+// Task that produces a pngtastic jar with the problematic ant/ package removed.
+// This stripped jar is then used as implementation so the final .mpp never contains
+// the ant classes that break patch loading in Morphe/CLI.
+val pngtasticStrippedJar by tasks.registering(Jar::class) {
+    group = "build"
+    description = "Produce pngtastic jar without ant/ subpackage (for Morphe compatibility)"
+
+    val pngtasticArtifact = pngtasticConfig.singleFile
+    inputs.file(pngtasticArtifact)
+
+    archiveBaseName.set("pngtastic-stripped")
+    destinationDirectory.set(layout.buildDirectory.dir("libs"))
+
+    from(zipTree(pngtasticArtifact)) {
+        exclude("com/googlecode/pngtastic/ant/**")
+    }
+
+    // Also exclude any META-INF/maven for the ant part if present, but the exclude above is sufficient.
+}
+
+dependencies {
+    // Use the stripped pngtastic for both compilation of our patches and inclusion in the .mpp.
+    // This avoids shipping the ant/ classes that the patcher classloaders (in CLI and app) cannot resolve.
+    implementation(files(pngtasticStrippedJar))
+}
+
 val generatePatchBuildInfo by tasks.registering {
     val outputDir = generatedPatchInfoDir
     val patchVersion = project.version.toString()
@@ -97,10 +136,12 @@ sourceSets.named("main") {
 
 dependencies {
     add(patchMetadataSourceSet.implementationConfigurationName, libs.gson)
-    // Pure-Java PNG optimizer (no AWT, no native libs). Provides structural compression
-    // optimization (filter selection + best zlib / optional zopfli) that works inside
-    // Morphe's Android patch runtime. Replaces the previous javax.imageio stub.
-    implementation("com.github.depsypher:pngtastic:1.8")
+    // PNG optimizer: we use a stripped version of pngtastic (excluding the ant/ package
+    // which references org.apache.tools.ant.Task, not available in Morphe/CLI patcher
+    // classloaders). This prevents load failures (NoClassDefFound for ant.Task) in
+    // list-patches and actual patching, while still providing the needed PngImage /
+    // PngOptimizer core for the Universal PNG Optimizer patch.
+    // The stripped jar is produced below and used for both compile and the final mpp.
     testImplementation("junit:junit:4.13.2")
 }
 
@@ -164,36 +205,5 @@ tasks {
     // Used by gradle-semantic-release-plugin.
     publish {
         dependsOn("generatePatchesList")
-    }
-}
-
-// Permanent fix: strip ant/ classes from pngtastic (PngOptimizerTask etc. that reference
-// org.apache.tools.ant.Task which is not present in Morphe/CLI runtime).
-// This was causing NoClassDefFoundError when Morphe or morphe-cli tried to load the .mpp
-// (even though our PNG optimizer only uses the core Png* classes).
-// The strip runs after buildAndroid so the released mpp is always loadable.
-tasks.named("buildAndroid").configure {
-    doLast {
-        val mpp = layout.buildDirectory.file("libs/patches-${version}.mpp").get().asFile
-        if (mpp.exists()) {
-            println("Stripping pngtastic/ant/ from $mpp (fixes Morphe/CLI load)...")
-            val code = """
-import zipfile, os
-src = '${mpp.absolutePath}'
-dst = '${mpp.absolutePath}.tmpstrip'
-with zipfile.ZipFile(src, 'r') as zin:
-    with zipfile.ZipFile(dst, 'w', zipfile.ZIP_DEFLATED) as zout:
-        for item in zin.infolist():
-            if not item.filename.startswith('com/googlecode/pngtastic/ant/'):
-                zout.writestr(item, zin.read(item.filename))
-os.replace(dst, src)
-print('stripped, final size:', os.path.getsize(src))
-"""
-            val p = Runtime.getRuntime().exec(arrayOf("python3", "-c", code))
-            p.waitFor()
-            if (p.exitValue() != 0) {
-                p.errorStream.bufferedReader().lines().forEach { println(it) }
-            }
-        }
     }
 }
