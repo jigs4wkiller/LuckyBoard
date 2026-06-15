@@ -12,32 +12,10 @@ configurations.named(patchMetadataSourceSet.implementationConfigurationName) {
     extendsFrom(configurations["implementation"])
 }
 
-// For beta: pngtastic support for the PNG optimizer (with stripping to avoid ant issue)
-val pngtasticConfig = configurations.create("pngtasticForStrip") {
-    isCanBeConsumed = false
-    isCanBeResolved = true
-    isTransitive = true
-}
-
 dependencies {
-    pngtasticConfig("com.github.depsypher:pngtastic:1.8")
     add(patchMetadataSourceSet.implementationConfigurationName, libs.gson)
-}
-
-val pngtasticStrippedJar by tasks.registering(Jar::class) {
-    group = "build"
-    description = "Produce pngtastic jar without ant/ for beta PNG work"
-    val pngtasticArtifact = pngtasticConfig.singleFile
-    inputs.file(pngtasticArtifact)
-    archiveBaseName.set("pngtastic-stripped")
-    destinationDirectory.set(layout.buildDirectory.dir("libs"))
-    from(zipTree(pngtasticArtifact)) {
-        exclude("com/googlecode/pngtastic/ant/**")
-    }
-}
-
-dependencies {
-    implementation(files(pngtasticStrippedJar))
+    // For beta PNG optimizer: direct dep + post strip to remove ant/
+    implementation("com.github.depsypher:pngtastic:1.8")
     testImplementation("junit:junit:4.13.2")
 }
 
@@ -95,7 +73,7 @@ val generatePreviewAssetsIndex by tasks.registering {
 patches {
     about {
         name = "LuckyBoard"
-        description = "Morphe patches for Gboard, rebranded as LuckyBoard (beta with PNG opt for new impl)."
+        description = "Morphe patches for Gboard (beta branch with PNG optimizer for new impl development)."
         source = "https://github.com/jigs4wkiller/LuckyBoard"
         author = "jigs4wkiller"
         contact = "https://github.com/jigs4wkiller/LuckyBoard/issues"
@@ -167,7 +145,7 @@ tasks {
     }
 }
 
-// Post-build strip for pngtastic on beta (for the PNG opt).
+// Post-build strip for pngtastic on beta (PNG opt support).
 tasks.named("buildAndroid").configure {
     doLast {
         val mpp = layout.buildDirectory.file("libs/patches-${version}.mpp").get().asFile
