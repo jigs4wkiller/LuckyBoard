@@ -1,9 +1,7 @@
 package dev.lucky.gboardpatches.patches.universal
 
 import app.morphe.patcher.patch.resourcePatch
-import java.awt.image.BufferedImage
 import java.io.File
-import javax.imageio.ImageIO
 
 /**
  * Universal PNG Optimizer patch.
@@ -65,16 +63,16 @@ internal val universalPngOptimizerPatch = resourcePatch(
 
         val victimPngArr = regularPngs.size
         if (victimPngArr > 0) {
-            println("  Optimizing colors...")
-            regularPngs.forEach { f -> optimizePngFile(f, doQuantize = true) }
-
-            println("  Optimizing the structure...")
-            regularPngs.forEach { f -> optimizePngFile(f, doQuantize = false) }
+            println("  Found ${victimPngArr} regular PNG(s).")
+            println("  Note: Full PNG optimization (color quantization like pngquant + structure like optipng) requires desktop Java libraries (javax.imageio) or the original external binaries.")
+            println("  Inside Morphe on Android these classes are not available (NoClassDefFoundError).")
+            println("  This patch now only discovers and reports the files. No actual re-encoding is performed.")
+            // Do not call optimizePngFile here anymore to avoid the crash.
         } else {
             println("  No png files found!")
         }
 
-        // 9.png files (only color optimization, no structure pass - matching original script)
+        // 9.png files (only color optimization in original, but same limitation)
         val ninePngs = root.walkTopDown()
             .filter { f ->
                 f.isFile &&
@@ -85,8 +83,7 @@ internal val universalPngOptimizerPatch = resourcePatch(
 
         val victimPng9Arr = ninePngs.size
         if (victimPng9Arr > 0) {
-            println("  Optimizing colors for 9.png...")
-            ninePngs.forEach { f -> optimizePngFile(f, doQuantize = true) }
+            println("  Found ${victimPng9Arr} 9.png file(s). (color-only in original script, but skipped here for the same reason)")
         } else {
             println("  No 9.png files found!")
         }
@@ -100,7 +97,8 @@ internal val universalPngOptimizerPatch = resourcePatch(
         println("      Files processed:")
         println("             png| $victimPngArr")
         println("           9.png| $victimPng9Arr")
-        println("           Freed: $freed Kb")
+        println("           Freed: $freed Kb (0 because processing is stubbed in Android Morphe)")
+        println("  Recommendation: For real optimization results, use the original mpatcher shell script on a PC (with pngquant + optipng in the bin/ directory).")
     }
 }
 
@@ -108,42 +106,18 @@ private fun calculateTotalSize(dir: File): Long {
     return dir.walkTopDown().filter { it.isFile }.sumOf { it.length() }
 }
 
-private fun optimizePngFile(file: File, doQuantize: Boolean) {
-    try {
-        val src = ImageIO.read(file) ?: return
-        val processed = if (doQuantize) reduceColors(src) else src
-
-        // Write to a temp file then replace (safer)
-        val temp = File(file.parentFile, file.name + ".opt.tmp.png")
-        if (ImageIO.write(processed, "png", temp)) {
-            // Only replace if smaller or if we are doing structure pass (re-encode)
-            if (temp.length() < file.length() || !doQuantize) {
-                temp.copyTo(file, overwrite = true)
-            }
-            temp.delete()
-        } else {
-            temp.delete()
-        }
-    } catch (_: Exception) {
-        // Skip unreadable or problematic PNGs silently (matches original behavior for bad files)
-    }
-}
-
 /**
- * Basic color reduction / quantization.
- * Approximates pngquant behavior (color reduction + dither).
- * Uses Java's indexed color model with dithering enabled.
- * For production-grade results identical to pngquant, use the original external tool.
+ * Stub: Actual image optimization is impossible inside Morphe on Android
+ * because javax.imageio (and the whole AWT image pipeline) is not present
+ * in the Android runtime.
+ *
+ * The patch now only discovers files (the part that was previously broken)
+ * and reports them. No bytes are changed.
+ *
+ * For real results (pngquant + optipng level optimization) use the original
+ * mpatcher shell script on a PC that has the tools in bin/.
  */
-private fun reduceColors(src: BufferedImage): BufferedImage {
-    // Create an indexed image (typically results in 256 or fewer colors with dither)
-    val dest = BufferedImage(src.width, src.height, BufferedImage.TYPE_BYTE_INDEXED)
-    val g = dest.createGraphics()
-    g.setRenderingHint(
-        java.awt.RenderingHints.KEY_DITHERING,
-        java.awt.RenderingHints.VALUE_DITHER_ENABLE
-    )
-    g.drawImage(src, 0, 0, null)
-    g.dispose()
-    return dest
+private fun optimizePngFile(file: File, doQuantize: Boolean) {
+    // Intentionally empty. We already printed the "Found N PNG(s)" message above.
+    // Calling this would immediately hit NoClassDefFoundError for ImageIO.
 }
