@@ -14,8 +14,7 @@ configurations.named(patchMetadataSourceSet.implementationConfigurationName) {
 
 dependencies {
     add(patchMetadataSourceSet.implementationConfigurationName, libs.gson)
-    // For beta PNG optimizer: direct dep + post strip to remove ant/
-    implementation("com.github.depsypher:pngtastic:1.8")
+    // No external libs for PNG optimizer on this branch (pure JDK impl)
     testImplementation("junit:junit:4.13.2")
 }
 
@@ -145,29 +144,4 @@ tasks {
     }
 }
 
-// Post-build strip for pngtastic on beta (PNG opt support).
-tasks.named("buildAndroid").configure {
-    doLast {
-        val mpp = layout.buildDirectory.file("libs/patches-${version}.mpp").get().asFile
-        if (mpp.exists()) {
-            println("Stripping pngtastic/ant/ classes from $mpp (for Morphe app/CLI compatibility on beta)...")
-            val code = """
-import zipfile, os, shutil
-src = '${mpp.absolutePath}'
-tmp = src + '.strip'
-with zipfile.ZipFile(src, 'r') as zin:
-    with zipfile.ZipFile(tmp, 'w', zipfile.ZIP_DEFLATED) as zout:
-        for item in zin.infolist():
-            if not item.filename.startswith('com/googlecode/pngtastic/ant/'):
-                zout.writestr(item, zin.read(item.filename))
-os.replace(tmp, src)
-print('strip complete, size:', os.path.getsize(src))
-"""
-            val p = Runtime.getRuntime().exec(arrayOf("python3", "-c", code))
-            val exit = p.waitFor()
-            if (exit != 0) {
-                println(p.errorStream.bufferedReader().readText())
-            }
-        }
-    }
-}
+// No post-build pngtastic strip needed on this branch (pure JDK PNG impl, no ext lib).
