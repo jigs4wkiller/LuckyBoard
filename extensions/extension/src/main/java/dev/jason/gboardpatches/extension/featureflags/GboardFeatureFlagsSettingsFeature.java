@@ -15,11 +15,11 @@ public final class GboardFeatureFlagsSettingsFeature
     private static final String TAG = "GboardFeatureFlags";
     private static final String ENTRY_TITLE = "Feature Flags";
     private static final String ENTRY_SUMMARY =
-            "Toggle Gboard internal rollout flags at runtime. Some changes (e.g. key shapes, incognito) require restarting Gboard to take effect.";
+            "Toggle LuckyBoard internal rollout flags at runtime. Some changes (e.g. key shapes, incognito) require restarting LuckyBoard to take effect.";
     private static final String HEADER_BADGE = "LuckyBoard";
     private static final String HEADER_TITLE = "Feature Flags";
     private static final String HEADER_SUMMARY =
-            "These flags appear because they were selected during patching. They start DISABLED. Flip the switches ON here to activate the corresponding Gboard features. Each flag has a short description. Use the Restart button below for changes that need a full Gboard restart.";
+            "These flags appear because they were selected during patching. They start DISABLED. Flip the switches ON here to activate the corresponding LuckyBoard features. Each flag has a short description. Use the Restart button below for changes that need a full LuckyBoard restart.";
 
     @Override
     public String getEntryTitle() {
@@ -83,10 +83,10 @@ public final class GboardFeatureFlagsSettingsFeature
                     "No feature flags were enabled at patch time for this build, or the UI was not included.",
                     false));
         } else {
-            // Add restart button - flag changes often require Gboard restart to fully apply in the picker/UI
+            // Add restart button - flag changes often require LuckyBoard restart to fully apply in the picker/UI
             rows.add(new GboardPatchesSettingsContract.CommandRow(
-                    "Restart Gboard to apply",
-                    "Most flag toggles (especially key shapes, incognito, voice etc.) require a full restart of Gboard to take effect.",
+                    "Restart LuckyBoard to apply",
+                    "Most flag toggles (especially key shapes, incognito, voice etc.) require a full restart of LuckyBoard to take effect.",
                     true,
                     () -> restartGboard(context)
             ));
@@ -123,10 +123,10 @@ public final class GboardFeatureFlagsSettingsFeature
 
     private void restartGboard(Context context) {
         try {
-            android.widget.Toast.makeText(context, "Restarting Gboard...", android.widget.Toast.LENGTH_SHORT).show();
+            android.widget.Toast.makeText(context, "Restarting LuckyBoard...", android.widget.Toast.LENGTH_SHORT).show();
         } catch (Exception ignored) {}
-        // Kill the current Gboard process. It will restart automatically on next keyboard use.
-        // This is the standard way in Gboard patches to apply flag changes.
+        // Kill the current LuckyBoard process. It will restart automatically on next keyboard use.
+        // This is the standard way in these patches to apply flag changes.
         new android.os.Handler(android.os.Looper.getMainLooper()).postDelayed(() -> {
             try {
                 android.os.Process.killProcess(android.os.Process.myPid());

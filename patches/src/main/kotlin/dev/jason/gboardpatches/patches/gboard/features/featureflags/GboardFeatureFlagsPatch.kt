@@ -11,10 +11,10 @@ import dev.jason.gboardpatches.patches.shared.Constants.COMPATIBILITY_GBOARD
 // gboardFeatureFlagsBytecodePatch (and applyFeatureMarker) are in the same package and directly visible.
 
 /**
- * Comprehensive patch exposing many Gboard internal rollout/experimental feature flags
+ * Comprehensive patch exposing many internal rollout/experimental feature flags
  * as individual boolean options (gear icon in Morphe).
  *
- * This allows fine-grained control over hidden features for the supported Gboard version
+ * This allows fine-grained control over hidden features for the supported version
  * (17.0.10.880768217-release-arm64-v8a and similar).
  *
  * Flags are forced at runtime via the existing feature flag hook when their corresponding
@@ -23,7 +23,7 @@ import dev.jason.gboardpatches.patches.shared.Constants.COMPATIBILITY_GBOARD
 @Suppress("unused")
 val gboardFeatureFlagsPatch = resourcePatch(
     name = "Feature Flags",
-    description = "Toggle many Gboard hidden/experimental rollout flags individually (use the gear icon). Includes key shapes, accessory/voice widgets, OCR scan text, dictation redesign, settings UI improvements, language search, collapsible keyboard, and more. Great for power users.",
+    description = "Toggle many hidden/experimental rollout flags individually (use the gear icon). Includes key shapes, accessory/voice widgets, OCR scan text, dictation redesign, settings UI improvements, language search, collapsible keyboard, and more. Great for power users.",
     default = true
 ) {
     compatibleWith(COMPATIBILITY_GBOARD)
@@ -33,14 +33,14 @@ val gboardFeatureFlagsPatch = resourcePatch(
         gboardFeatureFlagsBytecodePatch
     )
 
-    // Top-level option: if enabled, injects a "Feature Flags" entry into Gboard's Lucky/Patches settings
+    // Top-level option: if enabled, injects a "Feature Flags" entry into LuckyBoard's Patches settings
     // where the user can toggle each flag at runtime (with descriptions).
     // Important: Flags start DISABLED (not forced) even if selected below. The user must explicitly
     // turn them ON in the in-app Lucky Settings UI for them to become active.
     val addFlagsToLuckySettings = booleanOption(
         key = "add_flags_to_lucky_settings",
         title = "Add flags to Lucky Settings",
-        description = "Insert a Feature Flags section into Gboard's settings (under Patches/LuckyBoard). There you can toggle every flag on/off at runtime. Each flag has a short description. The individual options below decide which flags appear in the UI (they start off by default and must be manually enabled in Gboard settings to activate).",
+        description = "Insert a Feature Flags section into the settings (under Patches/LuckyBoard). There you can toggle every flag on/off at runtime. Each flag has a short description. The individual options below decide which flags appear in the UI (they start off by default and must be manually enabled in settings to activate).",
         default = true
     )
 
@@ -52,7 +52,7 @@ val gboardFeatureFlagsPatch = resourcePatch(
         default = true
     )
 
-    // Cool new ones from research (Rboard / GMS-Flags / mod communities for Gboard ~v17)
+    // Cool new ones from research (Rboard / GMS-Flags / mod communities for ~v17)
     val enableAccessoryKeyboard = booleanOption(
         key = "support_accessory_keyboard",
         title = "Accessory / Floating Keyboard",
@@ -70,14 +70,14 @@ val gboardFeatureFlagsPatch = resourcePatch(
     val enableNewLanguageSearch = booleanOption(
         key = "enable_new_language_search_bar",
         title = "New Language Search Bar",
-        description = "Improved language / input method search bar in Gboard settings.",
+        description = "Improved language / input method search bar in the settings.",
         default = true
     )
 
     val enableTwoPaneSettings = booleanOption(
         key = "enable_settings_two_pane",
         title = "Two-Pane Settings UI",
-        description = "Enable two-pane / split view layout for Gboard settings on larger screens or tablets.",
+        description = "Enable two-pane / split view layout for settings on larger screens or tablets.",
         default = true
     )
 
@@ -133,7 +133,7 @@ val gboardFeatureFlagsPatch = resourcePatch(
 
     finalize {
         // Set the marker meta-data ONLY for enabled options.
-        // The GboardFeatureFlagsBytecodePatch + Runtime will then force the corresponding internal flag to true.
+        // The bytecode patch + Runtime will then force the corresponding internal flag to true.
         if (java.lang.Boolean.TRUE == addFlagsToLuckySettings.value) {
             applyFeatureMarker("dev.jason.gboardpatches.feature.feature_flags_ui")
         }

@@ -11,14 +11,14 @@ import java.util.Map;
  * Runtime preferences for per-flag toggles, exposed in the in-app Lucky Settings UI
  * when the "Add flags to Lucky Settings" patch option is enabled.
  *
- * These override the static patch-time markers for the corresponding internal Gboard flags.
+ * These override the static patch-time markers for the corresponding internal flags.
  */
 public final class GboardFeatureFlagsSettings {
 
     private static final String PREFS_NAME = "dev.jason.gboardpatches.feature_flags";
     private static final String PREF_PREFIX = "flag_";
 
-    // Known flags with their internal Gboard flag name (used as key) and user-facing info.
+    // Known flags with their internal flag name (used as key) and user-facing info.
     // Keep in sync with GboardFeatureFlagsPatch.kt options and the runtime map.
     public static final Map<String, FlagInfo> ALL_FLAGS;
 
@@ -27,7 +27,7 @@ public final class GboardFeatureFlagsSettings {
         map.put("more_pill_keys", new FlagInfo("Key Shape Selection", "Enables the Key shape option in Theme details and extra gradations (less rounded, horizontal lines, pill etc.)."));
         map.put("support_accessory_keyboard", new FlagInfo("Accessory / Floating Keyboard", "Enables floating keyboard, accessory modes and related toolbar widgets."));
         map.put("enable_voice_widget", new FlagInfo("Voice Widget / Toolbar", "Enables enhanced voice dictation widget and toolbar integration."));
-        map.put("enable_new_language_search_bar", new FlagInfo("New Language Search Bar", "Improved search for languages and input methods in Gboard settings."));
+        map.put("enable_new_language_search_bar", new FlagInfo("New Language Search Bar", "Improved search for languages and input methods in LuckyBoard settings."));
         map.put("enable_settings_two_pane", new FlagInfo("Two-Pane Settings UI", "Uses a split / two-column layout for settings on larger screens."));
         map.put("enable_ocr", new FlagInfo("OCR / Scan Text", "Adds a camera-based 'Scan text' tool to the toolbar for OCR and quick insertion."));
         map.put("enable_regular_dictation_redesign", new FlagInfo("Voice Dictation Redesign", "Modernized voice input UI with better visual treatment."));

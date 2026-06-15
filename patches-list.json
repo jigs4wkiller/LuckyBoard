@@ -87,7 +87,7 @@
     },
     {
       "name": "Feature Flags",
-      "description": "Toggle many Gboard hidden/experimental rollout flags individually (use the gear icon). Includes key shapes, accessory/voice widgets, OCR scan text, dictation redesign, settings UI improvements, language search, collapsible keyboard, and more. Great for power users.",
+      "description": "Toggle many hidden/experimental rollout flags individually (use the gear icon). Includes key shapes, accessory/voice widgets, OCR scan text, dictation redesign, settings UI improvements, language search, collapsible keyboard, and more. Great for power users.",
       "use": true,
       "dependencies": [],
       "compatiblePackages": {
@@ -99,7 +99,7 @@
         {
           "key": "add_flags_to_lucky_settings",
           "title": "Add flags to Lucky Settings",
-          "description": "Insert a Feature Flags section into Gboard's settings (under Patches/LuckyBoard). There you can toggle every flag on/off at runtime. Each flag has a short description. The individual options below decide which flags appear in the UI (they start off by default and must be manually enabled in Gboard settings to activate).",
+          "description": "Insert a Feature Flags section into the settings (under Patches/LuckyBoard). There you can toggle every flag on/off at runtime. Each flag has a short description. The individual options below decide which flags appear in the UI (they start off by default and must be manually enabled in settings to activate).",
           "required": false,
           "type": "kotlin.Boolean",
           "default": true,
@@ -135,7 +135,7 @@
         {
           "key": "enable_new_language_search_bar",
           "title": "New Language Search Bar",
-          "description": "Improved language / input method search bar in Gboard settings.",
+          "description": "Improved language / input method search bar in the settings.",
           "required": false,
           "type": "kotlin.Boolean",
           "default": true,
@@ -144,7 +144,7 @@
         {
           "key": "enable_settings_two_pane",
           "title": "Two-Pane Settings UI",
-          "description": "Enable two-pane / split view layout for Gboard settings on larger screens or tablets.",
+          "description": "Enable two-pane / split view layout for settings on larger screens or tablets.",
           "required": false,
           "type": "kotlin.Boolean",
           "default": true,
