@@ -49,6 +49,18 @@ public final class GboardFeatureFlagsSettings {
     public static boolean readFlagEnabled(Context context, String internalFlagName, boolean defaultValue) {
         SharedPreferences prefs = preferences(context);
         String key = PREF_PREFIX + internalFlagName;
+        if (!prefs.contains(key)) {
+            // For key shape related flags, default to enabled (true) so the extended shapes
+            // (more gradations, less rounded, horizontal lines) appear immediately when the
+            // Key Shape Selection patch or the more_pill_keys option is active.
+            // User can still turn them off in the in-app flags UI if desired.
+            if ("more_pill_keys".equals(internalFlagName) ||
+                internalFlagName.contains("rounded") ||
+                internalFlagName.contains("pill")) {
+                defaultValue = true;
+                prefs.edit().putBoolean(key, true).apply();
+            }
+        }
         return prefs.getBoolean(key, defaultValue);
     }
 
