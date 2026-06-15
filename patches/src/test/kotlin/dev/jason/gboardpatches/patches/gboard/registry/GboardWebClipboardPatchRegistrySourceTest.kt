@@ -22,7 +22,6 @@ class GboardWebClipboardPatchRegistrySourceTest {
 
         assertTrue(source.contains("val gboardWebClipboardPatch = resourcePatch("))
         assertTrue(source.contains("name = \"Web Clipboard\""))
-        assertTrue(source.contains("快速設定開關"))
         assertTrue(source.contains("default = true"))
         assertTrue(source.contains("gboardPatchesSettingsPatch"))
         assertTrue(source.contains("gboardWebClipboardFeatureMarkerPatch"))

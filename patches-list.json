@@ -316,8 +316,8 @@
       "options": []
     },
     {
-      "name": "Settings Homepage Override",
-      "description": "Allow switching between the new and legacy Gboard settings pages.",
+      "name": "Settings Clean-Up",
+      "description": "Removes Help & Feedback, Info, Rate and Privacy subcategories from Gboard's settings. For Privacy, all usage/diagnostics statistics sharing sub-options are disabled before the category is hidden.",
       "use": true,
       "dependencies": [],
       "compatiblePackages": {
@@ -328,8 +328,8 @@
       "options": []
     },
     {
-      "name": "Settings Clean-Up",
-      "description": "Removes Help & Feedback, Info, Rate and Privacy subcategories from Gboard's settings. For Privacy, all usage/diagnostics statistics sharing sub-options are disabled before the category is hidden.",
+      "name": "Settings Homepage Override",
+      "description": "Allow switching between the new and legacy Gboard settings pages.",
       "use": true,
       "dependencies": [],
       "compatiblePackages": {
