@@ -1,7 +1,7 @@
 {
-  "version": "1.10.0",
-  "download_url": "https://github.com/jigs4wkiller/LuckyBoard/releases/download/v1.10.0/patches-1.10.0.mpp",
-  "signature_download_url": "https://github.com/jigs4wkiller/LuckyBoard/releases/download/v1.10.0/patches-1.10.0.mpp.asc",
-  "description": "LuckyBoard v1.10.0 - Gboard patches rebranded as LuckyBoard. Includes Feature Flags with in-app Lucky Settings UI for runtime toggles (with descriptions, start disabled), Gboard to LuckyBoard string replace, extended Key Shape gradations (less rounded + horizontal lines), selective Clipboard, all in English, Chinese features removed.",
-  "created_at": "2026-06-15T01:50:00Z"
+  "version": "1.11.0",
+  "download_url": "https://github.com/jigs4wkiller/LuckyBoard/releases/download/v1.11.0/patches-1.11.0.mpp",
+  "signature_download_url": "https://github.com/jigs4wkiller/LuckyBoard/releases/download/v1.11.0/patches-1.11.0.mpp.asc",
+  "description": "LuckyBoard v1.11.0 - Flags patch added (with in-app Lucky Settings UI, flags start disabled), Chinese removed from Undo/Redo desc, QWERTY Slide extended to Latin languages (behavior now broad for QWERTY), all descriptions English. Pre-built attached.",
+  "created_at": "2026-06-15T02:30:00Z"
 }
