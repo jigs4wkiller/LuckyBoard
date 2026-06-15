@@ -123,6 +123,13 @@ LuckyBoard includes rebranding (package, app label, and in-app strings), removal
 </details>
 
 <details>
+  <summary><code>Settings Clean-Up</code></summary>
+
+  Removes the following from Gboard's settings: Help & Feedback, Info, Rate, and Privacy categories.
+  For the Privacy category, all usage statistics / diagnostics / crash reporting / sharing sub-options are first turned off before the category entry itself is hidden.
+</details>
+
+<details>
   <summary><code>Add Gboard Signature Bypass</code></summary>
 
   Bypasses Gboard signature whitelist checks.

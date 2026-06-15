@@ -70,7 +70,7 @@ public final class GboardPatchesSettingsActivity extends Activity
     private static final int TOOLBAR_HEIGHT_DP = 56;
     private static final String TOOLBAR_TITLE_PATCHES = "Patches";
     private static final String HEADER_BADGE = "LuckyBoard";
-    private static final String HEADER_TITLE = "LuckyBoard settings";
+    private static final String HEADER_TITLE = "Settings";
     private static final String HEADER_SUMMARY = "";
     private static final String ERROR_HEADER_TITLE = "Feature unavailable";
     private static final String ERROR_HEADER_SUMMARY =

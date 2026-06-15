@@ -22,11 +22,13 @@ import dev.jason.gboardpatches.patches.gboard.features.featureflags.gboardClipbo
 import dev.jason.gboardpatches.patches.gboard.features.featureflags.gboardFeatureFlagsBytecodePatch
 import dev.jason.gboardpatches.patches.gboard.features.featureflags.gboardGrammarCheckerFeatureMarkerPatch
 import dev.jason.gboardpatches.patches.gboard.features.featureflags.gboardInlineSuggestionsFeatureMarkerPatch
+import dev.jason.gboardpatches.patches.gboard.features.featureflags.gboardKeyShapeCustomizationFeatureMarkerPatch
 import dev.jason.gboardpatches.patches.gboard.features.featureflags.gboardKeyShapeSelectionFeatureMarkerPatch
 import dev.jason.gboardpatches.patches.gboard.features.featureflags.gboardFeatureFlagsPatch
 import dev.jason.gboardpatches.patches.gboard.features.packagerename.gboardPackageRenameResourcePatch
 import dev.jason.gboardpatches.patches.gboard.features.settingshomepage.gboardSettingsHomepageBytecodePatch
 import dev.jason.gboardpatches.patches.gboard.features.settingshomepage.gboardSettingsHomepageFeatureMarkerPatch
+import dev.jason.gboardpatches.patches.gboard.features.settingscleanup.gboardSettingsCleanUpResourcePatch
 import dev.jason.gboardpatches.patches.gboard.features.signaturebypass.gboardSignatureBypassBytecodePatch
 import dev.jason.gboardpatches.patches.gboard.features.symbolfooter.gboardSymbolFooterOrderBytecodePatch
 import dev.jason.gboardpatches.patches.gboard.features.symbolfooter.gboardSymbolFooterOrderFeatureMarkerPatch
@@ -202,7 +204,8 @@ val gboardKeyShapeSelectionFlagPatch = resourcePatch(
     dependsOn(
         gboardPatchesExtensionCarrierPatch,
         gboardFeatureFlagsBytecodePatch,
-        gboardKeyShapeSelectionFeatureMarkerPatch
+        gboardKeyShapeSelectionFeatureMarkerPatch,
+        gboardKeyShapeCustomizationFeatureMarkerPatch
     )
 }
 
@@ -218,6 +221,20 @@ val gboardSettingsHomepagePatch = resourcePatch(
         gboardPatchesSettingsPatch,
         gboardSettingsHomepageFeatureMarkerPatch,
         gboardSettingsHomepageBytecodePatch
+    )
+}
+
+@Suppress("unused")
+val gboardSettingsCleanUpPatch = resourcePatch(
+    name = "Settings Clean-Up",
+    description = "Removes Help & Feedback, Info, Rate and Privacy subcategories from Gboard's settings. For Privacy, all usage/diagnostics statistics sharing sub-options are disabled before the category is hidden.",
+    default = true
+) {
+    compatibleWith(COMPATIBILITY_GBOARD)
+
+    dependsOn(
+        gboardPatchesSettingsPatch,
+        gboardSettingsCleanUpResourcePatch
     )
 }
 

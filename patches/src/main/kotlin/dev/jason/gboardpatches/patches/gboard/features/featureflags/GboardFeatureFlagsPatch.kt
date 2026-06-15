@@ -139,6 +139,7 @@ val gboardFeatureFlagsPatch = resourcePatch(
         }
         if (java.lang.Boolean.TRUE == enableMorePillKeys.value) {
             applyFeatureMarker("dev.jason.gboardpatches.feature.key_shape_selection")
+            applyFeatureMarker("dev.jason.gboardpatches.feature.key_shape_customization")
         }
         if (java.lang.Boolean.TRUE == enableAccessoryKeyboard.value) {
             applyFeatureMarker("dev.jason.gboardpatches.feature.flag_support_accessory_keyboard")

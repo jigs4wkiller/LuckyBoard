@@ -328,6 +328,18 @@
       "options": []
     },
     {
+      "name": "Settings Clean-Up",
+      "description": "Removes Help & Feedback, Info, Rate and Privacy subcategories from Gboard's settings. For Privacy, all usage/diagnostics statistics sharing sub-options are disabled before the category is hidden.",
+      "use": true,
+      "dependencies": [],
+      "compatiblePackages": {
+        "com.google.android.inputmethod.latin": [
+          "17.0.10.880768217-release-arm64-v8a"
+        ]
+      },
+      "options": []
+    },
+    {
       "name": "Web Clipboard",
       "description": "Add the phone-hosted Web Clipboard with browser sync, pairing, and a Quick Settings Tile.",
       "use": true,
