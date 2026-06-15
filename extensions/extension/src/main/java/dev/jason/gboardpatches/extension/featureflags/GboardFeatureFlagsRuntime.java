@@ -52,14 +52,22 @@ public final class GboardFeatureFlagsRuntime {
             return false;
         }
 
-        // Special case for key shape extended: when customization marker is present (from the Key Shape patch),
-        // force the additional rounded/flat style flags so the extended shapes (less rounded, horizontal lines etc.)
-        // appear in the picker beyond the basic round/rectangle/none.
-        if ("enable_rounded_key_by_default".equals(flagName) || "belka_rounded_keyboard".equals(flagName)) {
+        // Special case for key shape: when the Key Shape Selection / customization marker is present,
+        // strongly force more_pill_keys and all rounded/semi/pill related flags.
+        // This ensures the expanded key shape options (including custom less-rounded + horizontal lines
+        // gradations) appear in Theme details > Key shape, beyond the basic 3 old options.
+        if (flagName != null && (
+                "more_pill_keys".equals(flagName) ||
+                flagName.contains("rounded") ||
+                flagName.contains("pill") ||
+                flagName.contains("semi_rounded")
+        )) {
             Context context = applicationContext();
-            if (context != null && GboardPatchesFeatureAvailability.hasFeature(
-                    context, GboardPatchesFeatureAvailability.FEATURE_KEY_SHAPE_CUSTOMIZATION)) {
-                FEATURE_ENABLED_CACHE.put("key_shape_extended_" + flagName, Boolean.TRUE);
+            if (context != null && (
+                    GboardPatchesFeatureAvailability.hasFeature(context, GboardPatchesFeatureAvailability.FEATURE_KEY_SHAPE_CUSTOMIZATION) ||
+                    GboardPatchesFeatureAvailability.hasFeature(context, GboardPatchesFeatureAvailability.FEATURE_KEY_SHAPE_SELECTION)
+            )) {
+                FEATURE_ENABLED_CACHE.put("key_shape_" + flagName, Boolean.TRUE);
                 return true;
             }
         }
