@@ -227,9 +227,10 @@ val gboardSignatureBypassPatch = resourcePatch(
 // val gboardIncognitoEnhancementsPatch = dev.lucky.gboardpatches.patches.gboard.features.incognito.gboardIncognitoEnhancementsPatch
 
 // Universal PNG optimizer - converted from mpatcher script.
+// TEMPORARILY DISABLED for test build (no png patch) to isolate load issue in Morphe Manager.
 // Can be applied to any app in Morphe (no app-specific compatibility).
-@Suppress("unused")
-val universalPngOptimizerPatch = dev.lucky.gboardpatches.patches.universal.universalPngOptimizerPatch
+// @Suppress("unused")
+// val universalPngOptimizerPatch = dev.lucky.gboardpatches.patches.universal.universalPngOptimizerPatch
 
 // Universal Drawable Density Cleaner (Drawableclean) - converted from mpatcher script.
 // User selects via patch options (gear) which DPI density to keep.
