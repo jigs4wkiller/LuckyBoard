@@ -153,13 +153,16 @@ public final class GboardSettingsHomepageSettings {
     }
 
     public static boolean isForceNewSupported(Context context) {
-        if (context == null || Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
-            return false;
-        }
-        if (hasExpressiveAconfigRuntime(context)) {
-            return true;
-        }
-        return readExpressiveSystemProperty(context);
+        // Always report supported for LuckyBoard's FORCE_NEW option.
+        // This allows selecting the new settings homepage UI via the in-app menu
+        // even on devices that lack the system expressive aconfig runtime or
+        // "is_expressive_design_enabled" system property / resources (older Android,
+        // custom ROMs, non-Pixel devices, etc.).
+        // The actual style decision is enforced by our bytecode hook in
+        // GboardSettingsHomepageBytecodePatch + this class's resolve logic.
+        // Crash recovery / trial guards still protect against launch failures
+        // if the new UI code path has device-specific resource requirements.
+        return true;
     }
 
     public static boolean isForceNewCrashRecoveryActive(SharedPreferences preferences) {
