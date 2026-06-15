@@ -1,40 +1,33 @@
 package dev.lucky.gboardpatches.patches.universal
 
-import android.content.Context
-import android.content.Intent
-import android.content.pm.PackageManager
-import android.os.Environment
 import app.morphe.patcher.patch.resourcePatch
+import java.io.ByteArrayOutputStream
 import java.io.File
+import java.io.FileInputStream
 import java.io.FileOutputStream
 import java.io.OutputStreamWriter
-import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
+import java.util.zip.CRC32
+import java.util.zip.Deflater
+import java.util.zip.Inflater
 
 /**
  * Universal PNG Optimizer patch - COMPANION MODE (no external libs in patch).
  *
- * This is the new implementation without ext libs in the patch itself.
+ * Pure-JDK delegation to separate "LuckyBoard PNG Companion" APK.
+ * This solves the ant.Task / ClassNotFound + 0 freed problems of previous approaches.
  *
- * The actual optimization is offloaded to a companion APK (dev.lucky.gboardpatches.pngcompanion).
- * This way, the .mpp stays small, no pngtastic or heavy code, no ant class problems.
+ * Patch only does discovery + copy to public workdir + broadcast + copyback.
+ * Real work (and future better algos / pngtastic / filters) lives in the companion.
  *
- * How it works:
- * - Collects list of PNG/9.png to optimize (same logic as before).
- * - Writes request file with paths.
- * - If companion installed, sends broadcast to it to optimize the files in place.
- * - Waits (with timeout) for companion to finish.
- * - If no companion, falls back to basic pure-JDK re-compress (may give 0 savings).
+ * Install companion + grant "all files" (11+) for both Morphe and companion.
+ * Fallback gives basically 0KB (expected).
  *
- * The companion can use more advanced methods in its own process (future: native pngquant, multiple passes, etc.).
- *
- * Install the companion APK for best results. Without it, falls back to weak impl.
- *
- * UNIVERSAL, safe for 9-patches.
+ * Safe for 9-patches (pixels untouched, only IDAT re-compress + safe chunk drop).
  */
 internal val universalPngOptimizerPatch = resourcePatch(
     name = "Universal PNG Optimizer",
-    description = "Optimizes PNG and *.9.png by delegating to companion app (pure, no ext libs in patch). Install companion for good savings. Fallback to basic if no companion. UNIVERSAL patch.",
+    description = "Optimizes PNG + 9.png by delegating to LuckyBoard PNG Companion app (separate process, 'andere Weise'). Install companion APK + grant all-files access for real savings (basic fallback in-patch usually 0KB). Pure, no ext libs inside .mpp. UNIVERSAL.",
     default = true
 ) {
     finalize {
@@ -49,8 +42,9 @@ internal val universalPngOptimizerPatch = resourcePatch(
             return@finalize
         }
 
-        println("  PngOptimizer (companion mode) working...")
+        println("  PngOptimizer (companion delegation mode) working...")
         println("  Target directory: \"${root.absolutePath}\"")
+        println("  (Install 'LuckyBoard PNG Companion' APK + enable all-files access for >0KB results)")
 
         val startAt = java.time.LocalTime.now().toString()
         val sBefore = calculateTotalSize(root)
@@ -102,8 +96,8 @@ internal val universalPngOptimizerPatch = resourcePatch(
         }
 
         if (!usedCompanion) {
-            // Fallback: basic pure JDK (may give 0kb)
-            println("  Using fallback basic pure-JDK optimization (install companion for better results)...")
+            // Fallback: basic pure JDK (usually 0kb - this is why companion exists)
+            println("  No companion or delegation failed - using weak in-patch fallback (install companion APK for real opt in other process)...")
             var processed = 0
             allPngs.forEach { f ->
                 if (basicOptimizePngPure(f)) processed++
@@ -120,9 +114,9 @@ internal val universalPngOptimizerPatch = resourcePatch(
         println("      Files processed: ${allPngs.size}")
         println("           Freed: $freed Kb")
         if (usedCompanion) {
-            println("  (Optimized via companion - can be extended for better savings)")
+            println("  (Via companion process - extend optimizePngPure in companion for best results)")
         } else {
-            println("  (Basic fallback - install LuckyBoard PNG Companion for better results)")
+            println("  (Basic in-patch fallback - 0KB is normal. Install + grant perms to LuckyBoard PNG Companion APK)")
         }
     }
 }
@@ -137,85 +131,150 @@ private const val COMPANION_PACKAGE = "dev.lucky.gboardpatches.pngcompanion"
 private const val COMPANION_ACTION = "dev.lucky.gboardpatches.pngcompanion.OPTIMIZE_PNGS"
 private const val WORK_DIR = "/sdcard/LuckyBoardPngWork"  // Shared, user-writable dir
 
+private fun getAppContext(): Any? {
+    // Obtain application context via reflection. Works for injected patch code running in Morphe process.
+    // Returns the Context as Any to avoid any compile-time android.* dependency.
+    return try {
+        val activityThreadClass = Class.forName("android.app.ActivityThread")
+        val currentApplicationMethod = activityThreadClass.getMethod("currentApplication")
+        currentApplicationMethod.invoke(null)
+    } catch (_: Exception) {
+        null
+    }
+}
+
 private fun isCompanionInstalled(): Boolean {
-    // In patch context, we have limited context, but can try to check via available means.
-    // For simplicity, always try the broadcast; if no receiver, it fails gracefully.
-    // In real, use context.packageManager if available in the ResourcePatchContext.
-    // For now, return true to attempt; the delegation will timeout if not present.
-    return true // Optimistic; actual check can be added if context exposes PM.
+    val ctx = getAppContext() ?: return false
+    return try {
+        val pm = ctx.javaClass.getMethod("getPackageManager").invoke(ctx)
+        pm.javaClass.getMethod("getPackageInfo", String::class.java, Int::class.javaPrimitiveType)
+            .invoke(pm, COMPANION_PACKAGE, 0)
+        true
+    } catch (_: Exception) {
+        false
+    }
+}
+
+private fun copyFile(src: File, dst: File) {
+    FileInputStream(src).use { input ->
+        FileOutputStream(dst).use { output ->
+            input.copyTo(output)
+        }
+    }
 }
 
 private fun delegateToCompanion(pngFiles: List<File>): Boolean {
     try {
         val workDir = File(WORK_DIR)
-        workDir.mkdirs()
+        if (!workDir.exists() && !workDir.mkdirs()) {
+            println("  Cannot create work dir $WORK_DIR (grant storage/all-files access?)")
+            return false
+        }
 
-        val requestFile = File(workDir, "request.txt")
+        val mapFile = File(workDir, "map.txt")
         val doneFile = File(workDir, "done.txt")
 
         // Clean previous
         doneFile.delete()
-        requestFile.delete()
+        mapFile.delete()
+        workDir.listFiles()?.filter { it.name != "map.txt" && it.name != "done.txt" }?.forEach { it.delete() }
 
-        // Write list of files to optimize (one per line, absolute paths)
-        OutputStreamWriter(FileOutputStream(requestFile), Charsets.UTF_8).use { writer ->
-            pngFiles.forEach { f ->
-                writer.write(f.absolutePath)
-                writer.write("\n")
+        // Copy each PNG to public work dir (companion can read/write), write origPath|workCopyPath map
+        OutputStreamWriter(FileOutputStream(mapFile), Charsets.UTF_8).use { writer ->
+            pngFiles.forEach { orig ->
+                val safe = orig.absolutePath.replace("/", "_").replace(":", "_").replace("\\", "_")
+                val workCopy = File(workDir, safe)
+                try {
+                    copyFile(orig, workCopy)
+                    writer.write(orig.absolutePath + "|" + workCopy.absolutePath + "\n")
+                } catch (e: Exception) {
+                    println("  Skip copy ${orig.name}: ${e.message}")
+                }
             }
         }
 
-        // Send broadcast to companion
-        val intent = Intent(COMPANION_ACTION)
-        intent.putExtra("request_file", requestFile.absolutePath)
-        intent.addFlags(Intent.FLAG_INCLUDE_STOPPED_PACKAGES) // for older Android
+        // Send broadcast using obtained context via full reflection (no android import, works at runtime in Morphe)
+        val ctx = getAppContext()
+        var broadcastSent = false
+        if (ctx != null) {
+            try {
+                val intentClass = Class.forName("android.content.Intent")
+                val intent = intentClass.getConstructor(String::class.java).newInstance(COMPANION_ACTION)
+                val putExtraM = intentClass.getMethod("putExtra", String::class.java, String::class.java)
+                putExtraM.invoke(intent, "request_file", mapFile.absolutePath)
+                val addFlagsM = intentClass.getMethod("addFlags", Int::class.javaPrimitiveType)
+                addFlagsM.invoke(intent, 0x00000004) // FLAG_INCLUDE_STOPPED_PACKAGES (old but useful)
 
-        // In patch context, we may not have a Context with sendBroadcast directly in all cases.
-        // The ResourcePatchContext in Morphe may provide ways, but for standard, assume we can use a global or the patch provides.
-        // For this impl, we use a simple way: since Morphe patches run in the manager's context, but to make it work, we use reflection or assume.
-        // Practical: the patch can use the context if exposed.
-        // For now, to make it work, we will use the fact that in Morphe the finalize has access, but to simplify, the delegation is best effort.
-        // In practice, the patch code can send via available means.
+                val sendM = ctx.javaClass.getMethod("sendBroadcast", intentClass)
+                sendM.invoke(ctx, intent)
+                broadcastSent = true
+                println("  Broadcast sent to companion for offload opt (different process).")
+            } catch (e: Exception) {
+                println("  Broadcast reflection failed: ${e.message}. Request file still written.")
+            }
+        }
+        if (!broadcastSent) {
+            println("  Context unavailable or send failed; companion may still pick up via manual trigger in its UI (or auto if already listening dir).")
+        }
 
-        // Since the patch is Kotlin in Morphe, and to avoid context issues, we can document that the companion watches the dir.
-        // For automatic: try to send.
-        // To make it compile and work, we'll assume a context is available or use a static way.
-        // For this, we'll make the patch always write the request, and the companion can be launched manually or via other means.
-        // To keep automatic, we'll add a note.
+        println("  Waiting for companion (copies in $mapFile, up to 60s)...")
 
-        // Simplified for now: write the request, and the companion (if running or user launches) can process.
-        // To trigger, we can try to start the companion if possible.
-
-        println("  Request written to $requestFile. Companion should process it.")
-        println("  (For automatic, the companion should have a receiver or the patch can trigger.)")
-
-        // Poll for done (up to 60s)
-        val latch = CountDownLatch(1)
+        // Poll
         val start = System.currentTimeMillis()
         val timeout = 60_000L
-
+        var responded = false
         while (System.currentTimeMillis() - start < timeout) {
             if (doneFile.exists()) {
-                latch.countDown()
+                responded = true
                 break
             }
-            Thread.sleep(1000)
+            Thread.sleep(800)
         }
 
-        if (latch.await(0, TimeUnit.SECONDS)) {
-            doneFile.delete()
-            return true
-        } else {
+        if (!responded) {
             println("  Companion did not respond in time.")
+            cleanupWork(workDir, mapFile, doneFile)
             return false
         }
+
+        // Copy optimized (smaller) work copies back to original private locations
+        var copiedBack = 0
+        mapFile.forEachLine { line ->
+            if (line.isBlank()) return@forEachLine
+            val parts = line.trim().split("|", limit = 2)
+            if (parts.size == 2) {
+                val origF = File(parts[0])
+                val workF = File(parts[1])
+                if (workF.exists() && workF.isFile && origF.exists()) {
+                    if (workF.length() <= origF.length()) {
+                        try {
+                            copyFile(workF, origF)
+                            copiedBack++
+                        } catch (_: Exception) {}
+                    }
+                    workF.delete()
+                }
+            }
+        }
+
+        println("  Companion finished, copied back $copiedBack optimized PNG(s) from work dir.")
+        cleanupWork(workDir, mapFile, doneFile)
+        return copiedBack > 0 || true // success even if 0 smaller (companion ran)
     } catch (e: Exception) {
         println("  Delegation error: ${e.message}")
         return false
     }
 }
 
-// --- Fallback basic pure JDK (same as before, may give small or 0 savings) ---
+private fun cleanupWork(workDir: File, mapFile: File, doneFile: File) {
+    try {
+        mapFile.delete()
+        doneFile.delete()
+        workDir.listFiles()?.filter { it.isFile && (it.name.endsWith(".png") || it.name.contains("_")) }?.forEach { it.delete() }
+    } catch (_: Exception) {}
+}
+
+// --- Fallback basic pure JDK (re-compress + strip non-critical chunks for small gains) ---
 
 private fun basicOptimizePngPure(file: File): Boolean {
     val orig = file.readBytes()
@@ -252,8 +311,6 @@ private fun basicOptimizePngPure(file: File): Boolean {
         def.end()
         val newIdat = newComp.toByteArray()
 
-        if (newIdat.size >= comp.size) return false
-
         val newChunks = mutableListOf<Chunk>()
         var replaced = false
         chunks.forEach { c ->
@@ -268,13 +325,23 @@ private fun basicOptimizePngPure(file: File): Boolean {
         }
         if (!replaced) newChunks += Chunk("IDAT", newIdat)
 
-        val rebuilt = buildPng(newChunks)
-        if (rebuilt.size < orig.size) {
-            file.writeBytes(rebuilt)
+        // Strip non-critical ancillary chunks (text, time etc.) - companion can do even more
+        val filtered = filterEssentialChunks(newChunks)
+
+        // Only accept if we actually made it smaller
+        val candidate = if (newIdat.size < comp.size) buildPng(filtered) else buildPng(newChunks)
+        if (candidate.size < orig.size) {
+            file.writeBytes(candidate)
             return true
         }
     } catch (_: Exception) {}
     return false
+}
+
+private fun filterEssentialChunks(chunks: List<Chunk>): List<Chunk> {
+    // Drop bloat that does not affect rendering (safe for Gboard drawables and 9-patches)
+    val dropTypes = setOf("tIME", "tEXt", "iTXt", "zTXt", "hIST", "sTER", "pHYs")
+    return chunks.filter { it.type == "IDAT" || it.type == "IHDR" || it.type == "PLTE" || it.type == "IEND" || it.type == "tRNS" || !dropTypes.contains(it.type) }
 }
 
 // --- Shared pure helpers (used by fallback and can be used by companion) ---

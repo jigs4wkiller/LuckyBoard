@@ -2,9 +2,9 @@ package dev.lucky.gboardpatches.patches.gboard.registry
 
 import dev.lucky.gboardpatches.patches.universal.universalPngOptimizerPatch
 
-// Ultra-minimal registry for beta-pure-png-impl (pure JDK PNG optimizer test branch).
-// Only the pure no-ext-lib PNG optimizer patch.
-// This branch is only for testing the new PNG impl, so no need for other patches.
+// beta-pure-png-impl branch: focus on companion delegation PNG optimizer.
+// Registry minimal so .mpp only ships the universal PNG patch + pure fallback/delegation.
+// Other patches live on main. New approach = companion APK does the heavy opt "auf andere Weise".
 
 val allPatches = listOf(
     universalPngOptimizerPatch,

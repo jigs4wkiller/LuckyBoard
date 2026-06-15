@@ -72,7 +72,7 @@ val generatePreviewAssetsIndex by tasks.registering {
 patches {
     about {
         name = "LuckyBoard"
-        description = "Morphe patches for Gboard (beta branch with PNG optimizer for new impl development)."
+        description = "Morphe patches for Gboard (beta-pure-png-impl: companion delegation PNG optimizer - new approach after 0KB pure)."
         source = "https://github.com/jigs4wkiller/LuckyBoard"
         author = "jigs4wkiller"
         contact = "https://github.com/jigs4wkiller/LuckyBoard/issues"
