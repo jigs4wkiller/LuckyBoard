@@ -244,7 +244,7 @@
     },
     {
       "name": "Universal PNG Optimizer",
-      "description": "Optimizes PNG and *.9.png files in the decompiled APK by quantizing colors and re-compressing the image data. Excludes build/, original/, smali* and kotlin* directories. UNIVERSAL patch - works on any application when used in Morphe.",
+      "description": "Optimizes PNG and *.9.png files in the decompiled APK using pure-Java pngtastic (structural opti like optipng/zopflipng: better filters + compression). No color quantization (that still needs desktop pngquant). Excludes build/original/smali*/kotlin* dirs. Safe for 9-patches. UNIVERSAL patch - works on any app in Morphe.",
       "use": true,
       "dependencies": [],
       "compatiblePackages": null,
