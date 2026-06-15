@@ -97,6 +97,10 @@ sourceSets.named("main") {
 
 dependencies {
     add(patchMetadataSourceSet.implementationConfigurationName, libs.gson)
+    // Pure-Java PNG optimizer (no AWT, no native libs). Provides structural compression
+    // optimization (filter selection + best zlib / optional zopfli) that works inside
+    // Morphe's Android patch runtime. Replaces the previous javax.imageio stub.
+    implementation("com.github.depsypher:pngtastic:1.8")
     testImplementation("junit:junit:4.13.2")
 }
 

@@ -1,6 +1,9 @@
 package dev.lucky.gboardpatches.patches.universal
 
 import app.morphe.patcher.patch.resourcePatch
+import com.googlecode.pngtastic.core.PngException
+import com.googlecode.pngtastic.core.PngImage
+import com.googlecode.pngtastic.core.PngOptimizer
 import java.io.File
 
 /**
@@ -8,18 +11,23 @@ import java.io.File
  *
  * Converted from the mpatcher script (used in APKToolM environments).
  *
- * Optimizes PNG and 9.png files by reducing color palette (basic quantization)
- * and re-encoding for compression (approximating pngquant + optipng).
+ * Uses the pure-Java pngtastic library (https://github.com/depsypher/pngtastic) for
+ * real structural PNG optimization inside Morphe (no javax.imageio, no native .so).
+ * Performs filter selection, compression level search and optional Zopfli for
+ * better deflate (comparable to optipng / zopflipng level gains).
+ *
+ * Lossy color quantization (pngquant / libimagequant style, big wins on many assets)
+ * is NOT performed here to keep everything pure Java + Android-Morphe compatible.
+ * For maximum size reduction use the original desktop mpatcher script + pngquant+optipng.
  *
  * Excludes build/, original/, smali* and kotlin* directories.
- * Regular PNGs get both color + structure optimization.
- * 9.png files get only color optimization (to preserve 9-patch data).
+ * Both regular PNGs and *.9.png are optimized (pngtastic is lossless so safe for 9-patches).
  *
  * UNIVERSAL: no compatibleWith() so it applies to any app in Morphe.
  */
 internal val universalPngOptimizerPatch = resourcePatch(
     name = "Universal PNG Optimizer",
-    description = "Optimizes PNG and *.9.png files in the decompiled APK by quantizing colors and re-compressing the image data. Excludes build/, original/, smali* and kotlin* directories. UNIVERSAL patch - works on any application when used in Morphe.",
+    description = "Optimizes PNG and *.9.png files in the decompiled APK using pure-Java pngtastic (structural opti like optipng/zopflipng: better filters + compression). No color quantization (that still needs desktop pngquant). Excludes build/original/smali*/kotlin* dirs. Safe for 9-patches. UNIVERSAL patch - works on any app in Morphe.",
     default = true
 ) {
     // No compatibleWith() -> this is a universal patch applicable to all apps in Morphe.
@@ -36,7 +44,7 @@ internal val universalPngOptimizerPatch = resourcePatch(
             return@finalize
         }
 
-        println("  PngOptimizer working...")
+        println("  PngOptimizer working (pngtastic pure-Java)...")
         println("  Target directory: \"${root.absolutePath}\"")
 
         val startAt = java.time.LocalTime.now().toString()
@@ -61,18 +69,6 @@ internal val universalPngOptimizerPatch = resourcePatch(
             }
             .toList()
 
-        val victimPngArr = regularPngs.size
-        if (victimPngArr > 0) {
-            println("  Found ${victimPngArr} regular PNG(s).")
-            println("  Note: Full PNG optimization (color quantization like pngquant + structure like optipng) requires desktop Java libraries (javax.imageio) or the original external binaries.")
-            println("  Inside Morphe on Android these classes are not available (NoClassDefFoundError).")
-            println("  This patch now only discovers and reports the files. No actual re-encoding is performed.")
-            // Do not call optimizePngFile here anymore to avoid the crash.
-        } else {
-            println("  No png files found!")
-        }
-
-        // 9.png files (only color optimization in original, but same limitation)
         val ninePngs = root.walkTopDown()
             .filter { f ->
                 f.isFile &&
@@ -81,15 +77,45 @@ internal val universalPngOptimizerPatch = resourcePatch(
             }
             .toList()
 
+        val victimPngArr = regularPngs.size
         val victimPng9Arr = ninePngs.size
+
+        if (victimPngArr > 0) {
+            println("  Found ${victimPngArr} regular PNG(s).")
+        } else {
+            println("  No regular png files found!")
+        }
         if (victimPng9Arr > 0) {
-            println("  Found ${victimPng9Arr} 9.png file(s). (color-only in original script, but skipped here for the same reason)")
+            println("  Found ${victimPng9Arr} 9.png file(s). (lossless opti safe for 9-patch borders)")
         } else {
             println("  No 9.png files found!")
         }
 
+        if (victimPngArr == 0 && victimPng9Arr == 0) {
+            println("  Done (nothing to do).")
+            return@finalize
+        }
+
+        // Real optimizer from pngtastic (pure Java, works in Morphe/Android runtime)
+        val optimizer = PngOptimizer("error")
+        // Default brute-force best filters + compression levels.
+        // For even better ratios (slower) you could do: optimizer.setCompressor("zopfli", 15)
+        // but we keep default for reasonable patch time.
+        optimizer.setCompressor(null, null)
+
+        var processed = 0
+        regularPngs.forEach { f ->
+            if (optimizePngFile(f, optimizer)) processed++
+        }
+        ninePngs.forEach { f ->
+            if (optimizePngFile(f, optimizer)) processed++
+        }
+
         val sAfter = calculateTotalSize(root)
         val freed = (sBefore - sAfter) / 1024
+
+        val totalSavings = optimizer.getTotalSavings()
+        val resultsCount = optimizer.getResults().size
 
         println("  Done!")
         println("  Results:")
@@ -97,8 +123,10 @@ internal val universalPngOptimizerPatch = resourcePatch(
         println("      Files processed:")
         println("             png| $victimPngArr")
         println("           9.png| $victimPng9Arr")
-        println("           Freed: $freed Kb (0 because processing is stubbed in Android Morphe)")
-        println("  Recommendation: For real optimization results, use the original mpatcher shell script on a PC (with pngquant + optipng in the bin/ directory).")
+        println("      Optimized: $resultsCount (attempted $processed)")
+        println("           Freed: $freed Kb  (internal: ${totalSavings / 1024} Kb reported by pngtastic)")
+        println("  Note: Structural optimization (filters/compression) via pngtastic. For lossy color")
+        println("        quantization (pngquant-style 60-80% wins) use the original mpatcher script on PC.")
     }
 }
 
@@ -107,17 +135,49 @@ private fun calculateTotalSize(dir: File): Long {
 }
 
 /**
- * Stub: Actual image optimization is impossible inside Morphe on Android
- * because javax.imageio (and the whole AWT image pipeline) is not present
- * in the Android runtime.
- *
- * The patch now only discovers files (the part that was previously broken)
- * and reports them. No bytes are changed.
- *
- * For real results (pngquant + optipng level optimization) use the original
- * mpatcher shell script on a PC that has the tools in bin/.
+ * Optimize a single PNG using pngtastic PngOptimizer (pure Java, no AWT).
+ * Writes to a temp, then replaces original only on success + smaller size.
+ * Returns true if we successfully produced an optimized version (even if size same or slightly larger due to overhead; pngtastic usually wins).
  */
-private fun optimizePngFile(file: File, doQuantize: Boolean) {
-    // Intentionally empty. We already printed the "Found N PNG(s)" message above.
-    // Calling this would immediately hit NoClassDefFoundError for ImageIO.
+private fun optimizePngFile(
+    file: File,
+    optimizer: PngOptimizer
+): Boolean {
+    val srcPath = file.absolutePath
+    val tmp = File("$srcPath.optipngtmp")
+    try {
+        val image = PngImage(srcPath, "error")
+        // Write optimized to temp (pngtastic always produces a new file)
+        optimizer.optimize(image, tmp.absolutePath, false, null)
+
+        if (tmp.exists()) {
+            val newLen = tmp.length()
+            val oldLen = file.length()
+            if (newLen > 0 && (newLen < oldLen || oldLen == 0L)) {
+                // Good win (or first time)
+                if (!file.delete()) {
+                    // Rare: can't delete orig, leave tmp and skip
+                    tmp.delete()
+                    return false
+                }
+                if (!tmp.renameTo(file)) {
+                    // Cleanup if rename failed
+                    tmp.delete()
+                    return false
+                }
+                return true
+            } else {
+                // No win or larger (rare) - keep original, discard tmp
+                tmp.delete()
+                return false
+            }
+        }
+    } catch (e: PngException) {
+        tmp.delete()
+        // quiet; many 9-patches or weird chunks may trigger on some images, that's ok
+    } catch (e: Exception) {
+        tmp.delete()
+        println("    Skipped ${file.name}: ${e.javaClass.simpleName}")
+    }
+    return false
 }
