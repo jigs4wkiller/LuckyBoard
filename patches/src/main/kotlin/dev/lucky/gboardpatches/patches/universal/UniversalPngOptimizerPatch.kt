@@ -27,7 +27,12 @@ internal val universalPngOptimizerPatch = resourcePatch(
     // No compatibleWith() -> this is a universal patch applicable to all apps in Morphe.
 
     finalize {
-        val root = File(".")
+        val resDir = get("res") as? File
+        if (resDir == null || !resDir.exists() || !resDir.isDirectory) {
+            println("  [UniversalPngOptimizer] No res/ directory found in decompile context.")
+            return@finalize
+        }
+        val root = resDir.parentFile ?: resDir
         if (!root.exists() || !root.isDirectory) {
             println("  [UniversalPngOptimizer] No valid decompile root directory found.")
             return@finalize
@@ -40,13 +45,21 @@ internal val universalPngOptimizerPatch = resourcePatch(
         val sBefore = calculateTotalSize(root)
 
         // Regular PNGs (exclude .9.png and excluded dirs)
+        // Use robust exclusion that works whether paths are relative or start with ./
         val excludedDirs = listOf("build", "original", "smali", "kotlin")
+        fun isExcluded(path: String): Boolean {
+            val p = path.replace('\\', '/')
+            return excludedDirs.any { ex ->
+                p.contains("/$ex/") || p.startsWith("$ex/") || p.startsWith("./$ex/") || p == ex
+            }
+        }
+
         val regularPngs = root.walkTopDown()
             .filter { f ->
                 f.isFile &&
                     f.name.endsWith(".png", ignoreCase = true) &&
                     !f.name.endsWith(".9.png", ignoreCase = true) &&
-                    excludedDirs.none { ex -> f.invariantSeparatorsPath.contains("/$ex/") }
+                    !isExcluded(f.invariantSeparatorsPath)
             }
             .toList()
 
@@ -66,7 +79,7 @@ internal val universalPngOptimizerPatch = resourcePatch(
             .filter { f ->
                 f.isFile &&
                     f.name.endsWith(".9.png", ignoreCase = true) &&
-                    excludedDirs.none { ex -> f.invariantSeparatorsPath.contains("/$ex/") }
+                    !isExcluded(f.invariantSeparatorsPath)
             }
             .toList()
 
