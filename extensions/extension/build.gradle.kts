@@ -3,7 +3,7 @@ extension {
 }
 
 android {
-    namespace = "dev.jason.gboardpatches.extension"
+    namespace = "dev.lucky.gboardpatches.extension"
 
     buildFeatures {
         buildConfig = true

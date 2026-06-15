@@ -1,4 +1,4 @@
-group = "dev.jason.gboardpatches"
+group = "dev.lucky.gboardpatches"
 
 val generatedPatchInfoDir = layout.buildDirectory.dir("generated/sources/patchBuildInfo/kotlin/main")
 val generatedPreviewAssetsResourcesDir = layout.buildDirectory.dir("generated/resources/previewAssets/main")
@@ -25,7 +25,7 @@ val generatePatchBuildInfo by tasks.registering {
 
         packageDir.resolve("PatchBuildInfo.kt").writeText(
             """
-            package dev.jason.gboardpatches.patches.shared
+            package dev.lucky.gboardpatches.patches.shared
 
             internal object PatchBuildInfo {
                 const val VERSION = "$patchVersion"
@@ -122,7 +122,7 @@ tasks {
         dependsOn(build, patchMetadataSourceSet.classesTaskName)
 
         classpath = patchMetadataSourceSet.runtimeClasspath
-        mainClass.set("dev.jason.gboardpatches.util.PatchListGeneratorKt")
+        mainClass.set("dev.lucky.gboardpatches.util.PatchListGeneratorKt")
     }
 
     register("normalizePatchMetadataEncoding") {
