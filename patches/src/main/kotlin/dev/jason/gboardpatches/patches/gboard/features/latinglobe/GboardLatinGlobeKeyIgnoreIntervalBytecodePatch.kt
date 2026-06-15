@@ -16,7 +16,7 @@ private const val LATIN_GLOBE_RUNTIME_CLASS =
     "Ldev/jason/gboardpatches/extension/keyboard/GboardLatinGlobeKeyIgnoreIntervalRuntime;"
 
 internal val gboardLatinGlobeKeyIgnoreIntervalBytecodePatch = bytecodePatch(
-    description = "允許覆寫英文地球鍵忽略時間。"
+    description = "Allow overriding the English globe key ignore interval."
 ) {
     compatibleWith(COMPATIBILITY_GBOARD)
 

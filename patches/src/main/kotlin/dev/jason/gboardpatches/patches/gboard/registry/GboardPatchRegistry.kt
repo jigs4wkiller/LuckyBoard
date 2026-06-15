@@ -15,8 +15,8 @@ import dev.jason.gboardpatches.patches.gboard.features.webclipboard.gboardWebCli
 import dev.jason.gboardpatches.patches.gboard.features.webclipboard.gboardWebClipboardManifestPatch
 import dev.jason.gboardpatches.patches.gboard.features.englishqwerty.gboardEnglishQwertySlideResourcePatch
 import dev.jason.gboardpatches.patches.gboard.features.englishqwerty.gboardEnglishQwertySoftKeyPatch
+import dev.jason.gboardpatches.patches.gboard.features.brandrename.gboardBrandRenameResourcePatch
 import dev.jason.gboardpatches.patches.gboard.features.incognito.gboardIncognitoEnhancementsBytecodePatch
-import dev.jason.gboardpatches.patches.gboard.features.incognito.gboardIncognitoEnhancementsPatch
 import dev.jason.gboardpatches.patches.gboard.features.featureflags.gboardClipboardEntityExtractionFeatureMarkerPatch
 import dev.jason.gboardpatches.patches.gboard.features.featureflags.gboardClipboardItemEditFeatureMarkerPatch
 import dev.jason.gboardpatches.patches.gboard.features.featureflags.gboardFeatureFlagsBytecodePatch
@@ -30,6 +30,8 @@ import dev.jason.gboardpatches.patches.gboard.features.settingshomepage.gboardSe
 import dev.jason.gboardpatches.patches.gboard.features.signaturebypass.gboardSignatureBypassBytecodePatch
 import dev.jason.gboardpatches.patches.gboard.features.symbolfooter.gboardSymbolFooterOrderBytecodePatch
 import dev.jason.gboardpatches.patches.gboard.features.symbolfooter.gboardSymbolFooterOrderFeatureMarkerPatch
+import dev.jason.gboardpatches.patches.gboard.features.latinglobe.gboardLatinGlobeKeyIgnoreIntervalBytecodePatch
+import dev.jason.gboardpatches.patches.gboard.features.latinglobe.gboardLatinGlobeKeyIgnoreIntervalFeatureMarkerPatch
 import dev.jason.gboardpatches.patches.gboard.shared.gboardPatchesExtensionCarrierPatch
 import dev.jason.gboardpatches.patches.gboard.shared.gboardPatchesSettingsPatch
 import dev.jason.gboardpatches.patches.gboard.features.undoredoaccesspoint.gboardUndoRedoAccessPointBytecodePatch
@@ -248,6 +250,20 @@ val gboardPackageRenamePatch = resourcePatch(
 }
 
 @Suppress("unused")
+val gboardBrandRenamePatch = resourcePatch(
+    name = "Replace Gboard with LuckyBoard",
+    description = "Replace occurrences of \"Gboard\" with \"LuckyBoard\" in resources, strings and manifest during patching for complete UI rebranding (beyond the app label set by Package Rename).",
+    default = true
+) {
+    compatibleWith(COMPATIBILITY_GBOARD)
+
+    dependsOn(
+        gboardPackageRenamePatch,
+        gboardBrandRenameResourcePatch
+    )
+}
+
+@Suppress("unused")
 val gboardSignatureBypassPatch = resourcePatch(
     name = "Add Gboard Signature Bypass",
     description = "Bypass Gboard signature whitelist checks and force them to pass.",
@@ -261,18 +277,7 @@ val gboardSignatureBypassPatch = resourcePatch(
 }
 
 @Suppress("unused")
-val gboardIncognitoEnhancementsPatch = resourcePatch(
-    name = "Incognito Enhancements",
-    description = "Enable clipboard and voice typing in incognito mode. Also force Gboard to always open in incognito mode to disable typing history collection and personalization. (Ported from Adobo patches by jkennethcarino)",
-    default = true
-) {
-    compatibleWith(COMPATIBILITY_GBOARD)
-
-    dependsOn(
-        gboardSignatureBypassPatch,
-        gboardIncognitoEnhancementsBytecodePatch
-    )
-}
+val gboardFeatureFlagsPatch = dev.jason.gboardpatches.patches.gboard.features.featureflags.gboardFeatureFlagsPatch
 
 @Suppress("unused")
-val gboardFeatureFlagsPatch = dev.jason.gboardpatches.patches.gboard.features.featureflags.gboardFeatureFlagsPatch
+val gboardIncognitoEnhancementsPatch = dev.jason.gboardpatches.patches.gboard.features.incognito.gboardIncognitoEnhancementsPatch

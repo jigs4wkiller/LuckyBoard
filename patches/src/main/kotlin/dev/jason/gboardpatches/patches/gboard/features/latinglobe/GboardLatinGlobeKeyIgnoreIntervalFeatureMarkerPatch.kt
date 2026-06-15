@@ -5,7 +5,7 @@ import dev.jason.gboardpatches.patches.gboard.features.featureflags.applyFeature
 import dev.jason.gboardpatches.patches.shared.Constants.COMPATIBILITY_GBOARD
 
 internal val gboardLatinGlobeKeyIgnoreIntervalFeatureMarkerPatch = resourcePatch(
-    description = "標記 Latin globe key ignore interval feature 已被打入 target APK，共用 settings UI 過濾"
+    description = "Marker for the Latin globe key ignore interval feature being applied; used for settings UI availability filtering."
 ) {
     compatibleWith(COMPATIBILITY_GBOARD)
 

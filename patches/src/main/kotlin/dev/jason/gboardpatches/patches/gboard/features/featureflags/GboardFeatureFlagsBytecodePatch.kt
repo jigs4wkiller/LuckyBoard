@@ -12,7 +12,7 @@ private const val FEATURE_FLAGS_RUNTIME_CLASS =
     "Ldev/jason/gboardpatches/extension/featureflags/GboardFeatureFlagsRuntime;"
 
 internal val gboardFeatureFlagsBytecodePatch = bytecodePatch(
-    description = "在 Gboard rollout flag getter 單點強制回傳指定 flag 的 true 值"
+    description = "Force true return for selected Gboard rollout/experimental flags in the flag getter."
 ) {
     compatibleWith(COMPATIBILITY_GBOARD)
 

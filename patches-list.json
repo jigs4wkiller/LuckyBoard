@@ -158,6 +158,18 @@
       "options": []
     },
     {
+      "name": "Replace Gboard with LuckyBoard",
+      "description": "Replace occurrences of \"Gboard\" with \"LuckyBoard\" in resources, strings and manifest during patching for complete UI rebranding (beyond the app label set by Package Rename).",
+      "use": true,
+      "dependencies": [],
+      "compatiblePackages": {
+        "com.google.android.inputmethod.latin": [
+          "17.0.10.880768217-release-arm64-v8a"
+        ]
+      },
+      "options": []
+    },
+    {
       "name": "Settings Homepage Override",
       "description": "Allow switching between the new and legacy Gboard settings pages.",
       "use": true,

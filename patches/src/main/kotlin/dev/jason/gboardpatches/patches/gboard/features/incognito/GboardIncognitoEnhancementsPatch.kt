@@ -7,7 +7,7 @@ import dev.jason.gboardpatches.patches.shared.Constants.COMPATIBILITY_GBOARD
 @Suppress("unused")
 val gboardIncognitoEnhancementsPatch = resourcePatch(
     name = "Incognito Enhancements",
-    description = "Enable clipboard and voice typing in incognito mode. Also force Gboard to always open in incognito mode to disable typing history collection and personalization. Depends on signature bypass.",
+    description = "Enable clipboard and voice typing in incognito mode. Also force Gboard to always open in incognito mode to disable typing history collection and personalization. (Ported from Adobo patches by jkennethcarino)",
     default = true
 ) {
     compatibleWith(COMPATIBILITY_GBOARD)
