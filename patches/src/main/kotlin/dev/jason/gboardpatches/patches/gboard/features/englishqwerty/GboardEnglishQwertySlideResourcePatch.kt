@@ -43,7 +43,7 @@ private val ENGLISH_SLIDE_DOWN_MAP = linkedMapOf(
 )
 
 internal val gboardEnglishQwertySlideResourcePatch = resourcePatch(
-    description = "補回英文 QWERTY 的滑動輸入資源 metadata。"
+    description = "Add slide-up and slide-down symbol input resources for QWERTY layouts (English and Latin variants)."
 ) {
     finalize {
         applyEnglishQwertyResourcePatch()
