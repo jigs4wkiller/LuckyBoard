@@ -7,6 +7,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
+import dev.jason.gboardpatches.extension.featureflags.GboardFeatureFlagsSettings;
 import dev.jason.gboardpatches.extension.settings.GboardPatchesFeatureAvailability;
 
 @SuppressWarnings("unused")
@@ -21,6 +22,20 @@ public final class GboardFeatureFlagsRuntime {
             "enable_inline_suggestions_on_client_side";
     public static final String FLAG_KEY_SHAPE_SELECTION =
             "more_pill_keys";
+    public static final String FLAG_SUPPORT_ACCESSORY_KEYBOARD =
+            "support_accessory_keyboard";
+    public static final String FLAG_ENABLE_VOICE_WIDGET =
+            "enable_voice_widget";
+    public static final String FLAG_ENABLE_NEW_LANGUAGE_SEARCH_BAR =
+            "enable_new_language_search_bar";
+    public static final String FLAG_ENABLE_SETTINGS_TWO_PANE =
+            "enable_settings_two_pane_display";
+    public static final String FLAG_ENABLE_OCR =
+            "enable_ocr";
+    public static final String FLAG_ENABLE_DICTATION_REDESIGN =
+            "enable_regular_dictation_redesign";
+    public static final String FLAG_SHOW_COLLAPSE_BUTTON =
+            "show_collapse_button";
 
     private static final Map<String, String> FLAG_TO_FEATURE_KEY =
             createFlagToFeatureKeyMap();
@@ -52,9 +67,23 @@ public final class GboardFeatureFlagsRuntime {
             return false;
         }
 
-        boolean enabled = GboardPatchesFeatureAvailability.hasFeature(context, featureKey);
-        FEATURE_ENABLED_CACHE.put(featureKey, Boolean.valueOf(enabled));
-        return enabled;
+        boolean staticEnabled = GboardPatchesFeatureAvailability.hasFeature(context, featureKey);
+        if (!staticEnabled) {
+            FEATURE_ENABLED_CACHE.put(featureKey, Boolean.FALSE);
+            return false;
+        }
+
+        // If the in-app Feature Flags UI was patched in (via the top "Add flags to Lucky Settings" option),
+        // respect the user's runtime toggle (defaults to true / the patch-time choice).
+        if (GboardPatchesFeatureAvailability.hasFeature(
+                context, GboardPatchesFeatureAvailability.FEATURE_FEATURE_FLAGS_UI)) {
+            boolean userEnabled = GboardFeatureFlagsSettings.readFlagEnabled(context, flagName, false);
+            FEATURE_ENABLED_CACHE.put(featureKey, Boolean.valueOf(userEnabled));
+            return userEnabled;
+        }
+
+        FEATURE_ENABLED_CACHE.put(featureKey, Boolean.TRUE);
+        return true;
     }
 
     private static Map<String, String> createFlagToFeatureKeyMap() {
@@ -74,6 +103,27 @@ public final class GboardFeatureFlagsRuntime {
         featureKeys.put(
                 FLAG_KEY_SHAPE_SELECTION,
                 GboardPatchesFeatureAvailability.FEATURE_KEY_SHAPE_SELECTION);
+        featureKeys.put(
+                FLAG_SUPPORT_ACCESSORY_KEYBOARD,
+                GboardPatchesFeatureAvailability.FEATURE_FLAG_SUPPORT_ACCESSORY_KEYBOARD);
+        featureKeys.put(
+                FLAG_ENABLE_VOICE_WIDGET,
+                GboardPatchesFeatureAvailability.FEATURE_FLAG_ENABLE_VOICE_WIDGET);
+        featureKeys.put(
+                FLAG_ENABLE_NEW_LANGUAGE_SEARCH_BAR,
+                GboardPatchesFeatureAvailability.FEATURE_FLAG_ENABLE_NEW_LANGUAGE_SEARCH_BAR);
+        featureKeys.put(
+                FLAG_ENABLE_SETTINGS_TWO_PANE,
+                GboardPatchesFeatureAvailability.FEATURE_FLAG_ENABLE_SETTINGS_TWO_PANE);
+        featureKeys.put(
+                FLAG_ENABLE_OCR,
+                GboardPatchesFeatureAvailability.FEATURE_FLAG_ENABLE_OCR);
+        featureKeys.put(
+                FLAG_ENABLE_DICTATION_REDESIGN,
+                GboardPatchesFeatureAvailability.FEATURE_FLAG_ENABLE_DICTATION_REDESIGN);
+        featureKeys.put(
+                FLAG_SHOW_COLLAPSE_BUTTON,
+                GboardPatchesFeatureAvailability.FEATURE_FLAG_SHOW_COLLAPSE_BUTTON);
         return Collections.unmodifiableMap(featureKeys);
     }
 

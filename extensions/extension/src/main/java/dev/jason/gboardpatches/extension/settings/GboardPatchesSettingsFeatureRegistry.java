@@ -8,6 +8,7 @@ import java.util.Collections;
 import java.util.List;
 
 import dev.jason.gboardpatches.extension.clipboard.GboardClipboardSettingsFeature;
+import dev.jason.gboardpatches.extension.featureflags.GboardFeatureFlagsSettingsFeature;
 import dev.jason.gboardpatches.extension.keyboard.GboardKeyboardSettingsGroupFeature;
 import dev.jason.gboardpatches.extension.settingshomepage.GboardSettingsHomepageSettingsFeature;
 
@@ -22,6 +23,7 @@ public final class GboardPatchesSettingsFeatureRegistry {
                 new ArrayList<GboardPatchesSettingsContract.Feature>();
         addIfAvailable(context, features, new GboardKeyboardSettingsGroupFeature(context));
         addIfAvailable(context, features, new GboardClipboardSettingsFeature());
+        addIfAvailable(context, features, new GboardFeatureFlagsSettingsFeature());
         addIfAvailable(context, features, new GboardSettingsHomepageSettingsFeature());
         return Collections.unmodifiableList(features);
     }

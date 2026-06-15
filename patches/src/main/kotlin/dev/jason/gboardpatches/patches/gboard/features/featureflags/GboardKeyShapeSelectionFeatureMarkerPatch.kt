@@ -4,7 +4,7 @@ import app.morphe.patcher.patch.resourcePatch
 import dev.jason.gboardpatches.patches.shared.Constants.COMPATIBILITY_GBOARD
 
 internal val gboardKeyShapeSelectionFeatureMarkerPatch = resourcePatch(
-    description = "標記 key shape selection rollout flag patch 已打入 target APK"
+    description = "Mark key shape selection feature as present (enables picker in Theme details)."
 ) {
     compatibleWith(COMPATIBILITY_GBOARD)
 
