@@ -26,30 +26,6 @@
       "options": []
     },
     {
-      "name": "Clipboard Entity Extraction",
-      "description": "Enable Clipboard > Show addresses, phone numbers, and other items pulled from recently copied text.",
-      "use": true,
-      "dependencies": [],
-      "compatiblePackages": {
-        "com.google.android.inputmethod.latin": [
-          "17.0.10.880768217-release-arm64-v8a"
-        ]
-      },
-      "options": []
-    },
-    {
-      "name": "Clipboard Item Edit",
-      "description": "Enable Edit when long-pressing a clipboard item.",
-      "use": true,
-      "dependencies": [],
-      "compatiblePackages": {
-        "com.google.android.inputmethod.latin": [
-          "17.0.10.880768217-release-arm64-v8a"
-        ]
-      },
-      "options": []
-    },
-    {
       "name": "Custom Symbols",
       "description": "Add a dedicated custom symbols tab and replace the long-press comma entry with a heart shortcut.",
       "use": true,
@@ -98,48 +74,12 @@
       "options": []
     },
     {
-      "name": "Grammar Checker",
-      "description": "Enable Text correction > Grammar check.",
-      "use": true,
-      "dependencies": [],
-      "compatiblePackages": {
-        "com.google.android.inputmethod.latin": [
-          "17.0.10.880768217-release-arm64-v8a"
-        ]
-      },
-      "options": []
-    },
-    {
       "name": "Incognito Enhancements",
       "description": "Enable clipboard and voice typing in incognito mode. Also force Gboard to always open in incognito mode to disable typing history collection and personalization. (Ported from Adobo patches by jkennethcarino)",
       "use": true,
       "dependencies": [
         "Add Gboard Signature Bypass"
       ],
-      "compatiblePackages": {
-        "com.google.android.inputmethod.latin": [
-          "17.0.10.880768217-release-arm64-v8a"
-        ]
-      },
-      "options": []
-    },
-    {
-      "name": "Inline Suggestions",
-      "description": "Enable Text correction > Smart Compose.",
-      "use": true,
-      "dependencies": [],
-      "compatiblePackages": {
-        "com.google.android.inputmethod.latin": [
-          "17.0.10.880768217-release-arm64-v8a"
-        ]
-      },
-      "options": []
-    },
-    {
-      "name": "Key Shape Selection",
-      "description": "Enable Key shape selection in Theme details + add more rounded shape gradations (light/medium/strong/very strong/pill) and less rounded + horizontal lines options.",
-      "use": true,
-      "dependencies": [],
       "compatiblePackages": {
         "com.google.android.inputmethod.latin": [
           "17.0.10.880768217-release-arm64-v8a"

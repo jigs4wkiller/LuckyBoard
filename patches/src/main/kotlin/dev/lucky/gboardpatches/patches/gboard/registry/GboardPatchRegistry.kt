@@ -17,13 +17,7 @@ import dev.lucky.gboardpatches.patches.gboard.features.englishqwerty.gboardEngli
 import dev.lucky.gboardpatches.patches.gboard.features.englishqwerty.gboardEnglishQwertySoftKeyPatch
 import dev.lucky.gboardpatches.patches.gboard.features.brandrename.gboardBrandRenameResourcePatch
 import dev.lucky.gboardpatches.patches.gboard.features.incognito.gboardIncognitoEnhancementsBytecodePatch
-import dev.lucky.gboardpatches.patches.gboard.features.featureflags.gboardClipboardEntityExtractionFeatureMarkerPatch
-import dev.lucky.gboardpatches.patches.gboard.features.featureflags.gboardClipboardItemEditFeatureMarkerPatch
 import dev.lucky.gboardpatches.patches.gboard.features.featureflags.gboardFeatureFlagsBytecodePatch
-import dev.lucky.gboardpatches.patches.gboard.features.featureflags.gboardGrammarCheckerFeatureMarkerPatch
-import dev.lucky.gboardpatches.patches.gboard.features.featureflags.gboardInlineSuggestionsFeatureMarkerPatch
-import dev.lucky.gboardpatches.patches.gboard.features.featureflags.gboardKeyShapeCustomizationFeatureMarkerPatch
-import dev.lucky.gboardpatches.patches.gboard.features.featureflags.gboardKeyShapeSelectionFeatureMarkerPatch
 import dev.lucky.gboardpatches.patches.gboard.features.featureflags.gboardFeatureFlagsPatch
 import dev.lucky.gboardpatches.patches.gboard.features.packagerename.gboardPackageRenameResourcePatch
 import dev.lucky.gboardpatches.patches.gboard.features.settingshomepage.gboardSettingsHomepageBytecodePatch
@@ -130,82 +124,6 @@ val gboardWebClipboardPatch = resourcePatch(
         gboardWebClipboardManifestPatch,
         gboardWebClipboardAssetsPatch,
         gboardWebClipboardCapturePatch
-    )
-}
-
-@Suppress("unused")
-val gboardClipboardEntityExtractionFlagPatch = resourcePatch(
-    name = "Clipboard Entity Extraction",
-    description = "Enable Clipboard > Show addresses, phone numbers, and other items pulled from recently copied text.",
-    default = true
-) {
-    compatibleWith(COMPATIBILITY_GBOARD)
-
-    dependsOn(
-        gboardPatchesExtensionCarrierPatch,
-        gboardFeatureFlagsBytecodePatch,
-        gboardClipboardEntityExtractionFeatureMarkerPatch
-    )
-}
-
-@Suppress("unused")
-val gboardClipboardItemEditFlagPatch = resourcePatch(
-    name = "Clipboard Item Edit",
-    description = "Enable Edit when long-pressing a clipboard item.",
-    default = true
-) {
-    compatibleWith(COMPATIBILITY_GBOARD)
-
-    dependsOn(
-        gboardPatchesExtensionCarrierPatch,
-        gboardFeatureFlagsBytecodePatch,
-        gboardClipboardItemEditFeatureMarkerPatch
-    )
-}
-
-@Suppress("unused")
-val gboardGrammarCheckerFlagPatch = resourcePatch(
-    name = "Grammar Checker",
-    description = "Enable Text correction > Grammar check.",
-    default = true
-) {
-    compatibleWith(COMPATIBILITY_GBOARD)
-
-    dependsOn(
-        gboardPatchesExtensionCarrierPatch,
-        gboardFeatureFlagsBytecodePatch,
-        gboardGrammarCheckerFeatureMarkerPatch
-    )
-}
-
-@Suppress("unused")
-val gboardInlineSuggestionsFlagPatch = resourcePatch(
-    name = "Inline Suggestions",
-    description = "Enable Text correction > Smart Compose.",
-    default = true
-) {
-    compatibleWith(COMPATIBILITY_GBOARD)
-
-    dependsOn(
-        gboardPatchesExtensionCarrierPatch,
-        gboardFeatureFlagsBytecodePatch,
-        gboardInlineSuggestionsFeatureMarkerPatch
-    )
-}
-
-@Suppress("unused")
-val gboardKeyShapeSelectionFlagPatch = resourcePatch(
-    name = "Key Shape Selection",
-    description = "Enable Key shape selection in Theme details + add more rounded shape gradations (light/medium/strong/very strong/pill) and less rounded + horizontal lines options.",
-    default = true
-) {
-    compatibleWith(COMPATIBILITY_GBOARD)
-
-    dependsOn(
-        gboardPatchesExtensionCarrierPatch,
-        gboardFeatureFlagsBytecodePatch,
-        gboardKeyShapeSelectionFeatureMarkerPatch,
-        gboardKeyShapeCustomizationFeatureMarkerPatch
     )
 }
 

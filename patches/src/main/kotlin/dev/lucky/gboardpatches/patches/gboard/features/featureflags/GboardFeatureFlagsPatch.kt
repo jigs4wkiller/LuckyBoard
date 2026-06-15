@@ -2,6 +2,8 @@ package dev.lucky.gboardpatches.patches.gboard.features.featureflags
 
 import app.morphe.patcher.patch.ResourcePatchContext
 import app.morphe.patcher.patch.resourcePatch
+import dev.lucky.gboardpatches.patches.gboard.features.featureflags.gboardKeyShapeCustomizationFeatureMarkerPatch
+import dev.lucky.gboardpatches.patches.gboard.features.featureflags.gboardKeyShapeSelectionFeatureMarkerPatch
 import dev.lucky.gboardpatches.patches.gboard.shared.ANDROID_NS
 import dev.lucky.gboardpatches.patches.gboard.shared.childElements
 import dev.lucky.gboardpatches.patches.gboard.shared.gboardPatchesExtensionCarrierPatch
@@ -31,7 +33,9 @@ val gboardFeatureFlagsPatch = resourcePatch(
 
     dependsOn(
         gboardPatchesExtensionCarrierPatch,
-        gboardFeatureFlagsBytecodePatch
+        gboardFeatureFlagsBytecodePatch,
+        gboardKeyShapeSelectionFeatureMarkerPatch,
+        gboardKeyShapeCustomizationFeatureMarkerPatch
     )
 
     // No per-flag options at patch time anymore.
@@ -46,8 +50,7 @@ val gboardFeatureFlagsPatch = resourcePatch(
 
         // Always make all the individual flags available (markers) so the in-app menu shows them all.
         // The runtime will respect the per-flag toggles from the in-app prefs.
-        applyFeatureMarker("dev.lucky.gboardpatches.feature.key_shape_selection")
-        applyFeatureMarker("dev.lucky.gboardpatches.feature.key_shape_customization")
+        // Key shape markers are provided via dependsOn (which also triggers the custom shape injection).
         applyFeatureMarker("dev.lucky.gboardpatches.feature.flag_support_accessory_keyboard")
         applyFeatureMarker("dev.lucky.gboardpatches.feature.flag_enable_voice_widget")
         applyFeatureMarker("dev.lucky.gboardpatches.feature.flag_enable_new_language_search_bar")
