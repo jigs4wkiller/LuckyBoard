@@ -92,9 +92,11 @@ private fun applyPatchesSettingsPatch() = with(context) {
             patchesEntry.setAndroidAttribute("selectable", "true")
             patchesEntry.setAndroidAttribute("key", PATCHES_SETTINGS_ENTRY_KEY)
             patchesEntry.removeAndroidAttribute("summary")
-            if (!iconValue.isNullOrBlank()) {
-                patchesEntry.setAndroidAttribute("icon", iconValue)
-            }
+            // Always set the icon (the gear/symbol next to "Patches" entry).
+            // Copy from RateUs if present at injection time; otherwise use the observed value
+            // "?attr_0x7f0401c4" (same as RateUs icon) so the symbol is guaranteed even after
+            // Settings Clean-Up removes the RateUs/Help/etc entries from the same category.
+            patchesEntry.setAndroidAttribute("icon", if (!iconValue.isNullOrBlank()) iconValue else "?attr_0x7f0401c4")
 
             val intent = patchesEntry.childElements("intent").firstOrNull()
                 ?: document.createElement("intent").also { createdIntent ->
