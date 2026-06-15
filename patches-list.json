@@ -86,126 +86,6 @@
       "options": []
     },
     {
-      "name": "QWERTY Slide Symbols",
-      "description": "Enable slide-up and slide-down symbol input on QWERTY keyboards (English and other Latin languages where supported).",
-      "use": true,
-      "dependencies": [],
-      "compatiblePackages": {
-        "com.google.android.inputmethod.latin": [
-          "17.0.10.880768217-release-arm64-v8a"
-        ]
-      },
-      "options": []
-    },
-    {
-      "name": "Grammar Checker",
-      "description": "Enable Text correction > Grammar check.",
-      "use": true,
-      "dependencies": [],
-      "compatiblePackages": {
-        "com.google.android.inputmethod.latin": [
-          "17.0.10.880768217-release-arm64-v8a"
-        ]
-      },
-      "options": []
-    },
-    {
-      "name": "Inline Suggestions",
-      "description": "Enable Text correction > Smart Compose.",
-      "use": true,
-      "dependencies": [],
-      "compatiblePackages": {
-        "com.google.android.inputmethod.latin": [
-          "17.0.10.880768217-release-arm64-v8a"
-        ]
-      },
-      "options": []
-    },
-    {
-      "name": "Key Shape Selection",
-      "description": "Enable Key shape in Theme details.",
-      "use": true,
-      "dependencies": [],
-      "compatiblePackages": {
-        "com.google.android.inputmethod.latin": [
-          "17.0.10.880768217-release-arm64-v8a"
-        ]
-      },
-      "options": []
-    },
-    {
-      "name": "Latin Globe Key Ignore Interval",
-      "description": "Add an independent English globe key ignore interval override for post-typing language-switch delay.",
-      "use": true,
-      "dependencies": [],
-      "compatiblePackages": {
-        "com.google.android.inputmethod.latin": [
-          "17.0.10.880768217-release-arm64-v8a"
-        ]
-      },
-      "options": []
-    },
-    {
-      "name": "Package Rename",
-      "description": "Rename the package to dev.lucky.com.google.android.inputmethod.latin so it can be installed alongside the official Gboard.",
-      "use": true,
-      "dependencies": [],
-      "compatiblePackages": {
-        "com.google.android.inputmethod.latin": [
-          "17.0.10.880768217-release-arm64-v8a"
-        ]
-      },
-      "options": []
-    },
-    {
-      "name": "Replace Gboard with LuckyBoard",
-      "description": "Replace occurrences of \"Gboard\" with \"LuckyBoard\" in resources, strings and manifest during patching for complete UI rebranding (beyond the app label set by Package Rename).",
-      "use": true,
-      "dependencies": [],
-      "compatiblePackages": {
-        "com.google.android.inputmethod.latin": [
-          "17.0.10.880768217-release-arm64-v8a"
-        ]
-      },
-      "options": []
-    },
-    {
-      "name": "Settings Homepage Override",
-      "description": "Allow switching between the new and legacy Gboard settings pages.",
-      "use": true,
-      "dependencies": [],
-      "compatiblePackages": {
-        "com.google.android.inputmethod.latin": [
-          "17.0.10.880768217-release-arm64-v8a"
-        ]
-      },
-      "options": []
-    },
-    {
-      "name": "Web Clipboard",
-      "description": "Add the phone-hosted Web Clipboard with browser sync, pairing, and a Quick Settings Tile.",
-      "use": true,
-      "dependencies": [],
-      "compatiblePackages": {
-        "com.google.android.inputmethod.latin": [
-          "17.0.10.880768217-release-arm64-v8a"
-        ]
-      },
-      "options": []
-    },
-    {
-      "name": "Incognito Enhancements",
-      "description": "Enable clipboard and voice typing in incognito mode. Also force Gboard to always open in incognito mode to disable typing history collection and personalization. (Ported from Adobo patches by jkennethcarino)",
-      "use": true,
-      "dependencies": [],
-      "compatiblePackages": {
-        "com.google.android.inputmethod.latin": [
-          "17.0.10.880768217-release-arm64-v8a"
-        ]
-      },
-      "options": []
-    },
-    {
       "name": "Feature Flags",
       "description": "Toggle many Gboard hidden/experimental rollout flags individually (use the gear icon). Includes accessory/floating keyboard, voice widgets, OCR scan text, dictation redesign, settings UI improvements, language search, collapsible keyboard, grammar checker, inline suggestions, clipboard entity extraction, and more. Top option adds a Feature Flags section to Gboard's settings (LuckyBoard area) for runtime control with descriptions. Flags start disabled by default.",
       "use": true,
@@ -334,6 +214,126 @@
           "values": null
         }
       ]
+    },
+    {
+      "name": "Grammar Checker",
+      "description": "Enable Text correction > Grammar check.",
+      "use": true,
+      "dependencies": [],
+      "compatiblePackages": {
+        "com.google.android.inputmethod.latin": [
+          "17.0.10.880768217-release-arm64-v8a"
+        ]
+      },
+      "options": []
+    },
+    {
+      "name": "Incognito Enhancements",
+      "description": "Enable clipboard and voice typing in incognito mode. Also force Gboard to always open in incognito mode to disable typing history collection and personalization. (Ported from Adobo patches by jkennethcarino)",
+      "use": true,
+      "dependencies": [],
+      "compatiblePackages": {
+        "com.google.android.inputmethod.latin": [
+          "17.0.10.880768217-release-arm64-v8a"
+        ]
+      },
+      "options": []
+    },
+    {
+      "name": "Inline Suggestions",
+      "description": "Enable Text correction > Smart Compose.",
+      "use": true,
+      "dependencies": [],
+      "compatiblePackages": {
+        "com.google.android.inputmethod.latin": [
+          "17.0.10.880768217-release-arm64-v8a"
+        ]
+      },
+      "options": []
+    },
+    {
+      "name": "Key Shape Selection",
+      "description": "Enable Key shape in Theme details.",
+      "use": true,
+      "dependencies": [],
+      "compatiblePackages": {
+        "com.google.android.inputmethod.latin": [
+          "17.0.10.880768217-release-arm64-v8a"
+        ]
+      },
+      "options": []
+    },
+    {
+      "name": "Latin Globe Key Ignore Interval",
+      "description": "Add an independent English globe key ignore interval override for post-typing language-switch delay.",
+      "use": true,
+      "dependencies": [],
+      "compatiblePackages": {
+        "com.google.android.inputmethod.latin": [
+          "17.0.10.880768217-release-arm64-v8a"
+        ]
+      },
+      "options": []
+    },
+    {
+      "name": "Package Rename",
+      "description": "Rename the package to dev.lucky.com.google.android.inputmethod.latin so it can be installed alongside the official Gboard.",
+      "use": true,
+      "dependencies": [],
+      "compatiblePackages": {
+        "com.google.android.inputmethod.latin": [
+          "17.0.10.880768217-release-arm64-v8a"
+        ]
+      },
+      "options": []
+    },
+    {
+      "name": "QWERTY Slide Symbols",
+      "description": "Enable slide-up and slide-down symbol input on QWERTY keyboards (English and other Latin languages where supported).",
+      "use": true,
+      "dependencies": [],
+      "compatiblePackages": {
+        "com.google.android.inputmethod.latin": [
+          "17.0.10.880768217-release-arm64-v8a"
+        ]
+      },
+      "options": []
+    },
+    {
+      "name": "Replace Gboard with LuckyBoard",
+      "description": "Replace occurrences of \"Gboard\" with \"LuckyBoard\" in resources, strings and manifest during patching for complete UI rebranding (beyond the app label set by Package Rename).",
+      "use": true,
+      "dependencies": [],
+      "compatiblePackages": {
+        "com.google.android.inputmethod.latin": [
+          "17.0.10.880768217-release-arm64-v8a"
+        ]
+      },
+      "options": []
+    },
+    {
+      "name": "Settings Homepage Override",
+      "description": "Allow switching between the new and legacy Gboard settings pages.",
+      "use": true,
+      "dependencies": [],
+      "compatiblePackages": {
+        "com.google.android.inputmethod.latin": [
+          "17.0.10.880768217-release-arm64-v8a"
+        ]
+      },
+      "options": []
+    },
+    {
+      "name": "Web Clipboard",
+      "description": "Add the phone-hosted Web Clipboard with browser sync, pairing, and a Quick Settings Tile.",
+      "use": true,
+      "dependencies": [],
+      "compatiblePackages": {
+        "com.google.android.inputmethod.latin": [
+          "17.0.10.880768217-release-arm64-v8a"
+        ]
+      },
+      "options": []
     }
   ]
 }
