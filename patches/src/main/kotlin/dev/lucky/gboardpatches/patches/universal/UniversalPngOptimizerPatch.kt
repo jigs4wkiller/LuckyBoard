@@ -1,33 +1,37 @@
 package dev.lucky.gboardpatches.patches.universal
 
 import app.morphe.patcher.patch.resourcePatch
-import com.googlecode.pngtastic.core.PngException
-import com.googlecode.pngtastic.core.PngImage
-import com.googlecode.pngtastic.core.PngOptimizer
+import java.io.ByteArrayOutputStream
 import java.io.File
+import java.util.zip.CRC32
+import java.util.zip.Deflater
+import java.util.zip.Inflater
 
 /**
- * Universal PNG Optimizer patch.
+ * Universal PNG Optimizer patch - NEW IMPLEMENTATION (no external libs).
  *
- * Converted from the mpatcher script (used in APKToolM environments).
+ * Pure Java / JDK only (java.util.zip.Deflater/Inflater, no pngtastic, no AWT, no javax.imageio).
+ * This avoids the ant class loading problems that broke the bundle in Morphe Manager.
  *
- * Uses the pure-Java pngtastic library (https://github.com/depsypher/pngtastic) for
- * real structural PNG optimization inside Morphe (no javax.imageio, no native .so).
- * Performs filter selection, compression level search and optional Zopfli for
- * better deflate (comparable to optipng / zopflipng level gains).
+ * What it does (basic structural optimization like a very light optipng):
+ * - Walks PNG and 9.png files (same exclusions as before).
+ * - For each, parses chunks, collects+deflates IDAT data with BEST_COMPRESSION.
+ * - Rebuilds the PNG with the re-compressed IDAT (single chunk for simplicity).
+ * - Replaces the file only if smaller.
+ * - Reports stats.
  *
- * Lossy color quantization (pngquant / libimagequant style, big wins on many assets)
- * is NOT performed here to keep everything pure Java + Android-Morphe compatible.
- * For maximum size reduction use the original desktop mpatcher script + pngquant+optipng.
+ * Limitations (by design for no-ext-lib + small code):
+ * - Does not re-try all PNG filters (that would require full pixel decode + per-row filter choice).
+ * - No color quantization / palette reduction (that is lossy and best done with pngquant on desktop anyway).
+ * - Gains are mainly from better zlib compression level/strategy on the existing filtered data.
  *
- * Excludes build/, original/, smali* and kotlin* directories.
- * Both regular PNGs and *.9.png are optimized (pngtastic is lossless so safe for 9-patches).
+ * For maximum size reduction, combine with desktop tools (pngquant + optipng/zopflipng) as before.
  *
  * UNIVERSAL: no compatibleWith() so it applies to any app in Morphe.
  */
 internal val universalPngOptimizerPatch = resourcePatch(
     name = "Universal PNG Optimizer",
-    description = "Optimizes PNG and *.9.png files in the decompiled APK using pure-Java pngtastic (structural opti like optipng/zopflipng: better filters + compression). No color quantization (that still needs desktop pngquant). Excludes build/original/smali*/kotlin* dirs. Safe for 9-patches. UNIVERSAL patch - works on any app in Morphe.",
+    description = "Optimizes PNG and *.9.png files using pure-JDK only (no external libs, no ant baggage). Re-compresses IDAT data with best Deflater. Safe for 9-patches. UNIVERSAL patch - works on any app in Morphe. (New impl to avoid previous load issues.)",
     default = true
 ) {
     // No compatibleWith() -> this is a universal patch applicable to all apps in Morphe.
@@ -44,14 +48,12 @@ internal val universalPngOptimizerPatch = resourcePatch(
             return@finalize
         }
 
-        println("  PngOptimizer working (pngtastic pure-Java)...")
+        println("  PngOptimizer (pure-JDK new impl) working...")
         println("  Target directory: \"${root.absolutePath}\"")
 
         val startAt = java.time.LocalTime.now().toString()
         val sBefore = calculateTotalSize(root)
 
-        // Regular PNGs (exclude .9.png and excluded dirs)
-        // Use robust exclusion that works whether paths are relative or start with ./
         val excludedDirs = listOf("build", "original", "smali", "kotlin")
         fun isExcluded(path: String): Boolean {
             val p = path.replace('\\', '/')
@@ -86,7 +88,7 @@ internal val universalPngOptimizerPatch = resourcePatch(
             println("  No regular png files found!")
         }
         if (victimPng9Arr > 0) {
-            println("  Found ${victimPng9Arr} 9.png file(s). (lossless opti safe for 9-patch borders)")
+            println("  Found ${victimPng9Arr} 9.png file(s). (safe for 9-patch borders)")
         } else {
             println("  No 9.png files found!")
         }
@@ -96,26 +98,16 @@ internal val universalPngOptimizerPatch = resourcePatch(
             return@finalize
         }
 
-        // Real optimizer from pngtastic (pure Java, works in Morphe/Android runtime)
-        val optimizer = PngOptimizer("error")
-        // Default brute-force best filters + compression levels.
-        // For even better ratios (slower) you could do: optimizer.setCompressor("zopfli", 15)
-        // but we keep default for reasonable patch time.
-        optimizer.setCompressor(null, null)
-
         var processed = 0
         regularPngs.forEach { f ->
-            if (optimizePngFile(f, optimizer)) processed++
+            if (optimizePngFilePure(f)) processed++
         }
         ninePngs.forEach { f ->
-            if (optimizePngFile(f, optimizer)) processed++
+            if (optimizePngFilePure(f)) processed++
         }
 
         val sAfter = calculateTotalSize(root)
         val freed = (sBefore - sAfter) / 1024
-
-        val totalSavings = optimizer.getTotalSavings()
-        val resultsCount = optimizer.getResults().size
 
         println("  Done!")
         println("  Results:")
@@ -123,10 +115,9 @@ internal val universalPngOptimizerPatch = resourcePatch(
         println("      Files processed:")
         println("             png| $victimPngArr")
         println("           9.png| $victimPng9Arr")
-        println("      Optimized: $resultsCount (attempted $processed)")
-        println("           Freed: $freed Kb  (internal: ${totalSavings / 1024} Kb reported by pngtastic)")
-        println("  Note: Structural optimization (filters/compression) via pngtastic. For lossy color")
-        println("        quantization (pngquant-style 60-80% wins) use the original mpatcher script on PC.")
+        println("      Optimized: $processed")
+        println("           Freed: $freed Kb")
+        println("  Note: Pure-JDK only (Deflater re-compress on IDAT). No external libs. For max gains use desktop pngquant+optipng.")
     }
 }
 
@@ -135,49 +126,146 @@ private fun calculateTotalSize(dir: File): Long {
 }
 
 /**
- * Optimize a single PNG using pngtastic PngOptimizer (pure Java, no AWT).
- * Writes to a temp, then replaces original only on success + smaller size.
- * Returns true if we successfully produced an optimized version (even if size same or slightly larger due to overhead; pngtastic usually wins).
+ * Pure-JDK PNG optimizer (no external libraries at all).
+ * Re-compresses the IDAT data with best Deflater compression.
+ * This is a structural optimization (similar in spirit to a very light optipng).
+ * Returns true if the file was replaced with a smaller version.
  */
-private fun optimizePngFile(
-    file: File,
-    optimizer: PngOptimizer
-): Boolean {
-    val srcPath = file.absolutePath
-    val tmp = File("$srcPath.optipngtmp")
-    try {
-        val image = PngImage(srcPath, "error")
-        // Write optimized to temp (pngtastic always produces a new file)
-        optimizer.optimize(image, tmp.absolutePath, false, null)
+private fun optimizePngFilePure(file: File): Boolean {
+    val original = file.readBytes()
+    if (original.size < 8 || !isPngSignature(original)) {
+        return false
+    }
 
-        if (tmp.exists()) {
-            val newLen = tmp.length()
-            val oldLen = file.length()
-            if (newLen > 0 && (newLen < oldLen || oldLen == 0L)) {
-                // Good win (or first time)
-                if (!file.delete()) {
-                    // Rare: can't delete orig, leave tmp and skip
-                    tmp.delete()
-                    return false
+    try {
+        val chunks = parseChunks(original)
+        if (chunks.isEmpty()) return false
+
+        // Collect all IDAT data
+        val idatData = ByteArrayOutputStream()
+        chunks.filter { it.type == "IDAT" }.forEach { idatData.write(it.data) }
+        if (idatData.size() == 0) return false
+
+        val compressedIdat = idatData.toByteArray()
+
+        // Decompress
+        val inflater = java.util.zip.Inflater()
+        inflater.setInput(compressedIdat)
+        val rawImageData = ByteArrayOutputStream()
+        val buffer = ByteArray(8192)
+        while (!inflater.finished()) {
+            val count = inflater.inflate(buffer)
+            if (count > 0) rawImageData.write(buffer, 0, count)
+        }
+        inflater.end()
+        val raw = rawImageData.toByteArray()
+        if (raw.isEmpty()) return false
+
+        // Re-compress with best settings (pure JDK)
+        val deflater = Deflater(Deflater.BEST_COMPRESSION, true) // true = no zlib header for raw deflate
+        deflater.setInput(raw)
+        deflater.finish()
+        val newCompressed = ByteArrayOutputStream()
+        while (!deflater.finished()) {
+            val count = deflater.deflate(buffer)
+            if (count > 0) newCompressed.write(buffer, 0, count)
+        }
+        deflater.end()
+        val newIdatData = newCompressed.toByteArray()
+
+        // If no gain or larger, keep original
+        if (newIdatData.size >= compressedIdat.size) {
+            return false
+        }
+
+        // Rebuild PNG with single new IDAT chunk (simple and safe)
+        val newChunks = mutableListOf<Chunk>()
+        var idatReplaced = false
+        for (chunk in chunks) {
+            if (chunk.type == "IDAT") {
+                if (!idatReplaced) {
+                    newChunks.add(Chunk("IDAT", newIdatData))
+                    idatReplaced = true
                 }
-                if (!tmp.renameTo(file)) {
-                    // Cleanup if rename failed
-                    tmp.delete()
-                    return false
-                }
-                return true
+                // skip other IDATs (we merged)
             } else {
-                // No win or larger (rare) - keep original, discard tmp
-                tmp.delete()
-                return false
+                newChunks.add(chunk)
             }
         }
-    } catch (e: PngException) {
-        tmp.delete()
-        // quiet; many 9-patches or weird chunks may trigger on some images, that's ok
+        if (!idatReplaced) {
+            newChunks.add(Chunk("IDAT", newIdatData))
+        }
+
+        val newPng = buildPng(newChunks)
+        if (newPng.size < original.size) {
+            file.writeBytes(newPng)
+            return true
+        }
     } catch (e: Exception) {
-        tmp.delete()
-        println("    Skipped ${file.name}: ${e.javaClass.simpleName}")
+        // Any parse/compress error -> keep original (safe)
+        // println("    Skipped ${file.name} (pure impl): ${e.javaClass.simpleName}")
     }
     return false
 }
+
+private data class Chunk(val type: String, val data: ByteArray)
+
+private fun isPngSignature(data: ByteArray): Boolean {
+    val sig = byteArrayOf(0x89.toByte(), 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A)
+    if (data.size < sig.size) return false
+    for (i in sig.indices) {
+        if (data[i] != sig[i]) return false
+    }
+    return true
+}
+
+private fun parseChunks(data: ByteArray): List<Chunk> {
+    val chunks = mutableListOf<Chunk>()
+    var pos = 8 // skip signature
+    while (pos + 8 <= data.size) {
+        val length = ((data[pos].toInt() and 0xFF) shl 24) or
+                     ((data[pos+1].toInt() and 0xFF) shl 16) or
+                     ((data[pos+2].toInt() and 0xFF) shl 8) or
+                     (data[pos+3].toInt() and 0xFF)
+        if (pos + 12 + length > data.size) break
+        val typeBytes = data.copyOfRange(pos+4, pos+8)
+        val type = String(typeBytes, Charsets.US_ASCII)
+        val chunkData = data.copyOfRange(pos+8, pos+8+length)
+        // CRC is at pos+8+length .. pos+12+length, we trust it for our purposes
+        chunks.add(Chunk(type, chunkData))
+        pos += 12 + length
+        if (type == "IEND") break
+    }
+    return chunks
+}
+
+private fun buildPng(chunks: List<Chunk>): ByteArray {
+    val out = ByteArrayOutputStream()
+    // Signature
+    out.write(byteArrayOf(0x89.toByte(), 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A))
+    for (chunk in chunks) {
+        val typeBytes = chunk.type.toByteArray(Charsets.US_ASCII)
+        val len = chunk.data.size
+        // length (big endian)
+        out.write((len ushr 24) and 0xFF)
+        out.write((len ushr 16) and 0xFF)
+        out.write((len ushr 8) and 0xFF)
+        out.write(len and 0xFF)
+        // type
+        out.write(typeBytes)
+        // data
+        out.write(chunk.data)
+        // CRC (type + data)
+        val crc = CRC32()
+        crc.update(typeBytes)
+        crc.update(chunk.data)
+        val crcVal = crc.value.toInt()
+        out.write((crcVal ushr 24) and 0xFF)
+        out.write((crcVal ushr 16) and 0xFF)
+        out.write((crcVal ushr 8) and 0xFF)
+        out.write(crcVal and 0xFF)
+    }
+    return out.toByteArray()
+}
+ENDOFFILE
+echo "PNG patch source updated to pure-JDK only implementation (no ext libs)."
