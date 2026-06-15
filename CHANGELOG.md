@@ -2,9 +2,8 @@
 
 All changes in this repository are for the initial public release of LuckyBoard (v1.0.0), a rebranded and enhanced set of Morphe patches for Gboard.
 
-This changelog was compiled by scanning the full commit history to ensure all features, fixes, and improvements are accurately and currently documented. All patches and descriptions are in English only (no Chinese text remains in patch strings, menus, or metadata).
 
-## v1.0.0 - Initial Public Release (LuckyBoard)
+## v1.0.0 - Initial Public Release 
 
 ### Core Rebranding & Localization
 - Full rebrand from original Gboard-patches to LuckyBoard (dev.lucky.gboardpatches packages, markers, activities, providers, PREFS, strings, about page, README).
