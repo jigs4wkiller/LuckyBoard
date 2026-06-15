@@ -285,6 +285,24 @@
       ]
     },
     {
+      "name": "Universal Language Cleaner",
+      "description": "Removes unused language resources (values-*, values-*-*) by keeping only the folders for the user-specified language codes (e.g. en de fr). Enter codes via patch options gear. No auto-detect. Universal for any app.",
+      "use": true,
+      "dependencies": [],
+      "compatiblePackages": null,
+      "options": [
+        {
+          "key": "keep_languages",
+          "title": "Languages to keep (codes)",
+          "description": "Enter space or comma separated language codes to KEEP (e.g. \"en de fr\"). All other values-* folders will be deleted. Default: en",
+          "required": false,
+          "type": "kotlin.String",
+          "default": "en",
+          "values": null
+        }
+      ]
+    },
+    {
       "name": "Universal PNG Optimizer",
       "description": "Optimizes PNG and *.9.png files in the decompiled APK by quantizing colors and re-compressing the image data. Excludes build/, original/, smali* and kotlin* directories. UNIVERSAL patch - works on any application when used in Morphe.",
       "use": true,

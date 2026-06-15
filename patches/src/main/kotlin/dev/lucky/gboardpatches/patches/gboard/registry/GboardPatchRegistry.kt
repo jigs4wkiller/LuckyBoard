@@ -318,3 +318,9 @@ val universalPngOptimizerPatch = dev.lucky.gboardpatches.patches.universal.unive
 // No auto-detect. Universal for any app in Morphe.
 @Suppress("unused")
 val universalDrawableCleanerPatch = dev.lucky.gboardpatches.patches.universal.universalDrawableCleanerPatch
+
+// Universal Language Cleaner (Dellang) - converted from mpatcher script.
+// User enters language codes (e.g. "en de fr") via patch options (gear) for which languages to KEEP.
+// No auto-detect. Removes all other values-* language folders. Universal for any app in Morphe.
+@Suppress("unused")
+val universalLanguageCleanerPatch = dev.lucky.gboardpatches.patches.universal.universalLanguageCleanerPatch
