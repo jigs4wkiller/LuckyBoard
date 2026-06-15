@@ -328,8 +328,8 @@ private fun basicOptimizePngPure(file: File): Boolean {
         // Strip non-critical ancillary chunks (text, time etc.) - companion can do even more
         val filtered = filterEssentialChunks(newChunks)
 
-        // Only accept if we actually made it smaller
-        val candidate = if (newIdat.size < comp.size) buildPng(filtered) else buildPng(newChunks)
+        // Only accept if we actually made it smaller (strip + re-compress can win even if IDAT same size)
+        val candidate = buildPng(filtered)
         if (candidate.size < orig.size) {
             file.writeBytes(candidate)
             return true

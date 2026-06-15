@@ -180,7 +180,8 @@ public class PngOptimizeReceiver extends BroadcastReceiver {
             // Companion advantage: we can also drop more here or try extra passes
             List<Chunk> filtered = filterEssentialChunks(newChunks);
 
-            byte[] candidate = (newIdat.length < comp.length) ? buildPng(filtered) : buildPng(newChunks);
+            // always consider stripping (metadata savings) + re-compress
+            byte[] candidate = buildPng(filtered);
             if (candidate.length < orig.length) {
                 writeAllBytes(file, candidate);
                 return true;
