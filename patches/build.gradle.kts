@@ -125,7 +125,12 @@ tasks {
 
         dependsOn(build, patchMetadataSourceSet.classesTaskName)
 
-        classpath = patchMetadataSourceSet.runtimeClasspath
+        // Include ant explicitly because loadPatchesFromJar / PatchLoader (from morphe) requires
+        // org.apache.tools.ant.Task at runtime for the generator (otherwise NoClassDefFoundError).
+        val antConfiguration = project.configurations.detachedConfiguration(
+            project.dependencies.create("org.apache.ant:ant:1.10.13")
+        )
+        classpath = patchMetadataSourceSet.runtimeClasspath + project.files(antConfiguration.resolve())
         mainClass.set("dev.lucky.gboardpatches.util.PatchListGeneratorKt")
     }
 
@@ -159,5 +164,36 @@ tasks {
     // Used by gradle-semantic-release-plugin.
     publish {
         dependsOn("generatePatchesList")
+    }
+}
+
+// Permanent fix: strip ant/ classes from pngtastic (PngOptimizerTask etc. that reference
+// org.apache.tools.ant.Task which is not present in Morphe/CLI runtime).
+// This was causing NoClassDefFoundError when Morphe or morphe-cli tried to load the .mpp
+// (even though our PNG optimizer only uses the core Png* classes).
+// The strip runs after buildAndroid so the released mpp is always loadable.
+tasks.named("buildAndroid").configure {
+    doLast {
+        val mpp = layout.buildDirectory.file("libs/patches-${version}.mpp").get().asFile
+        if (mpp.exists()) {
+            println("Stripping pngtastic/ant/ from $mpp (fixes Morphe/CLI load)...")
+            val code = """
+import zipfile, os
+src = '${mpp.absolutePath}'
+dst = '${mpp.absolutePath}.tmpstrip'
+with zipfile.ZipFile(src, 'r') as zin:
+    with zipfile.ZipFile(dst, 'w', zipfile.ZIP_DEFLATED) as zout:
+        for item in zin.infolist():
+            if not item.filename.startswith('com/googlecode/pngtastic/ant/'):
+                zout.writestr(item, zin.read(item.filename))
+os.replace(dst, src)
+print('stripped, final size:', os.path.getsize(src))
+"""
+            val p = Runtime.getRuntime().exec(arrayOf("python3", "-c", code))
+            p.waitFor()
+            if (p.exitValue() != 0) {
+                p.errorStream.bufferedReader().lines().forEach { println(it) }
+            }
+        }
     }
 }

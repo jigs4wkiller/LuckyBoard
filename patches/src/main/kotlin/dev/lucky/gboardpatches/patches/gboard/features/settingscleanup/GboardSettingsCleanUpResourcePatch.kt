@@ -140,7 +140,8 @@ private fun getAttr(elem: Element, name: String): String? {
     return if (v.isEmpty()) null else v
 }
 
-private fun walkElementNodes(node: Node, action: (Element) -> Unit) {
+private fun walkElementNodes(node: Node?, action: (Element) -> Unit) {
+    if (node == null) return
     if (node is Element) action(node)
     val children = node.childNodes
     for (i in 0 until children.length) {

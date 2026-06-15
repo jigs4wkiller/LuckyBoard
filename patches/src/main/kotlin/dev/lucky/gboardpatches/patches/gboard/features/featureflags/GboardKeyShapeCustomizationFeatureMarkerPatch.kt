@@ -95,7 +95,8 @@ private fun addShapeOptions(doc: org.w3c.dom.Document) {
     }
 }
 
-private fun walkElementNodes(node: org.w3c.dom.Node, action: (Element) -> Unit) {
+private fun walkElementNodes(node: org.w3c.dom.Node?, action: (Element) -> Unit) {
+    if (node == null) return
     if (node is Element) action(node)
     val children = node.childNodes
     for (i in 0 until children.length) {
