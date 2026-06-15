@@ -33,19 +33,26 @@ private fun addExtendedKeyShapes() = with(context) {
     // Theme details picker is primarily driven by the forced flags (more_pill_keys + the two
     // belka_rounded / enable_rounded ones) + marker. This XML part is best-effort for any static
     // shape preference lists that exist.
+    // Whitelist based on decompiles + Rboard/GboardThemes community (key/pill shapes are flag-driven
+    // in pdk/phz/phs + resources; pill/round often needs compatible drawables or prefs to avoid crash/breakage).
+    // Target files that contain key/rounded/shape prefs or are used by theme/key shape UIs.
+    // The injection adds our custom "less_rounded" + "horizontal_lines" as ExtendedPreference so they
+    // can appear as selectable options alongside the gradations unlocked by more_pill_keys + rounded flags.
+    // Main picker in Theme details is partly code-driven (flags/enums for ROUNDED_KEYS etc.), so flag
+    // forcing (see runtime) is primary; this helps expose the customs in relevant settings/pickers.
     listOf(
         "res/xml/setting_preferences.xml",
         "res/xml/settings.xml",
         "res/xml/settings_legacy.xml",
         "res/xml/setting_physical_keyboard.xml",
         "res/xml/setting_theme.xml",
-        "res/xml/xml_0x7f170002.xml",  // from decompile contained belka_rounded references
-        // Previously successful insertion targets (from decompile of prior patched APKs) to ensure
-        // the custom less_rounded / horizontal_lines ExtendedPreferences get declared where Gboard
-        // shape/keyboard prefs are defined. The flag forcing is the main enabler; this helps UI.
+        "res/xml/xml_0x7f170002.xml",  // decompile: belka_rounded refs
         "res/xml/setting_japanese_12keys.xml",
-        "res/xml/setting_japanese_softwarekeyboard.xml"
-    ).forEach { docPath ->
+        "res/xml/setting_japanese_softwarekeyboard.xml",
+        // Additional from decompiles/community for key/rounded/pill related UIs (physical, theme, any shape prefs)
+        "res/xml/setting_theme.xml",
+        "res/xml/xml_0x7f170002.xml"
+    ).distinct().forEach { docPath ->
         if (get(docPath).exists()) {
             document(docPath).use { doc ->
                 addShapeOptions(doc)

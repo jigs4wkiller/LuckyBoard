@@ -52,16 +52,18 @@ public final class GboardFeatureFlagsRuntime {
             return false;
         }
 
-        // Special case for key shape: when the Key Shape Selection / customization marker is present,
-        // strongly force more_pill_keys and all rounded/semi/pill related flags.
-        // This ensures the expanded key shape options (including custom less-rounded + horizontal lines
-        // gradations) appear in Theme details > Key shape, beyond the basic 3 old options.
-        if (flagName != null && (
-                "more_pill_keys".equals(flagName) ||
-                flagName.contains("rounded") ||
-                flagName.contains("pill") ||
-                flagName.contains("semi_rounded")
-        )) {
+        // Special case for key shape (deep dive into Rboard/GboardThemes community + Gboard decompiles):
+        // Force only the known *boolean* flags that control pill/rounded/gradations (from community: "more_pill_keys", "pill_shaped_key" for pill keys; "belka_rounded_keyboard", "enable_rounded_key_by_default" etc. for rounded).
+        // **Exact matches only** — broad contains("rounded") etc. would hit numeric flags (semi_rounded_key_radius_*) and return Boolean instead of the expected value object, causing crash when round/pill shape is chosen (common Rboard complaint too: pill breaks layouts/crashes with incompatible themes).
+        // When our key_shape_* markers are present (set by "Key Shape Selection" patch or Feature Flags + more_pill_keys), force true.
+        // This (plus default-on in prefs) should expand the Theme details > Key shape picker beyond the 3 basics (Keine/Rechteckig/Abgerundet) to include gradations (light/medium/strong/very strong/pill) + our custom less-rounded/horizontal-lines.
+        // Community note: pill/round often requires theme updates for padding/drawables; Gboard betas have native pill experiments that were rolled back due to backlash.
+        if ("more_pill_keys".equals(flagName) ||
+            "pill_shaped_key".equals(flagName) ||
+            "belka_rounded_keyboard".equals(flagName) ||
+            "enable_rounded_key_by_default".equals(flagName) ||
+            "enable_rounded_keys".equals(flagName) ||
+            "rounded_key_banner".equals(flagName)) {
             Context context = applicationContext();
             if (context != null && (
                     GboardPatchesFeatureAvailability.hasFeature(context, GboardPatchesFeatureAvailability.FEATURE_KEY_SHAPE_CUSTOMIZATION) ||
