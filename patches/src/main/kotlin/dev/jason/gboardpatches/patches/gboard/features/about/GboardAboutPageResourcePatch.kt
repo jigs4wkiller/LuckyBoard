@@ -18,7 +18,7 @@ private const val ABOUT_PREFERENCE_CLASS =
     "com.google.android.libraries.inputmethod.settings.widget.ExtendedPreference"
 
 internal val gboardAboutPageResourcePatch = resourcePatch(
-    description = "在關於頁加入 patch 資訊。"
+    description = "Add LuckyBoard author and patch version links to the About page in Gboard settings."
 ) {
     execute {
         applyAboutPagePatch()

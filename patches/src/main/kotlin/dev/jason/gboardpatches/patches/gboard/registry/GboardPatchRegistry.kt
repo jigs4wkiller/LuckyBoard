@@ -234,6 +234,7 @@ val gboardSettingsCleanUpPatch = resourcePatch(
 
     dependsOn(
         gboardPatchesSettingsPatch,
+        gboardAboutPageResourcePatch,
         gboardSettingsCleanUpResourcePatch
     )
 }

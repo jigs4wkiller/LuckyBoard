@@ -22,91 +22,113 @@ internal val gboardSettingsCleanUpResourcePatch = resourcePatch(
 context(context: ResourcePatchContext)
 private fun applySettingsCleanUp() = with(context) {
     val resDir = get("res")
+    // Target main settings files and privacy/about specifically, based on decompiled APK structure
+    listOf("res/xml/settings.xml", "res/xml/settings_legacy.xml", "res/xml/setting_privacy.xml", "res/xml/setting_about.xml")
+        .forEach { docPath ->
+            if (get(docPath).exists()) {
+                document(docPath).use { doc ->
+                    cleanDocument(doc, docPath)
+                }
+            }
+        }
+    // Also walk any other xml_0x for robustness in obfuscated builds
     resDir.walkTopDown()
-        .filter { f -> f.isFile && f.name.endsWith(".xml") }
+        .filter { f -> f.isFile && f.name.endsWith(".xml") && f.name.startsWith("xml_0x") }
         .forEach { xmlFile ->
             val rel = xmlFile.relativeTo(resDir).invariantSeparatorsPath
             val docPath = "res/$rel"
             document(docPath).use { doc ->
-                cleanDocument(doc)
+                cleanDocument(doc, docPath)
             }
         }
 }
 
-private fun cleanDocument(doc: org.w3c.dom.Document) {
+private fun cleanDocument(doc: org.w3c.dom.Document, docPath: String) {
     val root = doc.documentElement
 
-    // Special handling for main settings.xml and legacy: find the category containing our Patches entry
-    // and remove the other native bottom entries (Privacy, Hilfe&Feedback, Rate, Info/About) 
-    // while keeping Patches and Footer.
-    // Keys taken from decompiled patched APK (settings.xml).
-    walkElementNodes(root) { elem ->
-        if (elem.tagName == "androidx.preference.PreferenceCategory") {
-            var hasPatches = false
-            val childrenToRemove = mutableListOf<Element>()
-            val children = elem.childNodes
-            for (i in 0 until children.length) {
-                val child = children.item(i)
-                if (child is Element && isPreferenceLike(child)) {
-                    val key = getAttr(child, "key")
-                    if (key == "gboard_patches_entry") {
-                        hasPatches = true
-                    } else if (key != null && (key.contains("0x7f140aca") || key.contains("0x7f140acb") || 
-                            key.contains("0x7f140abb") || key.contains("0x7f140acc") || key.contains("0x7f140ac4") ||
-                            key.contains("0x7f140ad1") /* extra hilfe/info if present */ )) {
-                        // Privacy (datenschutz), Rate (bewerten), About/Info, Hilfe&Feedback ones (from decompile)
-                        childrenToRemove.add(child)
+    if (docPath.endsWith("settings.xml") || docPath.endsWith("settings_legacy.xml")) {
+        // Precise removal based on decompiled APK structure (from provided tar.xz):
+        // In the bottom PreferenceCategory (the one with our "gboard_patches_entry"),
+        // remove Privacy (0x7f140aca), Hilfe/Feedback (0x7f140acc + 0x7f140ac4), Rate (0x7f140acb), Info/About (0x7f140abb).
+        // Keep Patches entry and footer.
+        walkElementNodes(root) { elem ->
+            if (elem.tagName == "androidx.preference.PreferenceCategory") {
+                var hasPatches = false
+                val childrenToRemove = mutableListOf<Element>()
+                val children = elem.childNodes
+                for (i in 0 until children.length) {
+                    val child = children.item(i)
+                    if (child is Element && isPreferenceLike(child)) {
+                        val key = getAttr(child, "key")
+                        if (key == "gboard_patches_entry") {
+                            hasPatches = true
+                        } else if (key != null && (key.contains("0x7f140aca") || key.contains("0x7f140acb") || 
+                                key.contains("0x7f140abb") || key.contains("0x7f140acc") || key.contains("0x7f140ac4"))) {
+                            // Privacy (Datenschutz), Rate (Bewerten), About/Info, Hilfe&Feedback (from decompile)
+                            childrenToRemove.add(child)
+                        }
                     }
                 }
-            }
-            if (hasPatches) {
-                for (child in childrenToRemove) {
-                    elem.removeChild(child)
+                if (hasPatches) {
+                    childrenToRemove.forEach { elem.removeChild(it) }
                 }
             }
         }
     }
 
-    // General walk for other settings files and privacy subs
+    if (docPath.endsWith("setting_privacy.xml")) {
+        // Disable all usage/stats sharing related switches in the privacy subs (before parent hidden).
+        // Keys from decompiled setting_privacy.xml.
+        walkElementNodes(root) { elem ->
+            if (isPreferenceLike(elem)) {
+                val k = getAttr(elem, "key") ?: ""
+                if (k.contains("0x7f14097b") || k.contains("0x7f140aa2") || k.contains("0x7f140b02") ||
+                    k.contains("0x7f14097d") || k.contains("usage") || k.contains("stat") || k.contains("metric") ||
+                    k.contains("share") || k.contains("diagnos") || k.contains("crash") || k.contains("telemetry")) {
+                    elem.setAttributeNS(ANDROID_NS, "defaultValue", "false")
+                    elem.setAttributeNS(ANDROID_NS, "enabled", "false")
+                }
+            }
+        }
+    }
+
+    if (docPath.endsWith("setting_about.xml")) {
+        // Clean any redundant Help/Rate/Info links if present in about screen.
+        val toRemove = mutableListOf<Element>()
+        walkElementNodes(root) { elem ->
+            if (isPreferenceLike(elem)) {
+                val t = (getAttr(elem, "title") ?: "").lowercase()
+                val k = (getAttr(elem, "key") ?: "").lowercase()
+                if (t.contains("hilfe") || t.contains("feedback") || t.contains("bewert") || t.contains("rate") ||
+                    t.contains("info") || k.contains("about") || k.contains("help")) {
+                    toRemove.add(elem)
+                }
+            }
+        }
+        toRemove.forEach { it.parentNode?.removeChild(it) }
+    }
+
+    // Fallback general removal for any remaining XMLs.
     val nodesToProcess = mutableListOf<Element>()
     val privacyNodes = mutableListOf<Element>()
-
     walkElementNodes(root) { elem ->
         if (isPreferenceLike(elem)) {
-            val title = getAttr(elem, "title")
-            val key = getAttr(elem, "key")
-            val titleL = title?.lowercase() ?: ""
-            val keyL = key?.lowercase() ?: ""
-
-            if (titleL.contains("datenschutz") || titleL.contains("privacy") ||
-                keyL.contains("privacy") || keyL.contains("datenschutz") ||
-                keyL.contains("usage") || keyL.contains("diagnostics")) {
+            val title = getAttr(elem, "title") ?: ""
+            val key = getAttr(elem, "key") ?: ""
+            val tl = title.lowercase()
+            val kl = key.lowercase()
+            if (tl.contains("datenschutz") || tl.contains("privacy") || kl.contains("privacy") || kl.contains("datenschutz")) {
                 privacyNodes.add(elem)
             }
-
-            if (titleL.contains("hilfe") || titleL.contains("feedback") || titleL.contains("help") ||
-                titleL.contains("info") ||
-                titleL.contains("bewerten") || titleL.contains("rate") || titleL.contains("bewert") ||
-                titleL.contains("datenschutz") || titleL.contains("privacy") ||
-                keyL.contains("feedback") || keyL.contains("help") || keyL.contains("about") ||
-                keyL.contains("info") || keyL.contains("rate") || keyL.contains("privacy") || keyL.contains("datenschutz") ||
-                keyL.contains("usage") || keyL.contains("diagnostics") || keyL.contains("help_and_feedback")) {
+            if (tl.contains("hilfe") || tl.contains("feedback") || tl.contains("help") || tl.contains("info") ||
+                tl.contains("bewerten") || tl.contains("rate") || tl.contains("datenschutz") || tl.contains("privacy") ||
+                kl.contains("feedback") || kl.contains("help") || kl.contains("about") || kl.contains("rate") || kl.contains("privacy")) {
                 nodesToProcess.add(elem)
             }
         }
     }
-
-    // First disable sub-options in privacy categories/screens
-    for (p in privacyNodes) {
-        disableUsageStatsInSubtree(p)
-    }
-
-    // Remove the matching categories/entries (for other files)
-    for (node in nodesToProcess) {
-        if (node.parentNode != null) {
-            node.parentNode.removeChild(node)
-        }
-    }
+    for (p in privacyNodes) disableUsageStatsInSubtree(p)
+    for (n in nodesToProcess) n.parentNode?.removeChild(n)
 }
 
 private fun disableUsageStatsInSubtree(root: Element) {

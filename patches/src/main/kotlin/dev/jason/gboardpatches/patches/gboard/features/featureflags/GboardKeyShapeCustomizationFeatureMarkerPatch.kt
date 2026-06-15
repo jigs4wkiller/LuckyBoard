@@ -41,27 +41,36 @@ private fun addExtendedKeyShapes() = with(context) {
 
 private fun addShapeOptions(doc: org.w3c.dom.Document) {
     val root = doc.documentElement
-    // Find the last preference or category in key shape screen and insert custom ones after
+    // Target key shape related screens (from decompile analysis of shape/theme XMLs and flags).
+    // Insert custom less-rounded and horizontal-lines shapes after existing ones.
+    // This complements the more_pill_keys flag (which adds stock rounded gradations) + customization marker.
     var lastPref: Element? = null
     walkElementNodes(root) { elem ->
         val tag = elem.tagName.lowercase()
-        if (tag.contains("preference")) {
+        if (tag.contains("preference") && (getAttr(elem, "key")?.contains("rounded") == true || 
+            getAttr(elem, "key")?.contains("shape") == true || getAttr(elem, "title")?.lowercase()?.contains("shape") == true)) {
             lastPref = elem
         }
     }
+    if (lastPref == null) {
+        // Fallback: last preference in the doc
+        walkElementNodes(root) { elem ->
+            val tag = elem.tagName.lowercase()
+            if (tag.contains("preference")) lastPref = elem
+        }
+    }
     if (lastPref != null && lastPref.parentNode != null) {
-        // Add less rounded
+        // Extended shapes: less rounded (subtle curve) and horizontal lines (step to flat).
         val less = doc.createElement("com.google.android.libraries.inputmethod.settings.widget.ExtendedPreference")
         less.setAttributeNS(ANDROID_NS, "key", "less_rounded")
-        less.setAttributeNS(ANDROID_NS, "title", "Weniger gerundet")
-        less.setAttributeNS(ANDROID_NS, "summary", "Subtile Rundung")
+        less.setAttributeNS(ANDROID_NS, "title", "Less rounded")
+        less.setAttributeNS(ANDROID_NS, "summary", "Subtle curve")
         lastPref.parentNode.insertBefore(less, lastPref.nextSibling)
 
-        // Add horizontal lines
         val horiz = doc.createElement("com.google.android.libraries.inputmethod.settings.widget.ExtendedPreference")
         horiz.setAttributeNS(ANDROID_NS, "key", "horizontal_lines")
-        horiz.setAttributeNS(ANDROID_NS, "title", "Horizontale Linien")
-        horiz.setAttributeNS(ANDROID_NS, "summary", "Flach mit Linien")
+        horiz.setAttributeNS(ANDROID_NS, "title", "Horizontal lines")
+        horiz.setAttributeNS(ANDROID_NS, "summary", "Flat with lines")
         lastPref.parentNode.insertBefore(horiz, lastPref.nextSibling)
     }
 }
@@ -72,4 +81,11 @@ private fun walkElementNodes(node: org.w3c.dom.Node, action: (Element) -> Unit) 
     for (i in 0 until children.length) {
         walkElementNodes(children.item(i), action)
     }
+}
+
+private fun getAttr(elem: Element, name: String): String? {
+    var v = elem.getAttributeNS(ANDROID_NS, name)
+    if (v.isEmpty()) v = elem.getAttribute("android:$name")
+    if (v.isEmpty()) v = elem.getAttribute(name)
+    return if (v.isEmpty()) null else v
 }
