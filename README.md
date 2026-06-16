@@ -1,7 +1,7 @@
 # LuckyBoard
 
 <p align="center">
-  Morphe patches for Gboard with practical upgrades, experimental features and clean English UI for global users.
+  Morphe patches for Gboard with strong privacy improvements, practical upgrades and experimental features.
 </p>
 
 <p align="center">
@@ -15,20 +15,37 @@
 
 ## Overview
 
-LuckyBoard is a Morphe patch source that adds many usability improvements and experimental features to Gboard. It optionally fully rebrands the app (for side-by-side installation with official Gboard) and removes region-specific content. Most experimental features can be controlled at runtime directly inside the patched app.
+LuckyBoard is a Morphe patch source focused on **privacy**, usability and experimental features for Gboard. It includes patches that reduce data collection, improve incognito mode and clean up settings. It can optionally fully rebrand the app for side-by-side installation with official Gboard.
 
-All patches and the UI are in clean English.
+All patches and the UI are in clean English. Privacy-related improvements are a core focus and will be expanded further in future updates.
 
 ## Key Features
 
-- Runtime toggleable **Feature Flags** (many hidden/experimental options)
+- **Strong Privacy focus** — Force incognito, disable history & personalization, remove privacy-invasive settings
+- Runtime toggleable **Feature Flags**
 - **Web Clipboard** – sync with desktop browser over LAN
 - Strong **Clipboard** improvements + editing
 - Better **Incognito** mode (clipboard + voice + forced incognito)
 - Custom symbols, emoji tab reordering, Undo/Redo, QWERTY slide gestures
-- Cleaned-up settings + universal optimization patches
+- Universal optimization & cleanup patches
 
 ## Included Patches
+
+### Privacy & Incognito (Core Focus)
+
+These patches aim to reduce data collection and improve user control over privacy.
+
+<details>
+<summary><code>Incognito Enhancements</code></summary>
+
+Enable clipboard and voice typing in incognito + force Gboard to always start in incognito mode. This disables typing history collection and personalization (ported from Adobo).
+</details>
+
+<details>
+<summary><code>Settings Clean-Up</code></summary>
+
+Removes Help & Feedback, Info, Rate and especially the Privacy category. All usage statistics, diagnostics, crash reporting and sharing options are disabled before the category is hidden.
+</details>
 
 ### Rebranding & Core (optional – for side-by-side install)
 
@@ -116,24 +133,10 @@ Enables grammar check and Smart Compose with their rollout gates.
 Extended key shape options and gradations in theme settings.
 </details>
 
-### Settings & Other
-
-<details>
-<summary><code>Incognito Enhancements</code></summary>
-
-Enable clipboard and voice typing in incognito + force Gboard to always start in incognito mode (ported from Adobo).
-</details>
-
 <details>
 <summary><code>Latin Globe Key Ignore Interval</code></summary>
 
 Override for post-typing language switch delay on Latin layouts.
-</details>
-
-<details>
-<summary><code>Settings Clean-Up</code></summary>
-
-Removes Help & Feedback, Info, Rate and Privacy categories (diagnostics are disabled first).
 </details>
 
 <details>
