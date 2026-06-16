@@ -15,67 +15,158 @@
 
 ## Overview
 
-LuckyBoard is a Morphe patch source that brings many usability improvements and experimental features to Gboard. It includes optional full rebranding (so it can be installed side-by-side with official Gboard) and removes region-specific content. Most experimental features can be toggled at runtime directly inside the app.
+LuckyBoard is a Morphe patch source that adds many usability improvements and experimental features to Gboard. It optionally fully rebrands the app (for side-by-side installation with official Gboard) and removes region-specific content. Most experimental features can be controlled at runtime directly inside the patched app.
 
-All patches and UI are in clean English.
+All patches and the UI are in clean English.
 
 ## Key Features
 
-- **Runtime Feature Flags** — Toggle dozens of hidden/experimental Gboard options directly in the app (with warning — see below)
-- **Web Clipboard** — Sync clipboard between phone and desktop browser over LAN
-- **Clipboard Enhancements** — Better retention, preview, editing and more
-- **Incognito Mode Improvements** — Clipboard + voice typing in incognito + force incognito
-- **Custom Symbols + Emoji Tab Reordering**
-- **Undo/Redo, QWERTY slide symbols, Globe key timing**
-- **Settings Cleanup** — Remove bloat from settings
-- **Universal Patches** (work on any app in Morphe):
-  - Drawable Density Cleaner
-  - Language Resource Cleaner
-  - PNG Optimizer
+- Runtime toggleable **Feature Flags** (many hidden/experimental options)
+- **Web Clipboard** – sync with desktop browser over LAN
+- Strong **Clipboard** improvements + editing
+- Better **Incognito** mode (clipboard + voice + forced incognito)
+- Custom symbols, emoji tab reordering, Undo/Redo, QWERTY slide gestures
+- Cleaned-up settings + universal optimization patches
 
 ## Included Patches
 
-### Rebranding & Core (Optional)
-These allow side-by-side installation with official Gboard:
+### Rebranding & Core (optional – for side-by-side install)
 
-- **Add Gboard Signature Bypass**
-- **Package Rename** → `dev.lucky.com.google.android.inputmethod.latin` + app name "LuckyBoard"
-- **Replace Gboard with LuckyBoard** (UI strings)
+<details>
+<summary><code>Add Gboard Signature Bypass</code></summary>
+
+Bypasses Gboard signature checks so the patched version can run.
+</details>
+
+<details>
+<summary><code>Package Rename</code></summary>
+
+Renames package to `dev.lucky.com.google.android.inputmethod.latin` and the app to "LuckyBoard".
+</details>
+
+<details>
+<summary><code>Replace Gboard with LuckyBoard</code></summary>
+
+Replaces remaining "Gboard" strings in resources and UI.
+</details>
 
 ### Usability & Input
 
-- **Clipboard Enhancements** — Retention time, item limits, preview, timestamps, grid layout (gear icon for per-feature options)
-- **Custom Symbols** — Dedicated symbols tab + quick access from comma long-press
-- **Emojis, stickers & GIFs Tab Order** — Drag & drop reordering
-- **Enable Undo/Redo**
-- **English QWERTY Slide Symbols** — Swipe down for symbols, swipe up for case switch
-- **Web Clipboard** — Phone-hosted web portal for desktop sync + Quick Settings Tile
+<details>
+<summary><code>Clipboard Enhancements</code></summary>
+
+Improves retention time, item count, preview lines, timestamps and grid layout. Gear icon for per-feature options.
+</details>
+
+<details>
+<summary><code>Custom Symbols</code></summary>
+
+Adds dedicated symbols tab + quick access from comma long-press (China symbols removed).
+</details>
+
+<details>
+<summary><code>Emojis, stickers & GIFs Tab Order</code></summary>
+
+Drag & drop to customize the bottom tab order in the emoji panel.
+</details>
+
+<details>
+<summary><code>Enable Undo/Redo feature</code></summary>
+
+Enables Undo and Redo entry points.
+</details>
+
+<details>
+<summary><code>English QWERTY Slide Symbols</code></summary>
+
+Swipe down for symbols / swipe up to change case on QWERTY layouts.
+</details>
+
+<details>
+<summary><code>Web Clipboard</code></summary>
+
+Phone-hosted web portal for clipboard sync with desktop browsers + Quick Settings Tile.
+</details>
 
 ### Experimental & Flags (Runtime Control)
 
-> ⚠️ **Warning**: Not all flags work on every device or Gboard version. Some may cause instability, crashes or simply do nothing. Enable only what you need and test carefully. Flags start disabled by default.
+> ⚠️ **Warning**: Not all flags work on every device or Gboard version. Some may cause instability or do nothing. Start with them disabled and test carefully.
 
-- **Feature Flags** — Master patch that exposes many internal/rollout flags as toggles inside LuckyBoard settings (key shapes, voice widgets, OCR, dictation redesign, themes, AI features and more). Includes option to inject a clean "Feature Flags" section directly into the app.
-- **Clipboard Entity Extraction** & **Clipboard Item Edit**
-- **Grammar Checker** & **Inline Suggestions (Smart Compose)**
-- **Key Shape Selection** — Extended key shape options
+<details>
+<summary><code>Feature Flags</code></summary>
+
+Master patch that exposes many internal/rollout/experimental flags as toggles inside the app (key shapes, voice widgets, OCR, dictation redesign, themes, AI features etc.). Can also inject a clean "Feature Flags" section directly into LuckyBoard settings.
+</details>
+
+<details>
+<summary><code>Clipboard Entity Extraction</code> + <code>Clipboard Item Edit</code></summary>
+
+Show extracted info from clipboard items and enable editing of clipboard entries.
+</details>
+
+<details>
+<summary><code>Grammar Checker</code> + <code>Inline Suggestions</code></summary>
+
+Enables grammar check and Smart Compose with their rollout gates.
+</details>
+
+<details>
+<summary><code>Key Shape Selection</code></summary>
+
+Extended key shape options and gradations in theme settings.
+</details>
 
 ### Settings & Other
 
-- **Incognito Enhancements** — Clipboard + voice in incognito + always-incognito mode (ported from Adobo)
-- **Latin Globe Key Ignore Interval**
-- **Settings Clean-Up** — Removes Help, Info, Rate and Privacy categories (with diagnostics disabled first)
-- **Settings Homepage Override** — Switch between new and legacy settings layout
+<details>
+<summary><code>Incognito Enhancements</code></summary>
 
-### Universal / Allrounder Patches (work on any Morphe app)
+Enable clipboard and voice typing in incognito + force Gboard to always start in incognito mode (ported from Adobo).
+</details>
 
-- **Universal Drawable Density Cleaner** — Keep only selected DPI resources (ldpi–xxxhdpi). Great for reducing APK size.
-- **Universal Language Cleaner** — Keep only chosen language resources (e.g. "en de"). Enter codes via options.
-- **Universal PNG Optimizer** — Optimizes PNGs and 9-patches using pure Java (no external tools needed).
+<details>
+<summary><code>Latin Globe Key Ignore Interval</code></summary>
+
+Override for post-typing language switch delay on Latin layouts.
+</details>
+
+<details>
+<summary><code>Settings Clean-Up</code></summary>
+
+Removes Help & Feedback, Info, Rate and Privacy categories (diagnostics are disabled first).
+</details>
+
+<details>
+<summary><code>Settings Homepage Override</code></summary>
+
+Switch between new and legacy Gboard settings homepage style.
+</details>
+
+### Universal / Allrounder Patches (work on any app in Morphe)
+
+These three patches are not Gboard-specific and can be used on almost any Android app in Morphe.
+
+<details>
+<summary><code>Universal Drawable Density Cleaner</code></summary>
+
+Keeps only the DPI resources you select (ldpi to xxxhdpi). Very effective for reducing APK size.
+</details>
+
+<details>
+<summary><code>Universal Language Cleaner</code></summary>
+
+Keeps only the language folders you specify (e.g. "en de fr"). Enter codes in the patch options.
+</details>
+
+<details>
+<summary><code>Universal PNG Optimizer</code></summary>
+
+Optimizes all PNG and 9-patch files using pure Java (no external tools needed). Safe for 9-patches.
+</details>
 
 ## Installation
 
-Add this repository as Morphe source:
+Add this repository as a Morphe source:
 
 - [Open in Morphe](https://morphe.software/add-source?github=jigs4wkiller/LuckyBoard)
 - Or manually add `https://github.com/jigs4wkiller/LuckyBoard`
@@ -85,15 +176,14 @@ Pre-built `.mpp` bundles are available in the [Releases](https://github.com/jigs
 ## Building from Source
 
 ### Authentication (required)
-Authenticate to Morphe's GitHub Packages registry:
 
-**Option 1** — Add to `~/.gradle/gradle.properties`:
+**Option 1** – Add to `~/.gradle/gradle.properties`:
 ```properties
 gpr.user = your-github-username
 gpr.key = your-personal-access-token
 ```
 
-**Option 2** — Environment variables:
+**Option 2** – Environment variables:
 ```bash
 export GITHUB_ACTOR=your-github-username
 export GITHUB_TOKEN=your-personal-access-token
@@ -111,7 +201,7 @@ export GITHUB_TOKEN=your-personal-access-token
 .\gradlew.bat generatePatchesList
 ```
 
-Outputs:
+Outputs go to:
 - `patches/build/libs/*.mpp`
 - `patches-list.json` + `patches-bundle.json`
 
