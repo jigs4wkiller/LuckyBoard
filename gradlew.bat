@@ -16,6 +16,30 @@
 @rem SPDX-License-Identifier: Apache-2.0
 @rem
 
+@rem ##########################################################################
+@rem
+@rem  LuckyBoard Project - Windows Build Instructions
+@rem
+@rem  This is the standard Gradle wrapper script for Windows.
+@rem
+@rem  IMPORTANT: Authenticate to Morphe's GitHub Packages registry first!
+@rem  (See README.md for details - use gpr.user/gpr.key or GITHUB_ACTOR/GITHUB_TOKEN)
+@rem
+@rem  Build commands:
+@rem
+@rem    Build the Android patch bundle:
+@rem      .\gradlew.bat :patches:buildAndroid
+@rem
+@rem    Regenerate patch metadata (updates patches-list.json and patches-bundle.json):
+@rem      .\gradlew.bat generatePatchesList
+@rem
+@rem  Generated outputs will be in:
+@rem    - patches/build/libs/*.mpp
+@rem    - patches-list.json
+@rem    - patches-bundle.json
+@rem
+@rem ##########################################################################
+
 @if "%DEBUG%"=="" @echo off
 @rem ##########################################################################
 @rem
