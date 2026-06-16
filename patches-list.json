@@ -243,14 +243,6 @@
       ]
     },
     {
-      "name": "Universal PNG Optimizer",
-      "description": "Optimizes PNG and *.9.png files in the decompiled APK using pure-Java pngtastic (structural opti like optipng/zopflipng: better filters + compression). No color quantization (that still needs desktop pngquant). Excludes build/original/smali*/kotlin* dirs. Safe for 9-patches. UNIVERSAL patch - works on any app in Morphe.",
-      "use": true,
-      "dependencies": [],
-      "compatiblePackages": null,
-      "options": []
-    },
-    {
       "name": "Web Clipboard",
       "description": "Add the phone-hosted Web Clipboard with browser sync, pairing, and a Quick Settings Tile.",
       "use": true,
