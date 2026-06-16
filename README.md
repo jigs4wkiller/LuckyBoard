@@ -147,7 +147,7 @@ Switch between new and legacy Gboard settings homepage style.
 
 ### Universal / Allrounder Patches (work on any app in Morphe)
 
-These three patches are not Gboard-specific and can be used on almost any Android app in Morphe.
+These patches are not Gboard-specific and can be used on almost any Android app in Morphe.
 
 <details>
 <summary><code>Universal Drawable Density Cleaner</code></summary>
@@ -159,14 +159,6 @@ Keeps only the DPI resources you select (ldpi to xxxhdpi). Very effective for re
 <summary><code>Universal Language Cleaner</code></summary>
 
 Keeps only the language folders you specify (e.g. "en de fr"). Enter codes in the patch options.
-</details>
-
-<details>
-<summary><code>Universal PNG Optimizer</code> (WIP – currently not functional)</summary>
-
-Optimizes all PNG and 9-patch files using pure Java. 
-
-**Note:** This patch is currently work in progress and **not yet functional**.
 </details>
 
 ## Installation
