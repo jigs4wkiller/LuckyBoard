@@ -159,9 +159,11 @@ Keeps only the language folders you specify (e.g. "en de fr"). Enter codes in th
 </details>
 
 <details>
-<summary><code>Universal PNG Optimizer</code></summary>
+<summary><code>Universal PNG Optimizer</code> (WIP – currently not functional)</summary>
 
-Optimizes all PNG and 9-patch files using pure Java (no external tools needed). Safe for 9-patches.
+Optimizes all PNG and 9-patch files using pure Java. 
+
+**Note:** This patch is currently work in progress and **not yet functional**.
 </details>
 
 ## Installation
