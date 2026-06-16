@@ -12,45 +12,6 @@ configurations.named(patchMetadataSourceSet.implementationConfigurationName) {
     extendsFrom(configurations["implementation"])
 }
 
-// Configuration to resolve pngtastic for stripping (we exclude the ant subpackage
-// that causes NoClassDefFound for org.apache.tools.ant.Task in the patcher runtime
-// used by both CLI and Morphe app).
-val pngtasticConfig = configurations.create("pngtasticForStrip") {
-    isCanBeConsumed = false
-    isCanBeResolved = true
-    isTransitive = true
-}
-
-dependencies {
-    pngtasticConfig("com.github.depsypher:pngtastic:1.8")
-}
-
-// Task that produces a pngtastic jar with the problematic ant/ package removed.
-// This stripped jar is then used as implementation so the final .mpp never contains
-// the ant classes that break patch loading in Morphe/CLI.
-val pngtasticStrippedJar by tasks.registering(Jar::class) {
-    group = "build"
-    description = "Produce pngtastic jar without ant/ subpackage (for Morphe compatibility)"
-
-    val pngtasticArtifact = pngtasticConfig.singleFile
-    inputs.file(pngtasticArtifact)
-
-    archiveBaseName.set("pngtastic-stripped")
-    destinationDirectory.set(layout.buildDirectory.dir("libs"))
-
-    from(zipTree(pngtasticArtifact)) {
-        exclude("com/googlecode/pngtastic/ant/**")
-    }
-
-    // Also exclude any META-INF/maven for the ant part if present, but the exclude above is sufficient.
-}
-
-dependencies {
-    // Use the stripped pngtastic for both compilation of our patches and inclusion in the .mpp.
-    // This avoids shipping the ant/ classes that the patcher classloaders (in CLI and app) cannot resolve.
-    implementation(files(pngtasticStrippedJar))
-}
-
 val generatePatchBuildInfo by tasks.registering {
     val outputDir = generatedPatchInfoDir
     val patchVersion = project.version.toString()
@@ -136,12 +97,6 @@ sourceSets.named("main") {
 
 dependencies {
     add(patchMetadataSourceSet.implementationConfigurationName, libs.gson)
-    // PNG optimizer: we use a stripped version of pngtastic (excluding the ant/ package
-    // which references org.apache.tools.ant.Task, not available in Morphe/CLI patcher
-    // classloaders). This prevents load failures (NoClassDefFound for ant.Task) in
-    // list-patches and actual patching, while still providing the needed PngImage /
-    // PngOptimizer core for the Universal PNG Optimizer patch.
-    // The stripped jar is produced below and used for both compile and the final mpp.
     testImplementation("junit:junit:4.13.2")
 }
 
