@@ -22,11 +22,12 @@ All patches and the UI are in clean English. Privacy-related improvements are a 
 ## Key Features
 
 - **Strong Privacy focus** — Force incognito, disable history & personalization, remove privacy-invasive settings
-- Runtime toggleable **Feature Flags**
+- Runtime toggleable **Feature Flags** (40+ flags including Writing Tools, Dynamic Art, Float Keyboard)
 - **Web Clipboard** – sync with desktop browser over LAN
 - Strong **Clipboard** improvements + editing
 - Better **Incognito** mode (clipboard + voice + forced incognito)
-- Custom symbols, emoji tab reordering, Undo/Redo, QWERTY slide gestures
+- Custom symbols, emoji tab reordering, Undo/Redo
+- **Luckify Gboard** — rename package + rebrand with custom app name
 - Universal optimization & cleanup patches
 
 ## Included Patches
@@ -47,7 +48,7 @@ Enable clipboard and voice typing in incognito + force Gboard to always start in
 Removes Help & Feedback, Info, Rate and especially the Privacy category. All usage statistics, diagnostics, crash reporting and sharing options are disabled before the category is hidden.
 </details>
 
-### Rebranding & Core (optional – for side-by-side install)
+### Rebranding & Core
 
 <details>
 <summary><code>Add Gboard Signature Bypass</code></summary>
@@ -56,15 +57,9 @@ Bypasses Gboard signature checks so the patched version can run.
 </details>
 
 <details>
-<summary><code>Package Rename</code></summary>
+<summary><code>Luckify Gboard</code></summary>
 
-Renames package to `dev.lucky.com.google.android.inputmethod.latin` and the app to "LuckyBoard".
-</details>
-
-<details>
-<summary><code>Replace Gboard with LuckyBoard</code></summary>
-
-Replaces remaining "Gboard" strings in resources and UI.
+Renames package to `dev.lucky.com.google.android.inputmethod.latin` and replaces all "Gboard" branding with a custom app name (default: LuckyBoard). Allows side-by-side installation with official Gboard. Configurable via gear icon.
 </details>
 
 ### Usability & Input
@@ -78,7 +73,7 @@ Improves retention time, item count, preview lines, timestamps and grid layout. 
 <details>
 <summary><code>Custom Symbols</code></summary>
 
-Adds dedicated symbols tab + quick access from comma long-press (China symbols removed).
+Adds dedicated symbols tab + quick access from comma long-press.
 </details>
 
 <details>
@@ -94,12 +89,6 @@ Enables Undo and Redo entry points.
 </details>
 
 <details>
-<summary><code>English QWERTY Slide Symbols</code></summary>
-
-Swipe down for symbols / swipe up to change case on QWERTY layouts.
-</details>
-
-<details>
 <summary><code>Web Clipboard</code></summary>
 
 Phone-hosted web portal for clipboard sync with desktop browsers + Quick Settings Tile.
@@ -107,30 +96,12 @@ Phone-hosted web portal for clipboard sync with desktop browsers + Quick Setting
 
 ### Experimental & Flags (Runtime Control)
 
-> ⚠️ **Warning**: Not all flags work on every device or Gboard version. Some may cause instability or do nothing. Start with them disabled and test carefully.
+> **Warning**: Not all flags work on every device or Gboard version. Some may cause instability or do nothing. Start with them disabled and test carefully.
 
 <details>
 <summary><code>Feature Flags</code></summary>
 
-Master patch that exposes many internal/rollout/experimental flags as toggles inside the app (key shapes, voice widgets, OCR, dictation redesign, themes, AI features etc.). Can also inject a clean "Feature Flags" section directly into LuckyBoard settings.
-</details>
-
-<details>
-<summary><code>Clipboard Entity Extraction</code> + <code>Clipboard Item Edit</code></summary>
-
-Show extracted info from clipboard items and enable editing of clipboard entries.
-</details>
-
-<details>
-<summary><code>Grammar Checker</code> + <code>Inline Suggestions</code></summary>
-
-Enables grammar check and Smart Compose with their rollout gates.
-</details>
-
-<details>
-<summary><code>Key Shape Selection</code></summary>
-
-Extended key shape options and gradations in theme settings.
+Master patch that exposes 40+ internal/rollout/experimental flags as toggles inside the app. Includes Writing Tools, Dynamic Art stickers, Float Keyboard, Auto-fill, AI features, modern themes, keyboard sizing, and more. Can also inject a "Feature Flags" section directly into LuckyBoard settings.
 </details>
 
 <details>
@@ -150,15 +121,9 @@ Switch between new and legacy Gboard settings homepage style.
 These patches are not Gboard-specific and can be used on almost any Android app in Morphe.
 
 <details>
-<summary><code>Universal Drawable Density Cleaner</code></summary>
+<summary><code>Universal Resource Cleaner</code></summary>
 
-Keeps only the DPI resources you select (ldpi to xxxhdpi). Very effective for reducing APK size.
-</details>
-
-<details>
-<summary><code>Universal Language Cleaner</code></summary>
-
-Keeps only the language folders you specify (e.g. "en de fr"). Enter codes in the patch options.
+Combined DPI and language resource cleaner. Choose which density to keep (default: xxxhdpi) and additional languages via the gear icon. English (en) is always kept.
 </details>
 
 ## Installation

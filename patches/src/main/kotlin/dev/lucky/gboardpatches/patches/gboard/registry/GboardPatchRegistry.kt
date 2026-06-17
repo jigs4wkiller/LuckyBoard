@@ -32,20 +32,22 @@ import dev.lucky.gboardpatches.patches.gboard.shared.gboardPatchesSettingsPatch
 import dev.lucky.gboardpatches.patches.gboard.features.undoredoaccesspoint.gboardUndoRedoAccessPointBytecodePatch
 import dev.lucky.gboardpatches.patches.shared.Constants.COMPATIBILITY_GBOARD
 
-@Suppress("unused")
-val gboardEnglishQwertySlideSymbolsPatch = resourcePatch(
-    name = "QWERTY Slide Symbols",
-    description = "Enable slide-up and slide-down symbol input on QWERTY keyboards (English and other Latin layouts where supported).",
-    default = true
-) {
-    compatibleWith(COMPATIBILITY_GBOARD)
-
-    dependsOn(
-        gboardAboutPageResourcePatch,
-        gboardEnglishQwertySlideResourcePatch,
-        gboardEnglishQwertySoftKeyPatch
-    )
-}
+// QWERTY Slide Symbols — disabled in beta: needs reverse engineering for new APK
+// (obfuscated types Loaa;→Lkwf;, ~40 resource IDs changed, method signatures changed)
+// @Suppress("unused")
+// val gboardEnglishQwertySlideSymbolsPatch = resourcePatch(
+//     name = "QWERTY Slide Symbols",
+//     description = "Enable slide-up and slide-down symbol input on QWERTY keyboards (English and other Latin layouts where supported).",
+//     default = true
+// ) {
+//     compatibleWith(COMPATIBILITY_GBOARD)
+//
+//     dependsOn(
+//         gboardAboutPageResourcePatch,
+//         gboardEnglishQwertySlideResourcePatch,
+//         gboardEnglishQwertySoftKeyPatch
+//     )
+// }
 
 @Suppress("unused")
 val gboardCustomSymbolsPatch = resourcePatch(
