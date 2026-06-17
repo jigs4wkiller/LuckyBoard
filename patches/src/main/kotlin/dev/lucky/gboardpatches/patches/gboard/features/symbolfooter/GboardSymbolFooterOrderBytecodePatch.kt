@@ -8,7 +8,7 @@ import dev.lucky.gboardpatches.patches.gboard.shared.findMutableMethodOrThrow
 import dev.lucky.gboardpatches.patches.gboard.shared.gboardPatchesExtensionCarrierPatch
 import dev.lucky.gboardpatches.patches.gboard.shared.returnInstructionIndices
 
-private const val EXPRESSION_CORPUS_MANAGER_CLASS = "Lfsg;"
+private const val EXPRESSION_CORPUS_MANAGER_CLASS = "Leej;"
 
 internal val gboardSymbolFooterOrderBytecodePatch = bytecodePatch(
     description = "依使用者設定重排 expression footer corpus list。"
@@ -25,7 +25,7 @@ private fun patchExpressionCorpusManager() = with(context) {
     val mutableMethod = findMutableMethodOrThrow(
         classType = EXPRESSION_CORPUS_MANAGER_CLASS,
         name = "a",
-        returnType = "Ltvg;",
+        returnType = "Lpuv;",
         parameterTypes = listOf("Landroid/view/inputmethod/EditorInfo;", "Z")
     )
     val instructions = mutableMethod.implementation?.instructions
@@ -48,5 +48,5 @@ private fun buildReorderDelegate(register: Int): String = """
 
     move-result-object v$register
 
-    check-cast v$register, Ltvg;
+    check-cast v$register, Lpuv;
 """.trimIndent()
