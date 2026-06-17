@@ -4,47 +4,46 @@ All changes in this repository are for the initial public release of LuckyBoard,
 a rebranded and enhanced set of Morphe patches for Gboard from @jasonwu1994.
 
 
-## v1.1.0-beta - Gboard 17.5.x Update
+## v1.1.0-beta - Gboard 17.5.x Update (Latest)
+
+**Highlights of this release:**
+- Full compatibility with **Gboard 17.5.7 lite arm64** builds
+- **Luckify Gboard** now supports a **configurable `package_name`** (default: `dev.lucky.com.google.android.inputmethod.latin`) — perfect for custom side-by-side installations
+- **25+ new Feature Flags** exposed for the modern Gboard 17.5.x settings UI
+- **Universal Resource Cleaner** refined for stability (no more SettingsActivity crashes)
+- Numerous bytecode, resource and obfuscation fixes for the new APK
 
 ### Target APK Update
 - Updated target to Gboard 17.5.7.917159154-lite_release-arm64-v8a.
 - All obfuscated class references updated for the new APK version.
 
-### Patch Consolidation
-- **Luckify Gboard**: Merged "Package Rename" and "Replace Gboard with LuckyBoard" into a single patch with configurable app name (default: LuckyBoard). Users can now set any custom name via the gear icon.
-- Removed deprecated separate "Universal Drawable Density Cleaner" and "Universal Language Cleaner" — replaced by combined "Universal Resource Cleaner".
+### Luckify Gboard Enhancement
+- Added configurable `package_name` string option in the patch settings (gear icon).
+- Default remains `dev.lucky.com.google.android.inputmethod.latin` for easy side-by-side use.
+- Merged previous separate Package Rename + Brand Rename logic into one clean patch.
 
-### Removed Patches
-- **QWERTY Slide Symbols**: Disabled pending reverse engineering for new APK (obfuscated types Loaa;→Lkwf;, ~40 resource IDs changed).
-- Removed unregistered patches: Chinese Voice, Zhuyin Slide, Zhuyin Traditional/Simplified Toggle, Zhuyin Custom Symbols (were never exposed to users).
+### Patch Consolidation & Cleanup
+- Removed deprecated separate "Universal Drawable Density Cleaner" and "Universal Language Cleaner" — replaced by combined "Universal Resource Cleaner".
+- **QWERTY Slide Symbols**: Disabled pending reverse engineering for new APK.
+- Removed unregistered patches: Chinese Voice, Zhuyin Slide, Zhuyin Traditional/Simplified Toggle, Zhuyin Custom Symbols.
 
 ### Feature Flags Update
-- Added 25 new flags from Gboard 17.5.x: Writing Tools (7 flags), Dynamic Art, Float Keyboard, Auto-fill, Custom Sticker Tab, Animated Emoji Suggestions, Contextual GIF Search, Dynamic Font Size, Dynamic Diacritic Key, Backup Personal Dictionary, Text Preview, Tablet Large, Voice Edit, Voice Chip Tooltip, Clipboard Action Chips, and more.
-- Removed 6 obsolete flags not present in new APK: enable_clipboard_text_editor, support_accessory_keyboard, enable_voice_widget, enable_ocr, enable_regular_dictation_redesign, bright_key_on_dynamic_color_dark_theme.
-- Fixed Feature Flags patch: use concrete `Ljil;` class instead of `Ljie;` interface.
+- Added 25 new flags from Gboard 17.5.x: Writing Tools (writing_tools, my_style, voice_commands, cooperative_mode, style_suggestions, replace_button, for_minors), Dynamic Art, Float Keyboard options, Auto-fill IME, Custom Sticker Tab, Animated Emoji Suggestions, Contextual GIF Search, Dynamic Font Size Slider, Dynamic Diacritic Key, Backup Personal Dictionary, Text Preview, Tablet Large, Voice Edit, Voice Chip Tooltip, Clipboard Action Chips, Clip Item Consumers, and more.
+- Removed 6+ obsolete flags not present in new APK.
+- Fixed internal Feature Flags implementation (correct class references like `Ljil;`, `Ljiy;`).
 
-### Bytecode Patches Updated
+### Bytecode Patches Updated for new APK
 - Signature Bypass: `Lpuo;` → `Lmgg;`
-- Clipboard Enhancements: `Leln;` → `Ldas;`, `Lemr;` → `Ldca;`, `Lemk;` → `Ldbu;`, `Lkm;` → `Lkh;`
-- Symbol Footer Order: `Lfsg;` → `Leej;`, `Ltvg;` → `Lpuv;`
-- Undo/Redo: `Lmku;` → `Ljih;`, `Lmkr;` → `Ljie;`
-- Settings Homepage: `Lddg;` → `Lbtn;`
-- Latin Globe: method `U()` → `T()`, return type `Lvky;` → `Lrdm;`
-- Web Clipboard: `Lnfl;` → `Lkbp;`
+- Clipboard Enhancements, Symbol Footer Order, Undo/Redo, Settings Homepage, Latin Globe, Web Clipboard — all updated with new obfuscated names.
 
-### Resource Patches Updated
-- Settings Clean-Up: Updated hardcoded resource keys for new APK.
-- About Page: Updated version key reference.
-- Patches Settings: Updated fallback icon resource ID.
+### Resource & Stability Fixes
+- Settings Clean-Up, About Page, Patches Settings: Updated hardcoded resource keys and references.
+- Universal Resource Cleaner: Language cleaning now only targets real `values-xx` folders; keeps `mipmap-anydpi`/`drawable-anydpi` for app icons; switched back to safe per-file deletion mode to prevent InflateException in settings.
+- Luckify Gboard: Skips class/package name attributes in manifest to avoid SettingsActivity crashes.
 
-### Resource Cleaner
-- Fixed language cleaning: only targets actual language folders (values-xx), not config folders (values-sw411dp, values-night, etc.).
-- Universal Resource Cleaner made truly universal (no compatibleWith constraint).
-- Keeps mipmap-anydpi and drawable-anydpi folders (contain app icon XMLs).
-
-### Settings Crash Fix
-- Fixed Luckify patch: skips class name/package name attributes in manifest to prevent SettingsActivity crash.
-- Resource Cleaner no longer deletes entire density folders (was breaking layout inflation).
+### Documentation
+- README and CHANGELOG updated for v1.1.0-beta.
+- Clear warnings and descriptions for Feature Flags and new options.
 
 ## v1.0.0 - Initial Public Release 
 
