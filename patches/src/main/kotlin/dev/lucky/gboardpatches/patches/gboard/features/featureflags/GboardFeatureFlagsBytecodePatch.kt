@@ -7,7 +7,7 @@ import dev.lucky.gboardpatches.patches.gboard.shared.findMutableMethodOrThrow
 import dev.lucky.gboardpatches.patches.gboard.shared.gboardPatchesExtensionCarrierPatch
 import dev.lucky.gboardpatches.patches.shared.Constants.COMPATIBILITY_GBOARD
 
-private const val FLAG_VALUE_CLASS = "Ljiy;"
+private const val FLAG_VALUE_CLASS = "Ljil;"
 private const val FEATURE_FLAGS_RUNTIME_CLASS =
     "Ldev/lucky/gboardpatches/extension/featureflags/GboardFeatureFlagsRuntime;"
 
