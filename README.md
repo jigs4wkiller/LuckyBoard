@@ -13,6 +13,12 @@
 
 ---
 
+> **⚠️ Note for users interested in newer Gboard versions (17.5.x Lite builds):**  
+> For the latest patches — including **configurable package name** in Luckify Gboard, expanded Feature Flags for Gboard 17.5.x, and improved stability — please use the **[beta releases](https://github.com/jigs4wkiller/LuckyBoard/releases)**.  
+> The main branch targets an older Gboard base and does not include the recent 17.5.x compatibility updates.
+
+---
+
 ## Overview
 
 LuckyBoard is a Morphe patch source focused on **privacy**, usability and experimental features for Gboard. It includes patches that reduce data collection, improve incognito mode and clean up settings. It can optionally fully rebrand the app for side-by-side installation with official Gboard.
