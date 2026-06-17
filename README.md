@@ -13,6 +13,18 @@
 
 ---
 
+> **🚀 v1.1.0-beta — Now with full Gboard 17.5.x support!**
+> 
+> - Configurable `package_name` in **Luckify Gboard** (default: `dev.lucky.com.google.android.inputmethod.latin`) for flexible side-by-side installation
+> - 25+ new **Feature Flags** for the latest Gboard 17.5.x settings UI
+> - Refined **Universal Resource Cleaner** (stable, no Settings crashes)
+> - Target: Gboard 17.5.7.917159154-lite arm64
+> - Many bytecode & resource fixes for the new APK
+>
+> Pre-built `.mpp` bundles available in [Releases](https://github.com/jigs4wkiller/LuckyBoard/releases) (manual upload).
+
+---
+
 ## Overview
 
 LuckyBoard is a Morphe patch source focused on **privacy**, usability and experimental features for Gboard. It includes patches that reduce data collection, improve incognito mode and clean up settings. It can optionally fully rebrand the app for side-by-side installation with official Gboard.
@@ -27,7 +39,7 @@ All patches and the UI are in clean English. Privacy-related improvements are a 
 - Strong **Clipboard** improvements + editing
 - Better **Incognito** mode (clipboard + voice + forced incognito)
 - Custom symbols, emoji tab reordering, Undo/Redo
-- **Luckify Gboard** — rename package + rebrand with custom app name
+- **Luckify Gboard** — rename package + rebrand with custom app name and now configurable package name
 - Universal optimization & cleanup patches
 
 ## Included Patches
@@ -59,7 +71,7 @@ Bypasses Gboard signature checks so the patched version can run.
 <details>
 <summary><code>Luckify Gboard</code></summary>
 
-Renames package to `dev.lucky.com.google.android.inputmethod.latin` and replaces all "Gboard" branding with a custom app name (default: LuckyBoard). Allows side-by-side installation with official Gboard. Configurable via gear icon.
+Renames package to a **configurable** `package_name` (default `dev.lucky.com.google.android.inputmethod.latin`) and replaces all "Gboard" branding with a custom app name (default: LuckyBoard). Allows side-by-side installation with official Gboard. Fully configurable via gear icon.
 </details>
 
 ### Usability & Input
@@ -123,7 +135,7 @@ These patches are not Gboard-specific and can be used on almost any Android app 
 <details>
 <summary><code>Universal Resource Cleaner</code></summary>
 
-Combined DPI and language resource cleaner. Choose which density to keep (default: xxxhdpi) and additional languages via the gear icon. English (en) is always kept.
+Combined DPI and language resource cleaner. Choose which density to keep (default: xxxhdpi) and additional languages via the gear icon. English (en) is always kept. Keeps critical icon folders intact for stability.
 </details>
 
 ## Installation
