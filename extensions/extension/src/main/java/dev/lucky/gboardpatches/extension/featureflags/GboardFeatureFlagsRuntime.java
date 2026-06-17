@@ -49,6 +49,35 @@ public final class GboardFeatureFlagsRuntime {
     public static final String FLAG_BRIGHT_KEY_ON_DYNAMIC_COLOR_DARK_THEME =
             "bright_key_on_dynamic_color_dark_theme";
 
+    // New flags from Gboard 17.5.x (17.5.7.917159154)
+    public static final String FLAG_ENABLE_WRITING_TOOLS = "enable_writing_tools";
+    public static final String FLAG_ENABLE_WRITING_TOOLS_MY_STYLE = "enable_writing_tools_my_style";
+    public static final String FLAG_ENABLE_WRITING_TOOLS_VOICE_COMMANDS = "enable_writing_tools_voice_commands";
+    public static final String FLAG_ENABLE_WRITING_TOOLS_COOPERATIVE_MODE = "enable_writing_tools_cooperative_mode";
+    public static final String FLAG_ENABLE_DYNAMIC_ART = "enable_dynamic_art";
+    public static final String FLAG_ENABLE_DYNAMIC_ART_STICKER = "enable_add_punctuation_into_dynamic_art_sticker";
+    public static final String FLAG_ENABLE_AUTO_FLOAT_KEYBOARD = "enable_auto_float_keyboard_in_freeform";
+    public static final String FLAG_ENABLE_AUTO_FLOAT_LANDSCAPE = "enable_auto_float_keyboard_in_landscape";
+    public static final String FLAG_ENABLE_AUTOFILL_IME = "enable_autofill_ime_integration";
+    public static final String FLAG_ENABLE_CUSTOM_STICKER_TAB = "enable_custom_sticker_tab";
+    public static final String FLAG_ENABLE_ANIMATED_EMOJI_SUGGESTIONS = "enable_animated_emoji_content_suggestions";
+    public static final String FLAG_ENABLE_CONTEXTUAL_GIF_SEARCH = "enable_contextual_gif_search_query_suggestion";
+    public static final String FLAG_ENABLE_DYNAMIC_FONT_SIZE = "enable_dynamic_font_size_slider";
+    public static final String FLAG_ENABLE_DYNAMIC_DIACRITIC_KEY = "enable_dynamic_diacritic_key";
+    public static final String FLAG_ENABLE_BACKUP_PERSONAL_DICT = "enable_backup_personal_dictionary";
+    public static final String FLAG_ENABLE_TEXT_PREVIEW = "enable_text_preview";
+    public static final String FLAG_ENABLE_TABLET_LARGE = "enable_tablet_large";
+    public static final String FLAG_ENABLE_VOICE_EDIT = "enable_voice_edit_in_rd";
+    public static final String FLAG_ENABLE_VOICE_CHIP_TOOLTIP = "enable_voice_chip_tooltip";
+    public static final String FLAG_ENABLE_CLIPBOARD_ACTION_CHIPS = "enable_clipboard_action_chips";
+    public static final String FLAG_ENABLE_CLIP_ITEM_CONSUMERS = "enable_clip_item_consumers";
+    public static final String FLAG_ENABLE_CORRECTION_COMMIT_ANIM = "enable_correction_commit_animation";
+    public static final String FLAG_ENABLE_ONBOARDING_BANNER = "enable_common_onboarding_banner";
+    public static final String FLAG_ENABLE_ACCESS_POINTS_REDESIGN = "enable_access_points_menu_redesign";
+    public static final String FLAG_ENABLE_WRITING_TOOLS_STYLE = "enable_writing_tools_suggest_style";
+    public static final String FLAG_ENABLE_WRITING_TOOLS_REPLACE = "enable_writing_tools_replace_button";
+    public static final String FLAG_ENABLE_WRITING_TOOLS_FOR_MINORS = "enable_writing_tools_for_minors";
+
     private static final Map<String, String> FLAG_TO_FEATURE_KEY =
             createFlagToFeatureKeyMap();
     private static final Map<String, Boolean> FEATURE_ENABLED_CACHE =
@@ -181,6 +210,35 @@ public final class GboardFeatureFlagsRuntime {
         featureKeys.put(
                 FLAG_BRIGHT_KEY_ON_DYNAMIC_COLOR_DARK_THEME,
                 GboardPatchesFeatureAvailability.FEATURE_FLAG_BRIGHT_KEY_ON_DYNAMIC_COLOR_DARK_THEME);
+
+        // New flags from Gboard 17.5.x
+        featureKeys.put(FLAG_ENABLE_WRITING_TOOLS, GboardPatchesFeatureAvailability.FEATURE_FLAG_ENABLE_WRITING_TOOLS);
+        featureKeys.put(FLAG_ENABLE_WRITING_TOOLS_MY_STYLE, GboardPatchesFeatureAvailability.FEATURE_FLAG_ENABLE_WRITING_TOOLS_MY_STYLE);
+        featureKeys.put(FLAG_ENABLE_WRITING_TOOLS_VOICE_COMMANDS, GboardPatchesFeatureAvailability.FEATURE_FLAG_ENABLE_WRITING_TOOLS_VOICE_COMMANDS);
+        featureKeys.put(FLAG_ENABLE_WRITING_TOOLS_COOPERATIVE_MODE, GboardPatchesFeatureAvailability.FEATURE_FLAG_ENABLE_WRITING_TOOLS_COOPERATIVE_MODE);
+        featureKeys.put(FLAG_ENABLE_DYNAMIC_ART, GboardPatchesFeatureAvailability.FEATURE_FLAG_ENABLE_DYNAMIC_ART);
+        featureKeys.put(FLAG_ENABLE_DYNAMIC_ART_STICKER, GboardPatchesFeatureAvailability.FEATURE_FLAG_ENABLE_DYNAMIC_ART_STICKER);
+        featureKeys.put(FLAG_ENABLE_AUTO_FLOAT_KEYBOARD, GboardPatchesFeatureAvailability.FEATURE_FLAG_ENABLE_AUTO_FLOAT_KEYBOARD);
+        featureKeys.put(FLAG_ENABLE_AUTO_FLOAT_LANDSCAPE, GboardPatchesFeatureAvailability.FEATURE_FLAG_ENABLE_AUTO_FLOAT_LANDSCAPE);
+        featureKeys.put(FLAG_ENABLE_AUTOFILL_IME, GboardPatchesFeatureAvailability.FEATURE_FLAG_ENABLE_AUTOFILL_IME);
+        featureKeys.put(FLAG_ENABLE_CUSTOM_STICKER_TAB, GboardPatchesFeatureAvailability.FEATURE_FLAG_ENABLE_CUSTOM_STICKER_TAB);
+        featureKeys.put(FLAG_ENABLE_ANIMATED_EMOJI_SUGGESTIONS, GboardPatchesFeatureAvailability.FEATURE_FLAG_ENABLE_ANIMATED_EMOJI_SUGGESTIONS);
+        featureKeys.put(FLAG_ENABLE_CONTEXTUAL_GIF_SEARCH, GboardPatchesFeatureAvailability.FEATURE_FLAG_ENABLE_CONTEXTUAL_GIF_SEARCH);
+        featureKeys.put(FLAG_ENABLE_DYNAMIC_FONT_SIZE, GboardPatchesFeatureAvailability.FEATURE_FLAG_ENABLE_DYNAMIC_FONT_SIZE);
+        featureKeys.put(FLAG_ENABLE_DYNAMIC_DIACRITIC_KEY, GboardPatchesFeatureAvailability.FEATURE_FLAG_ENABLE_DYNAMIC_DIACRITIC_KEY);
+        featureKeys.put(FLAG_ENABLE_BACKUP_PERSONAL_DICT, GboardPatchesFeatureAvailability.FEATURE_FLAG_ENABLE_BACKUP_PERSONAL_DICT);
+        featureKeys.put(FLAG_ENABLE_TEXT_PREVIEW, GboardPatchesFeatureAvailability.FEATURE_FLAG_ENABLE_TEXT_PREVIEW);
+        featureKeys.put(FLAG_ENABLE_TABLET_LARGE, GboardPatchesFeatureAvailability.FEATURE_FLAG_ENABLE_TABLET_LARGE);
+        featureKeys.put(FLAG_ENABLE_VOICE_EDIT, GboardPatchesFeatureAvailability.FEATURE_FLAG_ENABLE_VOICE_EDIT);
+        featureKeys.put(FLAG_ENABLE_VOICE_CHIP_TOOLTIP, GboardPatchesFeatureAvailability.FEATURE_FLAG_ENABLE_VOICE_CHIP_TOOLTIP);
+        featureKeys.put(FLAG_ENABLE_CLIPBOARD_ACTION_CHIPS, GboardPatchesFeatureAvailability.FEATURE_FLAG_ENABLE_CLIPBOARD_ACTION_CHIPS);
+        featureKeys.put(FLAG_ENABLE_CLIP_ITEM_CONSUMERS, GboardPatchesFeatureAvailability.FEATURE_FLAG_ENABLE_CLIP_ITEM_CONSUMERS);
+        featureKeys.put(FLAG_ENABLE_CORRECTION_COMMIT_ANIM, GboardPatchesFeatureAvailability.FEATURE_FLAG_ENABLE_CORRECTION_COMMIT_ANIM);
+        featureKeys.put(FLAG_ENABLE_ONBOARDING_BANNER, GboardPatchesFeatureAvailability.FEATURE_FLAG_ENABLE_ONBOARDING_BANNER);
+        featureKeys.put(FLAG_ENABLE_ACCESS_POINTS_REDESIGN, GboardPatchesFeatureAvailability.FEATURE_FLAG_ENABLE_ACCESS_POINTS_REDESIGN);
+        featureKeys.put(FLAG_ENABLE_WRITING_TOOLS_STYLE, GboardPatchesFeatureAvailability.FEATURE_FLAG_ENABLE_WRITING_TOOLS_STYLE);
+        featureKeys.put(FLAG_ENABLE_WRITING_TOOLS_REPLACE, GboardPatchesFeatureAvailability.FEATURE_FLAG_ENABLE_WRITING_TOOLS_REPLACE);
+        featureKeys.put(FLAG_ENABLE_WRITING_TOOLS_FOR_MINORS, GboardPatchesFeatureAvailability.FEATURE_FLAG_ENABLE_WRITING_TOOLS_FOR_MINORS);
         return Collections.unmodifiableMap(featureKeys);
     }
 

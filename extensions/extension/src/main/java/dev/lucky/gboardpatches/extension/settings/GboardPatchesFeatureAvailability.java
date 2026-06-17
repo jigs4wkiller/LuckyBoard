@@ -65,6 +65,62 @@ public final class GboardPatchesFeatureAvailability {
     public static final String FEATURE_FLAG_BRIGHT_KEY_ON_DYNAMIC_COLOR_DARK_THEME =
             "dev.lucky.gboardpatches.feature.flag_bright_key_on_dynamic_color_dark_theme";
 
+    // New flags from Gboard 17.5.x (17.5.7.917159154)
+    public static final String FEATURE_FLAG_ENABLE_WRITING_TOOLS =
+            "dev.lucky.gboardpatches.feature.flag_enable_writing_tools";
+    public static final String FEATURE_FLAG_ENABLE_WRITING_TOOLS_MY_STYLE =
+            "dev.lucky.gboardpatches.feature.flag_enable_writing_tools_my_style";
+    public static final String FEATURE_FLAG_ENABLE_WRITING_TOOLS_VOICE_COMMANDS =
+            "dev.lucky.gboardpatches.feature.flag_enable_writing_tools_voice_commands";
+    public static final String FEATURE_FLAG_ENABLE_WRITING_TOOLS_COOPERATIVE_MODE =
+            "dev.lucky.gboardpatches.feature.flag_enable_writing_tools_cooperative_mode";
+    public static final String FEATURE_FLAG_ENABLE_DYNAMIC_ART =
+            "dev.lucky.gboardpatches.feature.flag_enable_dynamic_art";
+    public static final String FEATURE_FLAG_ENABLE_DYNAMIC_ART_STICKER =
+            "dev.lucky.gboardpatches.feature.flag_enable_dynamic_art_sticker";
+    public static final String FEATURE_FLAG_ENABLE_AUTO_FLOAT_KEYBOARD =
+            "dev.lucky.gboardpatches.feature.flag_enable_auto_float_keyboard";
+    public static final String FEATURE_FLAG_ENABLE_AUTO_FLOAT_LANDSCAPE =
+            "dev.lucky.gboardpatches.feature.flag_enable_auto_float_landscape";
+    public static final String FEATURE_FLAG_ENABLE_AUTOFILL_IME =
+            "dev.lucky.gboardpatches.feature.flag_enable_autofill_ime";
+    public static final String FEATURE_FLAG_ENABLE_CUSTOM_STICKER_TAB =
+            "dev.lucky.gboardpatches.feature.flag_enable_custom_sticker_tab";
+    public static final String FEATURE_FLAG_ENABLE_ANIMATED_EMOJI_SUGGESTIONS =
+            "dev.lucky.gboardpatches.feature.flag_enable_animated_emoji_suggestions";
+    public static final String FEATURE_FLAG_ENABLE_CONTEXTUAL_GIF_SEARCH =
+            "dev.lucky.gboardpatches.feature.flag_enable_contextual_gif_search";
+    public static final String FEATURE_FLAG_ENABLE_DYNAMIC_FONT_SIZE =
+            "dev.lucky.gboardpatches.feature.flag_enable_dynamic_font_size";
+    public static final String FEATURE_FLAG_ENABLE_DYNAMIC_DIACRITIC_KEY =
+            "dev.lucky.gboardpatches.feature.flag_enable_dynamic_diacritic_key";
+    public static final String FEATURE_FLAG_ENABLE_BACKUP_PERSONAL_DICT =
+            "dev.lucky.gboardpatches.feature.flag_enable_backup_personal_dict";
+    public static final String FEATURE_FLAG_ENABLE_TEXT_PREVIEW =
+            "dev.lucky.gboardpatches.feature.flag_enable_text_preview";
+    public static final String FEATURE_FLAG_ENABLE_TABLET_LARGE =
+            "dev.lucky.gboardpatches.feature.flag_enable_tablet_large";
+    public static final String FEATURE_FLAG_ENABLE_VOICE_EDIT =
+            "dev.lucky.gboardpatches.feature.flag_enable_voice_edit";
+    public static final String FEATURE_FLAG_ENABLE_VOICE_CHIP_TOOLTIP =
+            "dev.lucky.gboardpatches.feature.flag_enable_voice_chip_tooltip";
+    public static final String FEATURE_FLAG_ENABLE_CLIPBOARD_ACTION_CHIPS =
+            "dev.lucky.gboardpatches.feature.flag_enable_clipboard_action_chips";
+    public static final String FEATURE_FLAG_ENABLE_CLIP_ITEM_CONSUMERS =
+            "dev.lucky.gboardpatches.feature.flag_enable_clip_item_consumers";
+    public static final String FEATURE_FLAG_ENABLE_CORRECTION_COMMIT_ANIM =
+            "dev.lucky.gboardpatches.feature.flag_enable_correction_commit_anim";
+    public static final String FEATURE_FLAG_ENABLE_ONBOARDING_BANNER =
+            "dev.lucky.gboardpatches.feature.flag_enable_onboarding_banner";
+    public static final String FEATURE_FLAG_ENABLE_ACCESS_POINTS_REDESIGN =
+            "dev.lucky.gboardpatches.feature.flag_enable_access_points_redesign";
+    public static final String FEATURE_FLAG_ENABLE_WRITING_TOOLS_STYLE =
+            "dev.lucky.gboardpatches.feature.flag_enable_writing_tools_style";
+    public static final String FEATURE_FLAG_ENABLE_WRITING_TOOLS_REPLACE =
+            "dev.lucky.gboardpatches.feature.flag_enable_writing_tools_replace";
+    public static final String FEATURE_FLAG_ENABLE_WRITING_TOOLS_FOR_MINORS =
+            "dev.lucky.gboardpatches.feature.flag_enable_writing_tools_for_minors";
+
     private static final String TAG = "GboardPatches";
 
     private GboardPatchesFeatureAvailability() {
