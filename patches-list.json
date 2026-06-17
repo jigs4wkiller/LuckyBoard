@@ -118,6 +118,15 @@
           "type": "kotlin.String",
           "default": "LuckyBoard",
           "values": null
+        },
+        {
+          "key": "package_name",
+          "title": "Package name",
+          "description": "The package name for the patched app (allows side-by-side install). Default: dev.lucky.com.google.android.inputmethod.latin",
+          "required": false,
+          "type": "kotlin.String",
+          "default": "dev.lucky.com.google.android.inputmethod.latin",
+          "values": null
         }
       ]
     },

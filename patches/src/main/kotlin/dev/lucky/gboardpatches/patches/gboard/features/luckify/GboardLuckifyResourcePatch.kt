@@ -26,12 +26,20 @@ val gboardLuckifyResourcePatch = resourcePatch(
         default = "LuckyBoard"
     )
 
+    val packageName = stringOption(
+        key = "package_name",
+        title = "Package name",
+        description = "The package name for the patched app (allows side-by-side install). Default: dev.lucky.com.google.android.inputmethod.latin",
+        default = GBOARD_PATCHED_PACKAGE_NAME
+    )
+
     finalize {
         val name = appName.value?.trim()?.ifEmpty { "LuckyBoard" } ?: "LuckyBoard"
+        val pkg = packageName.value?.trim()?.ifEmpty { GBOARD_PATCHED_PACKAGE_NAME } ?: GBOARD_PATCHED_PACKAGE_NAME
 
         applyManifestPackageOverride(
             originalPackageName = GBOARD_PACKAGE_NAME,
-            packageNameOverride = GBOARD_PATCHED_PACKAGE_NAME
+            packageNameOverride = pkg
         )
         applyAppNameLabel(name)
         applyBrandRename(name)
