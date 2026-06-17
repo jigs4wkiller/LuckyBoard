@@ -15,11 +15,10 @@ import dev.lucky.gboardpatches.patches.gboard.features.webclipboard.gboardWebCli
 import dev.lucky.gboardpatches.patches.gboard.features.webclipboard.gboardWebClipboardManifestPatch
 import dev.lucky.gboardpatches.patches.gboard.features.englishqwerty.gboardEnglishQwertySlideResourcePatch
 import dev.lucky.gboardpatches.patches.gboard.features.englishqwerty.gboardEnglishQwertySoftKeyPatch
-import dev.lucky.gboardpatches.patches.gboard.features.brandrename.gboardBrandRenameResourcePatch
 import dev.lucky.gboardpatches.patches.gboard.features.incognito.gboardIncognitoEnhancementsBytecodePatch
 import dev.lucky.gboardpatches.patches.gboard.features.featureflags.gboardFeatureFlagsBytecodePatch
 import dev.lucky.gboardpatches.patches.gboard.features.featureflags.gboardFeatureFlagsPatch
-import dev.lucky.gboardpatches.patches.gboard.features.packagerename.gboardPackageRenameResourcePatch
+import dev.lucky.gboardpatches.patches.gboard.features.luckify.gboardLuckifyResourcePatch
 import dev.lucky.gboardpatches.patches.gboard.features.settingshomepage.gboardSettingsHomepageBytecodePatch
 import dev.lucky.gboardpatches.patches.gboard.features.settingshomepage.gboardSettingsHomepageFeatureMarkerPatch
 import dev.lucky.gboardpatches.patches.gboard.features.settingscleanup.gboardSettingsCleanUpResourcePatch
@@ -173,31 +172,7 @@ val gboardLatinGlobeKeyIgnoreIntervalPatch = resourcePatch(
 }
 
 @Suppress("unused")
-val gboardPackageRenamePatch = resourcePatch(
-    name = "Package Rename",
-    description = "Rename the package to dev.lucky.com.google.android.inputmethod.latin (and the app to \"LuckyBoard\") so it can be installed alongside the official Gboard.",
-    default = true
-) {
-    compatibleWith(COMPATIBILITY_GBOARD)
-
-    dependsOn(
-        gboardPackageRenameResourcePatch
-    )
-}
-
-@Suppress("unused")
-val gboardBrandRenamePatch = resourcePatch(
-    name = "Replace Gboard with LuckyBoard",
-    description = "Replace occurrences of \"Gboard\" with \"LuckyBoard\" in resources, strings and manifest during patching for complete UI rebranding (beyond the app label set by Package Rename).",
-    default = true
-) {
-    compatibleWith(COMPATIBILITY_GBOARD)
-
-    dependsOn(
-        gboardPackageRenamePatch,
-        gboardBrandRenameResourcePatch
-    )
-}
+val gboardLuckifyPatch = dev.lucky.gboardpatches.patches.gboard.features.luckify.gboardLuckifyResourcePatch
 
 @Suppress("unused")
 val gboardSignatureBypassPatch = resourcePatch(
@@ -212,34 +187,10 @@ val gboardSignatureBypassPatch = resourcePatch(
     )
 }
 
-// NOTE: The rebind aliases below are commented out because they trigger a
-// NullPointerException in PatchLoader.getPatchMethods (null cast to Patch<*>) 
-// when the pure buildAndroid .mpp is loaded by Morphe CLI / Manager / URV.
-// The patches are still discovered via their @Suppress("unused") definitions
-// in the feature subpackages, so the full 18 patches load correctly in the
-// pure build output (the recommended format for the apps).
-// See history for the loader crash details.
+// NOTE: gboardFeatureFlagsPatch and gboardIncognitoEnhancementsPatch are
+// discovered via @Suppress("unused") in their own feature subpackages.
+// Rebind aliases here trigger a NullPointerException in PatchLoader.getPatchMethods.
 
-// @Suppress("unused")
-// val gboardFeatureFlagsPatch = dev.lucky.gboardpatches.patches.gboard.features.featureflags.gboardFeatureFlagsPatch
-
-// @Suppress("unused")
-// val gboardIncognitoEnhancementsPatch = dev.lucky.gboardpatches.patches.gboard.features.incognito.gboardIncognitoEnhancementsPatch
-
-// Universal PNG optimizer - converted from mpatcher script.
-// TEMPORARILY DISABLED for test build (no png patch) to isolate load issue in Morphe Manager.
-// Can be applied to any app in Morphe (no app-specific compatibility).
-// @Suppress("unused")
-// val universalPngOptimizerPatch = dev.lucky.gboardpatches.patches.universal.universalPngOptimizerPatch
-
-// Universal Drawable Density Cleaner (Drawableclean) - converted from mpatcher script.
-// User selects via patch options (gear) which DPI density to keep.
-// No auto-detect. Universal for any app in Morphe.
+// Universal Resource Cleaner — handles both density and language cleaning.
 @Suppress("unused")
-val universalDrawableCleanerPatch = dev.lucky.gboardpatches.patches.universal.universalDrawableCleanerPatch
-
-// Universal Language Cleaner (Dellang) - converted from mpatcher script.
-// User enters language codes (e.g. "en de fr") via patch options (gear) for which languages to KEEP.
-// No auto-detect. Removes all other values-* language folders. Universal for any app in Morphe.
-@Suppress("unused")
-val universalLanguageCleanerPatch = dev.lucky.gboardpatches.patches.universal.universalLanguageCleanerPatch
+val universalResourceCleanerPatch = dev.lucky.gboardpatches.patches.universal.universalResourceCleanerPatch
