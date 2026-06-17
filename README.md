@@ -21,7 +21,7 @@
 > - Target: Gboard 17.5.7.917159154-lite arm64
 > - Many bytecode & resource fixes for the new APK
 >
-> Pre-built `.mpp` bundles available in [Releases](https://github.com/jigs4wkiller/LuckyBoard/releases) (manual upload).
+> Pre-built `.mpp` bundles available in [Releases](https://github.com/jigs4wkiller/LuckyBoard/releases).
 
 ---
 
