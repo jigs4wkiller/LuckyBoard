@@ -8,7 +8,7 @@ import dev.lucky.gboardpatches.patches.gboard.shared.gboardPatchesExtensionCarri
 import dev.lucky.gboardpatches.patches.shared.Constants.COMPATIBILITY_GBOARD
 
 private const val SETTINGS_ACTIVITY_CLASS =
-    "Lddg;"
+    "Lbtn;"
 private const val SETTINGS_HOMEPAGE_RUNTIME_CLASS =
     "Ldev/lucky/gboardpatches/extension/settingshomepage/GboardSettingsHomepageRuntime;"
 

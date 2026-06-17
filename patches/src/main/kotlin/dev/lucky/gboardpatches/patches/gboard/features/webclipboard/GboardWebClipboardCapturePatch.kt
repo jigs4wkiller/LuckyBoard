@@ -28,7 +28,7 @@ internal val gboardWebClipboardCapturePatch = bytecodePatch(
     }
 }
 
-private const val LATIN_IME_SERVICE_CLASS = "Lnfl;"
+private const val LATIN_IME_SERVICE_CLASS = "Lkbp;"
 
 private const val CAPTURE_BOOTSTRAP_RUNTIME_CLASS =
     "Ldev/lucky/gboardpatches/extension/webclipboard/GboardWebClipboardCaptureBootstrap;"

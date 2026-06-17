@@ -6,7 +6,7 @@ import app.morphe.patcher.patch.bytecodePatch
 import dev.lucky.gboardpatches.patches.gboard.shared.findMutableMethodOrThrow
 import dev.lucky.gboardpatches.patches.shared.Constants.COMPATIBILITY_GBOARD
 
-private const val FLAG_FACTORY_CLASS = "Lmku;"
+private const val FLAG_FACTORY_CLASS = "Ljih;"
 
 internal val gboardUndoRedoAccessPointBytecodePatch = bytecodePatch(
     description = "讓 Gboard 的 undo/redo 可用。"
@@ -23,7 +23,7 @@ private fun injectUndoRedoAccessPointOverride() = with(context) {
     val mutableMethod = findMutableMethodOrThrow(
         classType = FLAG_FACTORY_CLASS,
         name = "a",
-        returnType = "Lmkr;",
+        returnType = "Ljie;",
         parameterTypes = listOf("Ljava/lang/String;", "Z")
     )
 

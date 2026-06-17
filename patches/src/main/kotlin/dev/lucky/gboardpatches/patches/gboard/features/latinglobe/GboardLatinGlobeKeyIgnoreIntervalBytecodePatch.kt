@@ -11,7 +11,7 @@ import dev.lucky.gboardpatches.patches.shared.Constants.COMPATIBILITY_GBOARD
 
 private const val LATIN_IME_CLASS =
     "Lcom/google/android/apps/inputmethod/libs/latin5/LatinIme;"
-private const val LATIN_RUNTIME_PARAMS_TYPE = "Lvky;"
+private const val LATIN_RUNTIME_PARAMS_TYPE = "Lrdm;"
 private const val LATIN_GLOBE_RUNTIME_CLASS =
     "Ldev/lucky/gboardpatches/extension/keyboard/GboardLatinGlobeKeyIgnoreIntervalRuntime;"
 
@@ -31,7 +31,7 @@ context(context: BytecodePatchContext)
 private fun injectLatinGlobeKeyIgnoreIntervalOverride() = with(context) {
     val mutableMethod = findMutableMethodOrThrow(
         classType = LATIN_IME_CLASS,
-        name = "U",
+        name = "T",
         returnType = LATIN_RUNTIME_PARAMS_TYPE,
         parameterTypes = emptyList()
     )
