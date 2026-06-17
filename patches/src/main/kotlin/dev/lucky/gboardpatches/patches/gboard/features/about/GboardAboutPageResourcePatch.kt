@@ -13,7 +13,7 @@ import org.w3c.dom.Document
 import org.w3c.dom.Element
 
 private const val ABOUT_XML = "res/xml/setting_about.xml"
-private const val ABOUT_VERSION_KEY_REF = "@string/string_0x7f140b7d"
+private const val ABOUT_VERSION_KEY_REF = "@string/APKTOOL_DUMMYVAL_0x7f140b13"
 private const val ABOUT_PREFERENCE_CLASS =
     "com.google.android.libraries.inputmethod.settings.widget.ExtendedPreference"
 
