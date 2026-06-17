@@ -73,39 +73,17 @@ private fun keepOnlyDensity(resDir: File, keep: String) {
     val keepDirs = resDir.listFiles(keepFilter)?.toList() ?: emptyList()
     if (keepDirs.isEmpty()) return
 
-    val tempDirs = keepDirs.mapNotNull { dir ->
-        val temp = File(resDir, "urc_${dir.name}")
-        if (dir.renameTo(temp)) temp else null
-    }
-
-    val keepFiles = mutableSetOf<String>()
-    tempDirs.forEach { tempDir ->
-        tempDir.walkTopDown().filter { it.isFile }.forEach { keepFiles.add(it.name) }
-    }
-
-    if (keepFiles.isEmpty()) {
-        tempDirs.forEachIndexed { i, t -> if (t.exists()) t.renameTo(keepDirs[i]) }
-        return
-    }
-
+    // Delete all other density directories entirely
     val otherDirs = resDir.listFiles { f ->
         f.isDirectory &&
                 (f.name.startsWith("drawable") || f.name.startsWith("mipmap")) &&
-                !f.name.startsWith("urc_")
+                !f.name.endsWith(suffix) &&
+                f.name != "drawable" && f.name != "mipmap"
     }?.toList() ?: emptyList()
 
-    otherDirs.forEach { otherDir ->
-        otherDir.listFiles()?.forEach { file ->
-            if (file.isFile && keepFiles.contains(file.name)) {
-                file.delete()
-            }
-        }
-    }
-
-    tempDirs.forEachIndexed { i, tempDir ->
-        if (tempDir.exists()) {
-            tempDir.renameTo(keepDirs[i])
-        }
+    otherDirs.forEach { dir ->
+        println("      Removing density folder: ${dir.name}")
+        dir.deleteRecursively()
     }
 }
 

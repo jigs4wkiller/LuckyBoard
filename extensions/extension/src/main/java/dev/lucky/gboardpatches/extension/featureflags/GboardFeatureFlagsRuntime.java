@@ -14,26 +14,16 @@ import dev.lucky.gboardpatches.extension.settings.GboardPatchesFeatureAvailabili
 public final class GboardFeatureFlagsRuntime {
     public static final String FLAG_CLIPBOARD_ENTITY_EXTRACTION =
             "enable_clipboard_entity_extraction";
-    public static final String FLAG_CLIPBOARD_ITEM_EDIT =
-            "enable_clipboard_text_editor";
     public static final String FLAG_GRAMMAR_CHECKER =
             "enable_grammar_checker";
     public static final String FLAG_INLINE_SUGGESTIONS =
             "enable_inline_suggestions_on_client_side";
     public static final String FLAG_KEY_SHAPE_SELECTION =
             "more_pill_keys";
-    public static final String FLAG_SUPPORT_ACCESSORY_KEYBOARD =
-            "support_accessory_keyboard";
-    public static final String FLAG_ENABLE_VOICE_WIDGET =
-            "enable_voice_widget";
     public static final String FLAG_ENABLE_NEW_LANGUAGE_SEARCH_BAR =
             "enable_new_language_search_bar";
     public static final String FLAG_ENABLE_SETTINGS_TWO_PANE =
             "enable_settings_two_pane_display";
-    public static final String FLAG_ENABLE_OCR =
-            "enable_ocr";
-    public static final String FLAG_ENABLE_DICTATION_REDESIGN =
-            "enable_regular_dictation_redesign";
     public static final String FLAG_SHOW_COLLAPSE_BUTTON =
             "show_collapse_button";
 
@@ -46,8 +36,6 @@ public final class GboardFeatureFlagsRuntime {
     public static final String FLAG_SILK_POPUP = "silk_popup";
     public static final String FLAG_ENABLE_AI_CORE_SMART_REPLY = "enable_ai_core_smart_reply";
     public static final String FLAG_KEYBOARD_REDESIGN_GOOGLE_SANS = "keyboard_redesign_google_sans";
-    public static final String FLAG_BRIGHT_KEY_ON_DYNAMIC_COLOR_DARK_THEME =
-            "bright_key_on_dynamic_color_dark_theme";
 
     // New flags from Gboard 17.5.x (17.5.7.917159154)
     public static final String FLAG_ENABLE_WRITING_TOOLS = "enable_writing_tools";
@@ -155,9 +143,6 @@ public final class GboardFeatureFlagsRuntime {
                 FLAG_CLIPBOARD_ENTITY_EXTRACTION,
                 GboardPatchesFeatureAvailability.FEATURE_CLIPBOARD_ENTITY_EXTRACTION);
         featureKeys.put(
-                FLAG_CLIPBOARD_ITEM_EDIT,
-                GboardPatchesFeatureAvailability.FEATURE_CLIPBOARD_ITEM_EDIT);
-        featureKeys.put(
                 FLAG_GRAMMAR_CHECKER,
                 GboardPatchesFeatureAvailability.FEATURE_GRAMMAR_CHECKER);
         featureKeys.put(
@@ -167,23 +152,11 @@ public final class GboardFeatureFlagsRuntime {
                 FLAG_KEY_SHAPE_SELECTION,
                 GboardPatchesFeatureAvailability.FEATURE_KEY_SHAPE_SELECTION);
         featureKeys.put(
-                FLAG_SUPPORT_ACCESSORY_KEYBOARD,
-                GboardPatchesFeatureAvailability.FEATURE_FLAG_SUPPORT_ACCESSORY_KEYBOARD);
-        featureKeys.put(
-                FLAG_ENABLE_VOICE_WIDGET,
-                GboardPatchesFeatureAvailability.FEATURE_FLAG_ENABLE_VOICE_WIDGET);
-        featureKeys.put(
                 FLAG_ENABLE_NEW_LANGUAGE_SEARCH_BAR,
                 GboardPatchesFeatureAvailability.FEATURE_FLAG_ENABLE_NEW_LANGUAGE_SEARCH_BAR);
         featureKeys.put(
                 FLAG_ENABLE_SETTINGS_TWO_PANE,
                 GboardPatchesFeatureAvailability.FEATURE_FLAG_ENABLE_SETTINGS_TWO_PANE);
-        featureKeys.put(
-                FLAG_ENABLE_OCR,
-                GboardPatchesFeatureAvailability.FEATURE_FLAG_ENABLE_OCR);
-        featureKeys.put(
-                FLAG_ENABLE_DICTATION_REDESIGN,
-                GboardPatchesFeatureAvailability.FEATURE_FLAG_ENABLE_DICTATION_REDESIGN);
         featureKeys.put(
                 FLAG_SHOW_COLLAPSE_BUTTON,
                 GboardPatchesFeatureAvailability.FEATURE_FLAG_SHOW_COLLAPSE_BUTTON);
@@ -207,9 +180,6 @@ public final class GboardFeatureFlagsRuntime {
         featureKeys.put(
                 FLAG_KEYBOARD_REDESIGN_GOOGLE_SANS,
                 GboardPatchesFeatureAvailability.FEATURE_FLAG_KEYBOARD_REDESIGN_GOOGLE_SANS);
-        featureKeys.put(
-                FLAG_BRIGHT_KEY_ON_DYNAMIC_COLOR_DARK_THEME,
-                GboardPatchesFeatureAvailability.FEATURE_FLAG_BRIGHT_KEY_ON_DYNAMIC_COLOR_DARK_THEME);
 
         // New flags from Gboard 17.5.x
         featureKeys.put(FLAG_ENABLE_WRITING_TOOLS, GboardPatchesFeatureAvailability.FEATURE_FLAG_ENABLE_WRITING_TOOLS);

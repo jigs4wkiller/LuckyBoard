@@ -24,18 +24,13 @@ public final class GboardFeatureFlagsSettings {
 
     static {
         Map<String, FlagInfo> map = new HashMap<String, FlagInfo>();
-        map.put("more_pill_keys", new FlagInfo("Key Shape Selection", "Enables the Key shape option in Theme details and extra gradations (less rounded, horizontal lines, pill etc.)."));
-        map.put("support_accessory_keyboard", new FlagInfo("Accessory / Floating Keyboard", "Enables floating keyboard, accessory modes and related toolbar widgets."));
-        map.put("enable_voice_widget", new FlagInfo("Voice Widget / Toolbar", "Enables enhanced voice dictation widget and toolbar integration."));
-        map.put("enable_new_language_search_bar", new FlagInfo("New Language Search Bar", "Improved search for languages and input methods in LuckyBoard settings."));
-        map.put("enable_settings_two_pane", new FlagInfo("Two-Pane Settings UI", "Uses a split / two-column layout for settings on larger screens."));
-        map.put("enable_ocr", new FlagInfo("OCR / Scan Text", "Adds a camera-based 'Scan text' tool to the toolbar for OCR and quick insertion."));
-        map.put("enable_regular_dictation_redesign", new FlagInfo("Voice Dictation Redesign", "Modernized voice input UI with better visual treatment."));
-        map.put("show_collapse_button", new FlagInfo("Collapse Keyboard Button", "Shows a button to minimize/collapse the on-screen keyboard."));
+        map.put("enable_clipboard_entity_extraction", new FlagInfo("Clipboard Entity Extraction", "Shows detected addresses, phones, links etc. from clipboard items."));
         map.put("enable_grammar_checker", new FlagInfo("Grammar Checker", "Enables advanced grammar checking under text correction."));
         map.put("enable_inline_suggestions_on_client_side", new FlagInfo("Inline Suggestions", "Enables Smart Compose and inline text suggestions."));
-        map.put("enable_clipboard_entity_extraction", new FlagInfo("Clipboard Entity Extraction", "Shows detected addresses, phones, links etc. from clipboard items."));
-        map.put("enable_clipboard_text_editor", new FlagInfo("Clipboard Item Edit", "Allows editing clipboard items directly from the long-press menu."));
+        map.put("more_pill_keys", new FlagInfo("Key Shape Selection", "Enables the Key shape option in Theme details and extra gradations (less rounded, horizontal lines, pill etc.)."));
+        map.put("enable_new_language_search_bar", new FlagInfo("New Language Search Bar", "Improved search for languages and input methods in LuckyBoard settings."));
+        map.put("enable_settings_two_pane", new FlagInfo("Two-Pane Settings UI", "Uses a split / two-column layout for settings on larger screens."));
+        map.put("show_collapse_button", new FlagInfo("Collapse Keyboard Button", "Shows a button to minimize/collapse the on-screen keyboard."));
 
         // New flags from decompiled Gboard APK exploration (pdk registrations + community Rboard patterns).
         map.put("enable_adjust_default_keyboard_height", new FlagInfo("Adjust Default Keyboard Height", "Allow adjusting the default on-screen keyboard height."));
@@ -44,7 +39,6 @@ public final class GboardFeatureFlagsSettings {
         map.put("silk_popup", new FlagInfo("Silk Popups", "Use refined Silk-style popups and suggestions."));
         map.put("enable_ai_core_smart_reply", new FlagInfo("AI Smart Reply", "Enable AI core smart reply suggestions."));
         map.put("keyboard_redesign_google_sans", new FlagInfo("Keyboard Redesign Google Sans", "Apply Google Sans in modern keyboard redesign layouts."));
-        map.put("bright_key_on_dynamic_color_dark_theme", new FlagInfo("Bright Keys on Dynamic Color Dark", "Use brighter key colors with dynamic color dark themes."));
 
         // New flags from Gboard 17.5.x
         map.put("enable_writing_tools", new FlagInfo("Writing Tools", "Enable AI-powered writing tools for text editing and style suggestions."));

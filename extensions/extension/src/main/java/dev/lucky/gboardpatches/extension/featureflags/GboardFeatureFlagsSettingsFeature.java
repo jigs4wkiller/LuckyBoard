@@ -112,9 +112,6 @@ public final class GboardFeatureFlagsSettingsFeature
         if ("enable_clipboard_entity_extraction".equals(internalName)) {
             return GboardPatchesFeatureAvailability.FEATURE_CLIPBOARD_ENTITY_EXTRACTION;
         }
-        if ("enable_clipboard_text_editor".equals(internalName)) {
-            return GboardPatchesFeatureAvailability.FEATURE_CLIPBOARD_ITEM_EDIT;
-        }
         if ("more_pill_keys".equals(internalName)) {
             return GboardPatchesFeatureAvailability.FEATURE_KEY_SHAPE_SELECTION;
         }
