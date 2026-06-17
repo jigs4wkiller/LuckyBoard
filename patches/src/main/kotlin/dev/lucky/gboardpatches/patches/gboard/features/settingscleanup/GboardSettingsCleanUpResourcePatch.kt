@@ -72,7 +72,7 @@ private fun cleanDocument(doc: org.w3c.dom.Document, docPath: String) {
         }
 
         // Fallback: also nuke by the exact decompiled keys (in case the category structure differs slightly)
-        val keysToRemove = setOf("0x7f140a60", "0x7f140a62", "0x7f140a61", "0x7f140a50", "0x7f140a5a")
+        val keysToRemove = setOf("0x7f140aca", "0x7f140acc", "0x7f140acb", "0x7f140abb", "0x7f140ac4")
         walkElementNodes(root) { elem ->
             if (isPreferenceLike(elem)) {
                 val key = getAttr(elem, "key") ?: ""
@@ -88,8 +88,8 @@ private fun cleanDocument(doc: org.w3c.dom.Document, docPath: String) {
         walkElementNodes(root) { elem ->
             if (isPreferenceLike(elem)) {
                 val k = getAttr(elem, "key") ?: ""
-                if (k.contains("0x7f140941") || k.contains("0x7f140943") || k.contains("0x7f140b8e") ||
-                    k.contains("0x7f140b8f") || k.contains("usage") || k.contains("stat") || k.contains("metric") ||
+                if (k.contains("0x7f14097b") || k.contains("0x7f140aa2") || k.contains("0x7f140b02") ||
+                    k.contains("0x7f14097d") || k.contains("usage") || k.contains("stat") || k.contains("metric") ||
                     k.contains("share") || k.contains("diagnos") || k.contains("crash") || k.contains("telemetry")) {
                     elem.setAttributeNS(ANDROID_NS, "defaultValue", "false")
                     elem.setAttributeNS(ANDROID_NS, "enabled", "false")
