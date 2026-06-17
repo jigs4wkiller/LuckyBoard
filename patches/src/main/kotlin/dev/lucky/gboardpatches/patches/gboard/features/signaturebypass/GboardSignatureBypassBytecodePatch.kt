@@ -6,7 +6,7 @@ import app.morphe.patcher.patch.bytecodePatch
 import dev.lucky.gboardpatches.patches.gboard.shared.findMutableMethodOrThrow
 import dev.lucky.gboardpatches.patches.shared.Constants.COMPATIBILITY_GBOARD
 
-private const val SIGNATURE_UTILS_CLASS = "Lmgg;"
+private const val SIGNATURE_UTILS_CLASS = "Lpuo;"
 
 internal val gboardSignatureBypassBytecodePatch = bytecodePatch(
     description = "強制通過 Gboard 自身的簽章白名單檢查。"
