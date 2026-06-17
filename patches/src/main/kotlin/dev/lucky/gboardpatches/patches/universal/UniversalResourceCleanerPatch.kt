@@ -78,7 +78,8 @@ private fun keepOnlyDensity(resDir: File, keep: String) {
         f.isDirectory &&
                 (f.name.startsWith("drawable") || f.name.startsWith("mipmap")) &&
                 !f.name.endsWith(suffix) &&
-                f.name != "drawable" && f.name != "mipmap"
+                f.name != "drawable" && f.name != "mipmap" &&
+                !f.name.endsWith("-anydpi") && !f.name.endsWith("-nodpi")
     }?.toList() ?: emptyList()
 
     otherDirs.forEach { dir ->
