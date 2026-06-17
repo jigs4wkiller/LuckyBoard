@@ -216,9 +216,7 @@ val gboardSignatureBypassPatch = resourcePatch(
 // NullPointerException in PatchLoader.getPatchMethods (null cast to Patch<*>) 
 // when the pure buildAndroid .mpp is loaded by Morphe CLI / Manager / URV.
 // The patches are still discovered via their @Suppress("unused") definitions
-// in the feature subpackages, so the full 18 patches load correctly in the
-// pure build output (the recommended format for the apps).
-// See history for the loader crash details.
+// in the feature subpackages.
 
 // @Suppress("unused")
 // val gboardFeatureFlagsPatch = dev.lucky.gboardpatches.patches.gboard.features.featureflags.gboardFeatureFlagsPatch
@@ -227,19 +225,19 @@ val gboardSignatureBypassPatch = resourcePatch(
 // val gboardIncognitoEnhancementsPatch = dev.lucky.gboardpatches.patches.gboard.features.incognito.gboardIncognitoEnhancementsPatch
 
 // Universal PNG optimizer - converted from mpatcher script.
-// TEMPORARILY DISABLED for test build (no png patch) to isolate load issue in Morphe Manager.
-// Can be applied to any app in Morphe (no app-specific compatibility).
+// TEMPORARILY DISABLED
 // @Suppress("unused")
 // val universalPngOptimizerPatch = dev.lucky.gboardpatches.patches.universal.universalPngOptimizerPatch
 
-// Universal Drawable Density Cleaner (Drawableclean) - converted from mpatcher script.
-// User selects via patch options (gear) which DPI density to keep.
-// No auto-detect. Universal for any app in Morphe.
+// === Consolidated Universal Cleaner ===
+// One patch that handles both density and language cleaning.
+// User can choose density (default xxxhdpi) and additional languages via gear.
 @Suppress("unused")
-val universalDrawableCleanerPatch = dev.lucky.gboardpatches.patches.universal.universalDrawableCleanerPatch
+val universalResourceCleanerPatch = dev.lucky.gboardpatches.patches.universal.universalResourceCleanerPatch
 
-// Universal Language Cleaner (Dellang) - converted from mpatcher script.
-// User enters language codes (e.g. "en de fr") via patch options (gear) for which languages to KEEP.
-// No auto-detect. Removes all other values-* language folders. Universal for any app in Morphe.
-@Suppress("unused")
-val universalLanguageCleanerPatch = dev.lucky.gboardpatches.patches.universal.universalLanguageCleanerPatch
+// Old separate patches are deprecated and will be removed.
+// They are replaced by the combined universalResourceCleanerPatch above.
+// @Suppress("unused")
+// val universalDrawableCleanerPatch = dev.lucky.gboardpatches.patches.universal.universalDrawableCleanerPatch
+// @Suppress("unused")
+// val universalLanguageCleanerPatch = dev.lucky.gboardpatches.patches.universal.universalLanguageCleanerPatch
