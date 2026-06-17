@@ -41,7 +41,7 @@ class GboardLatinGlobePatchRegistrySourceTest {
         )
 
         val patchStart = source.indexOf("val gboardLatinGlobeKeyIgnoreIntervalPatch")
-        val nextPatchStart = source.indexOf("val gboardPackageRenamePatch")
+        val nextPatchStart = source.indexOf("val gboardLuckifyPatch")
         assertTrue("Latin globe patch missing", patchStart >= 0)
         assertTrue("Expected following patch boundary", nextPatchStart > patchStart)
 

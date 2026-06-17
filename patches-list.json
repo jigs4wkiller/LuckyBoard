@@ -100,8 +100,8 @@
       "options": []
     },
     {
-      "name": "Package Rename",
-      "description": "Rename the package to dev.lucky.com.google.android.inputmethod.latin (and the app to \"LuckyBoard\") so it can be installed alongside the official Gboard.",
+      "name": "Luckify Gboard",
+      "description": "Rename the package and replace all Gboard branding with a custom app name (default: LuckyBoard). Allows side-by-side installation with the official Gboard.",
       "use": true,
       "dependencies": [],
       "compatiblePackages": {
@@ -109,27 +109,23 @@
           "17.0.10.880768217-release-arm64-v8a"
         ]
       },
-      "options": []
+      "options": [
+        {
+          "key": "app_name",
+          "title": "App name",
+          "description": "The display name for the patched app (launcher, settings, all UI strings). Default: LuckyBoard",
+          "required": false,
+          "type": "kotlin.String",
+          "default": "LuckyBoard",
+          "values": null
+        }
+      ]
     },
     {
       "name": "QWERTY Slide Symbols",
       "description": "Enable slide-up and slide-down symbol input on QWERTY keyboards (English and other Latin layouts where supported).",
       "use": true,
       "dependencies": [],
-      "compatiblePackages": {
-        "com.google.android.inputmethod.latin": [
-          "17.0.10.880768217-release-arm64-v8a"
-        ]
-      },
-      "options": []
-    },
-    {
-      "name": "Replace Gboard with LuckyBoard",
-      "description": "Replace occurrences of \"Gboard\" with \"LuckyBoard\" in resources, strings and manifest during patching for complete UI rebranding (beyond the app label set by Package Rename).",
-      "use": true,
-      "dependencies": [
-        "Package Rename"
-      ],
       "compatiblePackages": {
         "com.google.android.inputmethod.latin": [
           "17.0.10.880768217-release-arm64-v8a"
@@ -162,82 +158,28 @@
       "options": []
     },
     {
-      "name": "Universal Drawable Density Cleaner",
-      "description": "Removes unused DPI resources (drawable-*/mipmap-*) by keeping only the files from the user-selected density. User chooses via patch options which DPI remains (no auto-detect). Works on any app (universal).",
+      "name": "Universal Resource Cleaner",
+      "description": "Removes unused DPI resources (drawable-*/mipmap-*) and language resources in one patch. Choose which density to keep (default: xxxhdpi) and additional languages via the gear icon. English (en) is always kept.",
       "use": true,
       "dependencies": [],
       "compatiblePackages": null,
       "options": [
         {
-          "key": "keep_ldpi",
-          "title": "Keep ldpi",
-          "description": "Keep only ldpi drawables/mipmaps and remove duplicates from other densities.",
-          "required": false,
-          "type": "kotlin.Boolean",
-          "default": false,
-          "values": null
-        },
-        {
-          "key": "keep_mdpi",
-          "title": "Keep mdpi",
-          "description": "Keep only mdpi drawables/mipmaps and remove duplicates from other densities.",
-          "required": false,
-          "type": "kotlin.Boolean",
-          "default": false,
-          "values": null
-        },
-        {
-          "key": "keep_hdpi",
-          "title": "Keep hdpi",
-          "description": "Keep only hdpi drawables/mipmaps and remove duplicates from other densities.",
-          "required": false,
-          "type": "kotlin.Boolean",
-          "default": false,
-          "values": null
-        },
-        {
-          "key": "keep_xhdpi",
-          "title": "Keep xhdpi",
-          "description": "Keep only xhdpi drawables/mipmaps and remove duplicates from other densities.",
-          "required": false,
-          "type": "kotlin.Boolean",
-          "default": false,
-          "values": null
-        },
-        {
-          "key": "keep_xxhdpi",
-          "title": "Keep xxhdpi",
-          "description": "Keep only xxhdpi drawables/mipmaps and remove duplicates from other densities.",
-          "required": false,
-          "type": "kotlin.Boolean",
-          "default": true,
-          "values": null
-        },
-        {
-          "key": "keep_xxxhdpi",
-          "title": "Keep xxxhdpi",
-          "description": "Keep only xxxhdpi drawables/mipmaps and remove duplicates from other densities.",
-          "required": false,
-          "type": "kotlin.Boolean",
-          "default": false,
-          "values": null
-        }
-      ]
-    },
-    {
-      "name": "Universal Language Cleaner",
-      "description": "Removes unused language resources (values-*, values-*-*) by keeping only the folders for the user-specified language codes (e.g. en de fr). Enter codes via patch options gear. No auto-detect. Universal for any app.",
-      "use": true,
-      "dependencies": [],
-      "compatiblePackages": null,
-      "options": [
-        {
-          "key": "keep_languages",
-          "title": "Languages to keep (codes)",
-          "description": "Enter space or comma separated language codes to KEEP (e.g. \"en de fr\"). All other values-* folders will be deleted. Default: en",
+          "key": "keep_density",
+          "title": "Keep only this density",
+          "description": "Which DPI density to keep (all other drawable/mipmap folders will be cleaned). Default: xxxhdpi",
           "required": false,
           "type": "kotlin.String",
-          "default": "en",
+          "default": "xxxhdpi",
+          "values": null
+        },
+        {
+          "key": "extra_languages",
+          "title": "Additional languages to keep",
+          "description": "Comma or space separated language codes (e.g. de,fr,es). English (en) is always kept unless you explicitly list it.",
+          "required": false,
+          "type": "kotlin.String",
+          "default": "de",
           "values": null
         }
       ]
