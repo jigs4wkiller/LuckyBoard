@@ -13,9 +13,6 @@ import dev.lucky.gboardpatches.patches.gboard.features.signaturebypass.gboardSig
 import dev.lucky.gboardpatches.patches.gboard.shared.clearExceptionHandlers
 import dev.lucky.gboardpatches.patches.shared.Constants.COMPATIBILITY_GBOARD
 
-private const val INCOGNITO_RUNTIME_CLASS =
-    "Ldev/lucky/gboardpatches/extension/incognito/GboardIncognitoRuntime;"
-
 @Suppress("unused")
 internal val gboardIncognitoEnhancementsBytecodePatch = bytecodePatch(
     description = "Enable clipboard and voice typing in incognito mode, and force always-incognito mode."
@@ -25,7 +22,7 @@ internal val gboardIncognitoEnhancementsBytecodePatch = bytecodePatch(
     dependsOn(gboardSignatureBypassBytecodePatch)
 
     execute {
-        // Always incognito - check preference at runtime
+        // Always incognito
         val method = IsIncognitoModeFingerprint.methodOrNull
             ?: IsIncognitoModeV2Fingerprint.methodOrNull
             ?: IsIncognitoModeInlinedFingerprint.methodOrNull
@@ -43,27 +40,19 @@ internal val gboardIncognitoEnhancementsBytecodePatch = bytecodePatch(
 
                 method.replaceInstruction(
                     index = isIncognitoModeIndex,
-                    smaliInstruction = "invoke-static {}, $INCOGNITO_RUNTIME_CLASS->shouldForceIncognito()Z"
-                )
-                method.addInstructions(
-                    index = isIncognitoModeIndex + 1,
-                    smaliInstructions = "move-result v$isIncognitoModeRegister"
+                    smaliInstruction = "const/4 v$isIncognitoModeRegister, 0x1"
                 )
             }
             else -> {
-                val returnInsn = if (method.returnType == "Z") "return v0" else "return-void"
-                val instructionCount = method.implementation?.instructions?.size ?: 0
-                method.clearExceptionHandlers()
-                method.removeInstructions(0, instructionCount)
-                method.addInstructions(0, """
-                    invoke-static {}, $INCOGNITO_RUNTIME_CLASS->shouldForceIncognito()Z
-                    move-result v0
-                    $returnInsn
-                """.trimIndent())
+                // returnEarly(true) equivalent
+                method.replaceInstruction(0, "const/4 v0, 0x1")
+                if (method.returnType == "Z") {
+                    method.replaceInstruction(1, "return v0")
+                }
             }
         }
 
-        // Enable clipboard in incognito - check preference at runtime
+        // Enable clipboard in incognito
         OnPrimaryClipChangedFingerprint.method.apply {
             val patternMatch = OnPrimaryClipChangedFingerprint.instructionMatches
             val isIncognitoModeIndex = patternMatch.first().index
@@ -75,19 +64,9 @@ internal val gboardIncognitoEnhancementsBytecodePatch = bytecodePatch(
                 index = isIncognitoModeIndex,
                 count = instructionsToRemoveCount
             )
-            addInstructions(
-                index = isIncognitoModeIndex,
-                smaliInstructions = """
-                    invoke-static {}, $INCOGNITO_RUNTIME_CLASS->shouldAllowClipboard()Z
-                    move-result v0
-                    if-eqz v0, :skip_clipboard
-                    return-void
-                    :skip_clipboard
-                """.trimIndent()
-            )
         }
 
-        // Enable voice typing in incognito - check preference at runtime
+        // Enable voice typing in incognito
         EnableVoiceTypingFingerprint.method.apply {
             val isIncognitoEnabledIndex =
                 EnableVoiceTypingFingerprint.instructionMatches.last().index
@@ -97,10 +76,7 @@ internal val gboardIncognitoEnhancementsBytecodePatch = bytecodePatch(
 
             addInstructions(
                 index = isIncognitoEnabledIndex,
-                smaliInstructions = """
-                    invoke-static {}, $INCOGNITO_RUNTIME_CLASS->shouldAllowVoice()Z
-                    move-result v$isIncognitoEnabledRegister
-                """.trimIndent()
+                smaliInstructions = "const/4 v$isIncognitoEnabledRegister, 0x0"
             )
         }
     }
