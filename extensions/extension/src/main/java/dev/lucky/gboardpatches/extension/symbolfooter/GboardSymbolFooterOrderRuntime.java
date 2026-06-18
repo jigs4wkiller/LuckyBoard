@@ -95,16 +95,15 @@ public final class GboardSymbolFooterOrderRuntime {
             return corpusList;
         }
 
-        Object builder = handles.immutableListBuilderConstructor.newInstance();
+        java.util.ArrayList<Object> reorderedList = new java.util.ArrayList<>();
         for (OrderEntry entry : reorderedEntries) {
-            handles.immutableListBuilderAddMethod.invoke(builder, entry.corpusItem);
+            reorderedList.add(entry.corpusItem);
         }
-        Object builtSet = handles.immutableListBuilderBuildMethod.invoke(builder);
         Log.i(TAG, "Reordered " + LOG_LABEL + " corpus list: configured="
                 + describeOrder(configuredOrder)
                 + ", before=" + describeEntries(entries)
                 + ", after=" + describeEntries(reorderedEntries));
-        return handles.immutableSetToListMethod.invoke(builtSet);
+        return reorderedList;
     }
 
     private static boolean isSameOrder(List<OrderEntry> left, List<OrderEntry> right) {
@@ -284,27 +283,21 @@ public final class GboardSymbolFooterOrderRuntime {
         final Field expressionCorpusManagerContextField;
 
         Handles(ClassLoader classLoader) throws Throwable {
-            Class<?> keyboardTypeClass = Class.forName("nzd", false, classLoader);
-            Class<?> immutableListBuilderClass = Class.forName("twm", false, classLoader);
-            Class<?> immutableSetClass = Class.forName("two", false, classLoader);
+            Class<?> keyboardTypeClass = Class.forName("kvf", false, classLoader);
             Class<?> expressionCorpusManagerClass = Class.forName("Leej", false, classLoader);
             expressionCorpusItemClass = Class.forName("eei", false, classLoader);
 
-            keyboardTypeNameField = keyboardTypeClass.getDeclaredField("k");
+            keyboardTypeNameField = keyboardTypeClass.getDeclaredField("m");
             keyboardTypeNameField.setAccessible(true);
 
             expressionCorpusItemKeyboardTypeField = expressionCorpusItemClass.getDeclaredField("c");
             expressionCorpusItemKeyboardTypeField.setAccessible(true);
 
-            immutableListBuilderConstructor = immutableListBuilderClass.getDeclaredConstructor();
-            immutableListBuilderConstructor.setAccessible(true);
-            immutableListBuilderAddMethod =
-                    immutableListBuilderClass.getDeclaredMethod("h", Object.class);
-            immutableListBuilderAddMethod.setAccessible(true);
-            immutableListBuilderBuildMethod = immutableListBuilderClass.getDeclaredMethod("g");
-            immutableListBuilderBuildMethod.setAccessible(true);
-            immutableSetToListMethod = immutableSetClass.getMethod("g");
-            immutableSetToListMethod.setAccessible(true);
+            // Unused in new APK - kept for compatibility
+            immutableListBuilderConstructor = null;
+            immutableListBuilderAddMethod = null;
+            immutableListBuilderBuildMethod = null;
+            immutableSetToListMethod = null;
 
             expressionCorpusManagerContextField = expressionCorpusManagerClass.getDeclaredField("c");
             expressionCorpusManagerContextField.setAccessible(true);
