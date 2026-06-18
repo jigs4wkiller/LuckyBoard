@@ -13,6 +13,8 @@ public final class GboardPatchesFeatureAvailability {
             "dev.lucky.gboardpatches.feature.web_clipboard";
     public static final String FEATURE_CLIPBOARD_ENTITY_EXTRACTION =
             "dev.lucky.gboardpatches.feature.clipboard_entity_extraction";
+    public static final String FEATURE_INCognito =
+            "dev.lucky.gboardpatches.feature.incognito_enhancements";
     public static final String FEATURE_GRAMMAR_CHECKER =
             "dev.lucky.gboardpatches.feature.grammar_checker";
     public static final String FEATURE_INLINE_SUGGESTIONS =
