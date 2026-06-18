@@ -1408,7 +1408,9 @@ public final class GboardPatchesSettingsActivity extends Activity
                 BuildConfig.PATCH_AUTHOR,
                 BuildConfig.PATCH_VERSION,
                 () -> openExternalUrl(ABOUT_AUTHOR_URL),
-                () -> openExternalUrl(ABOUT_PATCH_REPOSITORY_URL));
+                () -> openExternalUrl(ABOUT_PATCH_REPOSITORY_URL),
+                () -> openExternalUrl(ABOUT_BASED_ON_URL),
+                () -> openExternalUrl(ABOUT_INCOGNITO_URL));
     }
 
     static GboardPatchesSettingsContract.Screen createRootScreen(
@@ -1417,7 +1419,9 @@ public final class GboardPatchesSettingsActivity extends Activity
             String aboutAuthor,
             String patchVersion,
             Runnable authorAction,
-            Runnable patchRepositoryAction) {
+            Runnable patchRepositoryAction,
+            Runnable basedOnAction,
+            Runnable incognitoAction) {
         List<GboardPatchesSettingsContract.Row> featureRows =
                 new ArrayList<GboardPatchesSettingsContract.Row>();
         Context context = host == null ? null : host.getContext();
@@ -1450,12 +1454,12 @@ public final class GboardPatchesSettingsActivity extends Activity
                 ABOUT_BASED_ON_TITLE,
                 ABOUT_BASED_ON_SUMMARY,
                 true,
-                patchRepositoryAction));
+                basedOnAction));
         aboutRows.add(new GboardPatchesSettingsContract.CommandRow(
                 ABOUT_INCOGNITO_TITLE,
                 ABOUT_INCOGNITO_SUMMARY,
                 true,
-                patchRepositoryAction));
+                incognitoAction));
         aboutRows.add(new GboardPatchesSettingsContract.CommandRow(
                 GboardSettingsText.get(context,
                         R.string.gboard_patches_about_patch_version_title,
