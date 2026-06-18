@@ -63,32 +63,17 @@ internal val gboardIncognitoEnhancementsBytecodePatch = bytecodePatch(
             }
         }
 
-        // Enable clipboard in incognito - use replaceInstruction to avoid exception handler issues
+        // Enable clipboard in incognito - remove the incognito check entirely
         OnPrimaryClipChangedFingerprint.method.apply {
             clearExceptionHandlers()
             val patternMatch = OnPrimaryClipChangedFingerprint.instructionMatches
             val isIncognitoModeIndex = patternMatch.first().index
             val returnVoidIndex = patternMatch.last().index
+            val instructionsToRemoveCount = (returnVoidIndex - isIncognitoModeIndex) + 1
 
-            // Replace the incognito check (first instruction) with our runtime check
-            replaceInstruction(
+            removeInstructions(
                 index = isIncognitoModeIndex,
-                smaliInstruction = "invoke-static {}, $INCOGNITO_RUNTIME_CLASS->shouldAllowClipboard()Z"
-            )
-            // Replace the next instruction (move-result) with our move-result
-            replaceInstruction(
-                index = isIncognitoModeIndex + 1,
-                smaliInstruction = "move-result v0"
-            )
-            // Replace IF_EQZ with our conditional check
-            replaceInstruction(
-                index = isIncognitoModeIndex + 2,
-                smaliInstruction = "if-eqz v0, :allow_clipboard"
-            )
-            // Add the skip label after return-void
-            addInstructions(
-                index = returnVoidIndex + 1,
-                smaliInstructions = ":allow_clipboard"
+                count = instructionsToRemoveCount
             )
         }
 
