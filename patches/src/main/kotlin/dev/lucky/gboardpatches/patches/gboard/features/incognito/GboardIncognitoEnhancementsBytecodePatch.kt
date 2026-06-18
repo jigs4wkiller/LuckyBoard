@@ -10,6 +10,7 @@ import app.morphe.patcher.patch.bytecodePatch
 import com.android.tools.smali.dexlib2.iface.instruction.FiveRegisterInstruction
 import com.android.tools.smali.dexlib2.iface.instruction.OneRegisterInstruction
 import dev.lucky.gboardpatches.patches.gboard.features.signaturebypass.gboardSignatureBypassBytecodePatch
+import dev.lucky.gboardpatches.patches.gboard.shared.clearExceptionHandlers
 import dev.lucky.gboardpatches.patches.shared.Constants.COMPATIBILITY_GBOARD
 
 @Suppress("unused")
@@ -58,6 +59,7 @@ internal val gboardIncognitoEnhancementsBytecodePatch = bytecodePatch(
             val returnVoidIndex = patternMatch.last().index
             val instructionsToRemoveCount = (returnVoidIndex - isIncognitoModeIndex) + 1
 
+            this.clearExceptionHandlers()
             removeInstructions(
                 index = isIncognitoModeIndex,
                 count = instructionsToRemoveCount
