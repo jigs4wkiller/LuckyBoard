@@ -14,7 +14,7 @@ import dev.lucky.gboardpatches.patches.shared.Constants.COMPATIBILITY_GBOARD
 /**
  * Comprehensive patch that enables the in-app Feature Flags menu inside LuckyBoard settings.
  * This gives runtime control (gear icon) over many internal rollout/experimental feature flags
- * for the supported Gboard version (17.0.10.880768217-release-arm64-v8a and similar).
+ * for the supported Gboard version (17.5.7.917159154-lite_release-arm64-v8a and similar).
  *
  * All supported flags get their markers written when this patch is active.
  * The in-app menu then lets the user individually enable/disable each flag at runtime.
