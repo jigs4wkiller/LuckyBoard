@@ -13,7 +13,7 @@
 
 ---
 
-> **🚀 v1.1.0-beta — Now with full Gboard 17.5.x support!**
+> **🚀 v1.0.0-beta — Now with full Gboard 17.5.x support!**
 > 
 > - Configurable `package_name` in **Luckify Gboard** (default: `dev.lucky.com.google.android.inputmethod.latin`) for flexible side-by-side installation
 > - 25+ new **Feature Flags** for the latest Gboard 17.5.x settings UI
