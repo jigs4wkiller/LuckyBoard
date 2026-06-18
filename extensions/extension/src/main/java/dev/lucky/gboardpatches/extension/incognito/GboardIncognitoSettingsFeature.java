@@ -55,48 +55,33 @@ public final class GboardIncognitoSettingsFeature
         boolean allowVoice = GboardIncognitoSettings.isAllowVoiceEnabled(context);
 
         List<GboardPatchesSettingsContract.Row> rows = new ArrayList<>();
-        rows.add(new GboardPatchesSettingsContract.SelectorRow(
+        rows.add(new GboardPatchesSettingsContract.ToggleRow(
                 FORCE_INCOGNITO_TITLE,
                 FORCE_INCOGNITO_SUMMARY,
-                forceIncognito ? "Enabled" : "Disabled",
                 true,
-                () -> host.showChoiceDialog(
-                        FORCE_INCOGNITO_TITLE,
-                        new String[]{"Enabled", "Disabled"},
-                        new String[]{"true", "false"},
-                        String.valueOf(forceIncognito),
-                        null,
-                        () -> {},
-                        value -> GboardIncognitoSettings.setForceIncognitoEnabled(
-                                context, Boolean.parseBoolean(value)))));
-        rows.add(new GboardPatchesSettingsContract.SelectorRow(
+                forceIncognito,
+                enabled -> {
+                    GboardIncognitoSettings.setForceIncognitoEnabled(context, enabled);
+                    host.refresh();
+                }));
+        rows.add(new GboardPatchesSettingsContract.ToggleRow(
                 ALLOW_CLIPBOARD_TITLE,
                 ALLOW_CLIPBOARD_SUMMARY,
-                allowClipboard ? "Enabled" : "Disabled",
                 true,
-                () -> host.showChoiceDialog(
-                        ALLOW_CLIPBOARD_TITLE,
-                        new String[]{"Enabled", "Disabled"},
-                        new String[]{"true", "false"},
-                        String.valueOf(allowClipboard),
-                        null,
-                        () -> {},
-                        value -> GboardIncognitoSettings.setAllowClipboardEnabled(
-                                context, Boolean.parseBoolean(value)))));
-        rows.add(new GboardPatchesSettingsContract.SelectorRow(
+                allowClipboard,
+                enabled -> {
+                    GboardIncognitoSettings.setAllowClipboardEnabled(context, enabled);
+                    host.refresh();
+                }));
+        rows.add(new GboardPatchesSettingsContract.ToggleRow(
                 ALLOW_VOICE_TITLE,
                 ALLOW_VOICE_SUMMARY,
-                allowVoice ? "Enabled" : "Disabled",
                 true,
-                () -> host.showChoiceDialog(
-                        ALLOW_VOICE_TITLE,
-                        new String[]{"Enabled", "Disabled"},
-                        new String[]{"true", "false"},
-                        String.valueOf(allowVoice),
-                        null,
-                        () -> {},
-                        value -> GboardIncognitoSettings.setAllowVoiceEnabled(
-                                context, Boolean.parseBoolean(value)))));
+                allowVoice,
+                enabled -> {
+                    GboardIncognitoSettings.setAllowVoiceEnabled(context, enabled);
+                    host.refresh();
+                }));
 
         List<GboardPatchesSettingsContract.Row> restartRows = new ArrayList<>();
         restartRows.add(new GboardPatchesSettingsContract.CommandRow(
