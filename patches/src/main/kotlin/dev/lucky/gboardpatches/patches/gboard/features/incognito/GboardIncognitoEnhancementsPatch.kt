@@ -2,10 +2,12 @@ package dev.lucky.gboardpatches.patches.gboard.features.incognito
 
 import app.morphe.patcher.patch.ResourcePatchContext
 import app.morphe.patcher.patch.resourcePatch
+import dev.lucky.gboardpatches.patches.gboard.features.featureflags.applyFeatureMarker
 import dev.lucky.gboardpatches.patches.gboard.registry.gboardSignatureBypassPatch
 import dev.lucky.gboardpatches.patches.shared.Constants.COMPATIBILITY_GBOARD
 import java.io.File
 
+private const val INCOGNITO_FEATURE_MARKER = "dev.lucky.gboardpatches.feature.incognito_enhancements"
 private const val INCOGNITO_ASSET_ROOT = "luckify-assets"
 private const val INCOGNITO_DRAWABLE_ID = "0x7f080691"
 
@@ -23,6 +25,7 @@ val gboardIncognitoEnhancementsPatch = resourcePatch(
     )
 
     finalize {
+        applyFeatureMarker(INCOGNITO_FEATURE_MARKER)
         replaceIncognitoDrawable()
     }
 }
