@@ -30,20 +30,27 @@ public final class GboardSymbolFooterOrderRuntime {
     }
 
     public static Object reorderExpressionCorpusList(Object receiver, Object corpusList) {
+        Log.i(TAG, "reorderExpressionCorpusList called: receiver=" + receiver + ", corpusList=" + corpusList);
         if (receiver == null || corpusList == null) {
+            Log.w(TAG, "reorderExpressionCorpusList: receiver or corpusList is null");
             return corpusList;
         }
         try {
             ClassLoader classLoader = receiver.getClass().getClassLoader();
+            Log.i(TAG, "reorderExpressionCorpusList: classLoader=" + classLoader);
             if (classLoader == null) {
+                Log.w(TAG, "reorderExpressionCorpusList: classLoader is null");
                 return corpusList;
             }
             Handles handles = handles(classLoader);
-            List<String> configuredOrder = resolveConfiguredOrder(
-                    extractExpressionCorpusManagerContext(handles, receiver));
+            Log.i(TAG, "reorderExpressionCorpusList: handles created");
+            Context context = extractExpressionCorpusManagerContext(handles, receiver);
+            Log.i(TAG, "reorderExpressionCorpusList: context=" + context);
+            List<String> configuredOrder = resolveConfiguredOrder(context);
+            Log.i(TAG, "reorderExpressionCorpusList: configuredOrder=" + configuredOrder);
             return reorderExpressionCorpusList(handles, corpusList, configuredOrder);
         } catch (Throwable throwable) {
-            Log.w(TAG, "Failed to reorder " + LOG_LABEL + " corpus list", throwable);
+            Log.e(TAG, "Failed to reorder " + LOG_LABEL + " corpus list", throwable);
             return corpusList;
         }
     }
@@ -283,24 +290,27 @@ public final class GboardSymbolFooterOrderRuntime {
         final Field expressionCorpusManagerContextField;
 
         Handles(ClassLoader classLoader) throws Throwable {
+            Log.i(TAG, "Creating Handles for classLoader: " + classLoader);
+            Log.i(TAG, "Step 1: Loading kvf (keyboardType)");
             Class<?> keyboardTypeClass = Class.forName("kvf", false, classLoader);
+            Log.i(TAG, "Step 2: Loading Leej (expressionCorpusManager)");
             Class<?> expressionCorpusManagerClass = Class.forName("Leej", false, classLoader);
+            Log.i(TAG, "Step 3: Loading eei (expressionCorpusItem)");
             expressionCorpusItemClass = Class.forName("eei", false, classLoader);
-
+            Log.i(TAG, "Step 4: Getting field 'm' from kvf");
             keyboardTypeNameField = keyboardTypeClass.getDeclaredField("m");
             keyboardTypeNameField.setAccessible(true);
-
+            Log.i(TAG, "Step 5: Getting field 'c' from eei");
             expressionCorpusItemKeyboardTypeField = expressionCorpusItemClass.getDeclaredField("c");
             expressionCorpusItemKeyboardTypeField.setAccessible(true);
-
-            // Unused in new APK - kept for compatibility
+            Log.i(TAG, "Step 6: Getting field 'c' from Leej");
+            expressionCorpusManagerContextField = expressionCorpusManagerClass.getDeclaredField("c");
+            expressionCorpusManagerContextField.setAccessible(true);
             immutableListBuilderConstructor = null;
             immutableListBuilderAddMethod = null;
             immutableListBuilderBuildMethod = null;
             immutableSetToListMethod = null;
-
-            expressionCorpusManagerContextField = expressionCorpusManagerClass.getDeclaredField("c");
-            expressionCorpusManagerContextField.setAccessible(true);
+            Log.i(TAG, "Handles created successfully");
         }
     }
 
