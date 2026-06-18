@@ -18,6 +18,9 @@ public final class GboardIncognitoSettingsFeature
             "Control incognito mode behavior. When enabled, Gboard forces incognito mode"
                     + " and allows clipboard and voice typing in incognito.";
     private static final String SECTION_TITLE = "Incognito Mode";
+    private static final String SECTION_RESTART = "Apply Changes";
+    private static final String RESTART_TITLE = "Restart LuckyBoard";
+    private static final String RESTART_SUMMARY = "Restart to apply incognito changes";
     private static final String FORCE_INCOGNITO_TITLE = "Force Incognito";
     private static final String FORCE_INCOGNITO_SUMMARY = "Always open Gboard in incognito mode";
     private static final String ALLOW_CLIPBOARD_TITLE = "Clipboard in Incognito";
@@ -95,13 +98,33 @@ public final class GboardIncognitoSettingsFeature
                         value -> GboardIncognitoSettings.setAllowVoiceEnabled(
                                 context, Boolean.parseBoolean(value)))));
 
+        List<GboardPatchesSettingsContract.Row> restartRows = new ArrayList<>();
+        restartRows.add(new GboardPatchesSettingsContract.CommandRow(
+                RESTART_TITLE,
+                RESTART_SUMMARY,
+                true,
+                () -> restartGboard(context)));
+
         return new GboardPatchesSettingsContract.Screen(
                 ENTRY_TITLE,
                 "LuckyBoard",
                 ENTRY_TITLE,
                 HEADER_SUMMARY,
                 Collections.emptyList(),
-                Collections.singletonList(
-                        new GboardPatchesSettingsContract.Section(SECTION_TITLE, rows)));
+                Arrays.asList(
+                        new GboardPatchesSettingsContract.Section(SECTION_TITLE, rows),
+                        new GboardPatchesSettingsContract.Section(SECTION_RESTART, restartRows)));
+    }
+
+    private void restartGboard(Context context) {
+        try {
+            android.widget.Toast.makeText(context, "Restarting LuckyBoard...",
+                    android.widget.Toast.LENGTH_SHORT).show();
+        } catch (Exception ignored) {}
+        new android.os.Handler(android.os.Looper.getMainLooper()).postDelayed(() -> {
+            try {
+                android.os.Process.killProcess(android.os.Process.myPid());
+            } catch (Exception ignored) {}
+        }, 500);
     }
 }
