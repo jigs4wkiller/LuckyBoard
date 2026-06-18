@@ -2,6 +2,7 @@ package dev.lucky.gboardpatches.extension.incognito;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import java.lang.reflect.Method;
 
 public final class GboardIncognitoRuntime {
     private static final String PREFS_NAME = "luckyboard_incognito";
@@ -9,17 +10,24 @@ public final class GboardIncognitoRuntime {
     private static final String KEY_ALLOW_CLIPBOARD = "allow_clipboard_incognito";
     private static final String KEY_ALLOW_VOICE = "allow_voice_incognito";
 
-    private static Context sAppContext;
-
     private GboardIncognitoRuntime() {}
 
-    public static void init(Context context) {
-        sAppContext = context.getApplicationContext();
+    private static Context getApplicationContext() {
+        try {
+            Class<?> activityThread = Class.forName("android.app.ActivityThread");
+            Method currentApplication = activityThread.getDeclaredMethod("currentApplication");
+            Object app = currentApplication.invoke(null);
+            if (app instanceof Context) {
+                return ((Context) app).getApplicationContext();
+            }
+        } catch (Throwable ignored) {}
+        return null;
     }
 
     private static SharedPreferences getPrefs() {
-        if (sAppContext == null) return null;
-        return sAppContext.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        Context context = getApplicationContext();
+        if (context == null) return null;
+        return context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
     }
 
     public static boolean shouldForceIncognito() {
