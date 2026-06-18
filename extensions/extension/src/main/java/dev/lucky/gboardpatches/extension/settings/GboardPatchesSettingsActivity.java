@@ -103,6 +103,12 @@ public final class GboardPatchesSettingsActivity extends Activity
     private static final String ABOUT_AUTHOR_URL = "https://github.com/jigs4wkiller";
     private static final String ABOUT_PATCH_REPOSITORY_URL =
             "https://github.com/jigs4wkiller/LuckyBoard";
+    private static final String ABOUT_BASED_ON_TITLE = "Based on";
+    private static final String ABOUT_BASED_ON_SUMMARY = "jasonwu1994";
+    private static final String ABOUT_BASED_ON_URL = "https://github.com/jasonwu1994";
+    private static final String ABOUT_INCOGNITO_TITLE = "Incognito patch from";
+    private static final String ABOUT_INCOGNITO_SUMMARY = "jkennethcarino";
+    private static final String ABOUT_INCOGNITO_URL = "https://github.com/jkennethcarino";
     private Palette palette;
     private LinearLayout toolbarView;
     private TextView toolbarTitleView;
@@ -1440,6 +1446,16 @@ public final class GboardPatchesSettingsActivity extends Activity
                 aboutAuthor,
                 true,
                 authorAction));
+        aboutRows.add(new GboardPatchesSettingsContract.CommandRow(
+                ABOUT_BASED_ON_TITLE,
+                ABOUT_BASED_ON_SUMMARY,
+                true,
+                patchRepositoryAction));
+        aboutRows.add(new GboardPatchesSettingsContract.CommandRow(
+                ABOUT_INCOGNITO_TITLE,
+                ABOUT_INCOGNITO_SUMMARY,
+                true,
+                patchRepositoryAction));
         aboutRows.add(new GboardPatchesSettingsContract.CommandRow(
                 GboardSettingsText.get(context,
                         R.string.gboard_patches_about_patch_version_title,
