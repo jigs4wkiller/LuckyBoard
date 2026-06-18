@@ -5,7 +5,7 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/jigs4wkiller/LuckyBoard/releases/latest"><img alt="Latest release" src="https://img.shields.io/github/v/release/jigs4wkiller/LuckyBoard?display_name=tag&label=Release&style=for-the-badge"></a>
+  <a href="https://github.com/jigs4wkiller/LuckyBoard/releases/tag/v1.0.1"><img alt="Latest release" src="https://img.shields.io/github/v/release/jigs4wkiller/LuckyBoard?display_name=tag&label=Release&style=for-the-badge"></a>
   <a href="https://github.com/jigs4wkiller/LuckyBoard"><img alt="Total downloads" src="https://img.shields.io/github/downloads/jigs4wkiller/LuckyBoard/total?label=Downloads&style=for-the-badge"></a>
   <a href="https://morphe.software/add-source?github=jigs4wkiller/LuckyBoard"><img alt="Add to Morphe" src="https://img.shields.io/badge/Morphe-Add%20Source-00A8FF?style=for-the-badge"></a>
   <a href="https://github.com/jigs4wkiller/LuckyBoard"><img alt="GitHub stars" src="https://img.shields.io/github/stars/jigs4wkiller/LuckyBoard?style=social"></a>
@@ -13,9 +13,13 @@
 
 ---
 
-> **⚠️ Note for users interested in newer Gboard versions (17.5.x Lite builds):**  
-> For the latest patches — including **configurable package name** in Luckify Gboard, expanded Feature Flags for Gboard 17.5.x, and improved stability — please use the **[beta releases](https://github.com/jigs4wkiller/LuckyBoard/releases)**.  
-> The main branch targets an older Gboard base and does not include the recent 17.5.x compatibility updates.
+> **v1.0.1 — Bugfix Release**
+> 
+> - Fixed incognito emoji distortion (vector drawable dimensions corrected)
+> - Added `clearExceptionHandlers()` safety to prevent Settings crash
+> - Target: Gboard 17.0.10.880768217
+>
+> Pre-built `.mpp` bundle available in [Releases](https://github.com/jigs4wkiller/LuckyBoard/releases/tag/v1.0.1).
 
 ---
 
