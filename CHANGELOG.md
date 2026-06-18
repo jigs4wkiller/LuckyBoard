@@ -4,6 +4,15 @@ All changes in this repository are for the initial public release of LuckyBoard,
 a rebranded and enhanced set of Morphe patches for Gboard from @jasonwu1994.
 
 
+## v1.0.1 - Bugfix Release
+
+### Fixes
+- **Incognito emoji distortion fixed:** Corrected vector drawable dimensions (``drawable_0x7f080691.xml``) from 32x62dp to 24x24dp to match viewport aspect ratio (124:120). The incognito emoji no longer appears vertically stretched.
+- **Exception handler safety:** Added ``clearExceptionHandlers()`` utility to ``GboardBytecodeUtils.kt`` and applied it before ``removeInstructions()`` in the Incognito bytecode patch to prevent potential ``VerifyError`` from stale try-catch entries.
+
+### Improvements
+- Shared ``clearExceptionHandlers()`` utility for reuse across all bytecode patches.
+
 ## v1.0.0 - Initial Public Release 
 
 ### Core Rebranding & Localization

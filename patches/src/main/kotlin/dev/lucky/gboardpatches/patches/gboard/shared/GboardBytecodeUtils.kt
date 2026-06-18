@@ -182,3 +182,14 @@ internal fun MutableMethod.indexOfFirstFieldAccess(
             (opcodeName == null || instruction.opcode.name.normalizedOpcodeName() == opcodeName.normalizedOpcodeName())
     }
 }
+
+internal fun MutableMethod.clearExceptionHandlers() {
+    val impl = implementation
+    if (impl is com.android.tools.smali.dexlib2.builder.MutableMethodImplementation) {
+        val field = com.android.tools.smali.dexlib2.builder.MutableMethodImplementation::class.java.getDeclaredField("tryBlocks")
+        field.isAccessible = true
+        @Suppress("UNCHECKED_CAST")
+        val tryBlocks = field.get(impl) as java.util.ArrayList<*>
+        tryBlocks.clear()
+    }
+}
