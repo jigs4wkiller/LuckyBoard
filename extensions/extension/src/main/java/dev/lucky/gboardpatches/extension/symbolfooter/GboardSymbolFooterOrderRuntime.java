@@ -288,7 +288,7 @@ public final class GboardSymbolFooterOrderRuntime {
             Class<?> immutableListBuilderClass = Class.forName("twm", false, classLoader);
             Class<?> immutableSetClass = Class.forName("two", false, classLoader);
             Class<?> expressionCorpusManagerClass = Class.forName("Leej", false, classLoader);
-            expressionCorpusItemClass = Class.forName("mik", false, classLoader);
+            expressionCorpusItemClass = Class.forName("eei", false, classLoader);
 
             keyboardTypeNameField = keyboardTypeClass.getDeclaredField("k");
             keyboardTypeNameField.setAccessible(true);
