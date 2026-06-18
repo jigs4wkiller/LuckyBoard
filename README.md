@@ -5,7 +5,7 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/jigs4wkiller/LuckyBoard/releases/latest"><img alt="Latest release" src="https://img.shields.io/github/v/release/jigs4wkiller/LuckyBoard?display_name=tag&label=Release&style=for-the-badge"></a>
+  <a href="https://github.com/jigs4wkiller/LuckyBoard/releases/tag/v1.0.1-dev"><img alt="Latest release" src="https://img.shields.io/github/v/release/jigs4wkiller/LuckyBoard?display_name=tag&label=Release&style=for-the-badge"></a>
   <a href="https://github.com/jigs4wkiller/LuckyBoard"><img alt="Total downloads" src="https://img.shields.io/github/downloads/jigs4wkiller/LuckyBoard/total?label=Downloads&style=for-the-badge"></a>
   <a href="https://morphe.software/add-source?github=jigs4wkiller/LuckyBoard"><img alt="Add to Morphe" src="https://img.shields.io/badge/Morphe-Add%20Source-00A8FF?style=for-the-badge"></a>
   <a href="https://github.com/jigs4wkiller/LuckyBoard"><img alt="GitHub stars" src="https://img.shields.io/github/stars/jigs4wkiller/LuckyBoard?style=social"></a>
@@ -13,15 +13,15 @@
 
 ---
 
-> **🚀 v1.0.0-beta — Now with full Gboard 17.5.x support!**
+> **🚀 v1.0.1-dev — Gboard 17.5.x Support with Pre-release Patches**
 > 
-> - Configurable `package_name` in **Luckify Gboard** (default: `dev.lucky.com.google.android.inputmethod.latin`) for flexible side-by-side installation
+> - Incognito Enhancements with **runtime toggle** (enable/disable via preferences)
+> - Configurable `package_name` in **Luckify Gboard** for flexible side-by-side installation
 > - 25+ new **Feature Flags** for the latest Gboard 17.5.x settings UI
-> - Refined **Universal Resource Cleaner** (stable, no Settings crashes)
-> - Target: Gboard 17.5.7.917159154-lite arm64
+> - Incognito emoji drawable with correct proportions
 > - Many bytecode & resource fixes for the new APK
 >
-> Pre-built `.mpp` bundles available in [Releases](https://github.com/jigs4wkiller/LuckyBoard/releases).
+> Pre-built `.mpp` bundle available in [Releases](https://github.com/jigs4wkiller/LuckyBoard/releases/tag/v1.0.1-dev).
 
 ---
 
