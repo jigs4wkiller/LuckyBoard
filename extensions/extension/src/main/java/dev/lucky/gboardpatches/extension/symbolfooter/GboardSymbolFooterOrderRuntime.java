@@ -221,21 +221,32 @@ public final class GboardSymbolFooterOrderRuntime {
     }
 
     private static Context applicationContext() {
-        // Try to get context from the settings provider first
+        // Try settings provider first
         Context providerContext = GboardPatchesSettingsProvider.getStaticContext();
         if (providerContext != null) {
             return providerContext;
         }
-        // Fallback to ActivityThread
-        Context context = reflectedApplicationContext(
-                "android.app.ActivityThread",
-                "currentApplication");
-        if (context != null) {
-            return context;
-        }
-        return reflectedApplicationContext(
-                "android.app.AppGlobals",
-                "getInitialApplication");
+        // Try to get context via reflection
+        try {
+            Class<?> atClass = Class.forName("android.app.ActivityThread");
+            Method currentApp = atClass.getDeclaredMethod("currentApplication");
+            Object app = currentApp.invoke(null);
+            if (app instanceof Context) {
+                Context ctx = ((Context) app).getApplicationContext();
+                if (ctx != null) {
+                    // Try to trigger provider init
+                    try {
+                        ctx.getContentResolver().call(
+                                android.net.Uri.parse("content://" + ctx.getPackageName() + ".gboard_patches"),
+                                "init", null, null);
+                        providerContext = GboardPatchesSettingsProvider.getStaticContext();
+                        if (providerContext != null) return providerContext;
+                    } catch (Throwable ignored) {}
+                    return ctx;
+                }
+            }
+        } catch (Throwable ignored) {}
+        return null;
     }
 
     private static Context reflectedApplicationContext(String className, String methodName) {

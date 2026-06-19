@@ -30,6 +30,9 @@ public final class GboardPatchesSettingsProvider extends ContentProvider {
     @Override
     public boolean onCreate() {
         sContext = getContext();
+        if (sContext != null) {
+            sContext = sContext.getApplicationContext();
+        }
         return true;
     }
 
