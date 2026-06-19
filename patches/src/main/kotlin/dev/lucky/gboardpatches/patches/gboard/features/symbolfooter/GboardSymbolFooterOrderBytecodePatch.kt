@@ -11,12 +11,19 @@ import dev.lucky.gboardpatches.patches.gboard.shared.returnInstructionIndices
 private const val EXPRESSION_CORPUS_MANAGER_CLASS = "Leej;"
 
 internal val gboardSymbolFooterOrderBytecodePatch = bytecodePatch(
-    description = "依使用者設定重排 expression footer corpus list。"
+    description = "Emoji tab reorder patch"
 ) {
     dependsOn(gboardPatchesExtensionCarrierPatch)
 
     execute {
-        patchExpressionCorpusManager()
+        try {
+            println("[LuckyBoard] Emoji reorder: patching ExpressionCorpusManager")
+            patchExpressionCorpusManager()
+            println("[LuckyBoard] Emoji reorder: patch applied successfully")
+        } catch (e: Exception) {
+            System.err.println("[LuckyBoard] Emoji reorder patch FAILED: " + e.message)
+            e.printStackTrace()
+        }
     }
 }
 
@@ -29,12 +36,12 @@ private fun patchExpressionCorpusManager() = with(context) {
         parameterTypes = listOf("Landroid/view/inputmethod/EditorInfo;", "Z")
     )
     val instructions = mutableMethod.implementation?.instructions
-        ?: error("No instructions available in fsg.a")
+        ?: error("No instructions available in Leej.a")
     val returnIndices = mutableMethod.returnInstructionIndices()
         .filter { index ->
             instructions[index].opcode.name.uppercase().replace('-', '_') == "RETURN_OBJECT"
         }
-    check(returnIndices.isNotEmpty()) { "Could not resolve RETURN_OBJECT in fsg.a" }
+    check(returnIndices.isNotEmpty()) { "Could not resolve RETURN_OBJECT in Leej.a" }
 
     returnIndices.asReversed().forEach { returnIndex ->
         val resultRegister = (instructions[returnIndex] as? OneRegisterInstruction)?.registerA
