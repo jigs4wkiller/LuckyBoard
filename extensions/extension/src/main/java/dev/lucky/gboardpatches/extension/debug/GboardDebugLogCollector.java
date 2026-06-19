@@ -24,7 +24,10 @@ public final class GboardDebugLogCollector {
             String line;
             while ((line = reader.readLine()) != null) {
                 if (line.contains("GboardPatches") || line.contains("Keyboard") || line.contains("Incognito")
-                        || line.contains("clipboard") || line.contains("Gboard")) {
+                        || line.contains("clipboard") || line.contains("Gboard")
+                        || line.contains("System.out") || line.contains("System.err")
+                        || line.contains("LuckyBoard") || line.contains("Exception")
+                        || line.contains("Error") || line.contains("FATAL")) {
                     sb.append(line).append("\n");
                 }
             }
