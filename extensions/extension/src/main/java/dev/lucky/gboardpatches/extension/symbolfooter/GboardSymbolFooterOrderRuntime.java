@@ -30,24 +30,20 @@ public final class GboardSymbolFooterOrderRuntime {
     }
 
     public static Object reorderExpressionCorpusList(Object receiver, Object corpusList) {
-        Log.i(TAG, "reorderExpressionCorpusList called: receiver=" + receiver + ", corpusList=" + corpusList);
-        if (receiver == null || corpusList == null) {
-            Log.w(TAG, "reorderExpressionCorpusList: receiver or corpusList is null");
+        if (corpusList == null) {
             return corpusList;
         }
         try {
-            ClassLoader classLoader = receiver.getClass().getClassLoader();
-            Log.i(TAG, "reorderExpressionCorpusList: classLoader=" + classLoader);
+            ClassLoader classLoader = corpusList.getClass().getClassLoader();
+            if (classLoader == null && receiver != null) {
+                classLoader = receiver.getClass().getClassLoader();
+            }
             if (classLoader == null) {
-                Log.w(TAG, "reorderExpressionCorpusList: classLoader is null");
                 return corpusList;
             }
-            Handles handles = handles(classLoader, receiver);
-            Log.i(TAG, "reorderExpressionCorpusList: handles created");
-            Context context = extractExpressionCorpusManagerContext(handles, receiver);
-            Log.i(TAG, "reorderExpressionCorpusList: context=" + context);
+            Handles handles = handles(classLoader);
+            Context context = applicationContext();
             List<String> configuredOrder = resolveConfiguredOrder(context);
-            Log.i(TAG, "reorderExpressionCorpusList: configuredOrder=" + configuredOrder);
             return reorderExpressionCorpusList(handles, corpusList, configuredOrder);
         } catch (Throwable throwable) {
             Log.e(TAG, "Failed to reorder " + LOG_LABEL + " corpus list", throwable);
@@ -269,14 +265,13 @@ public final class GboardSymbolFooterOrderRuntime {
         return keyboardTypeName != null ? String.valueOf(keyboardTypeName) : null;
     }
 
-    private static Handles handles(ClassLoader classLoader, Object receiver) throws Throwable {
-        String key = classLoader + "|" + receiver.getClass().getName();
-        Handles cached = HANDLES_BY_LOADER.get(key);
+    private static Handles handles(ClassLoader classLoader) throws Throwable {
+        Handles cached = HANDLES_BY_LOADER.get(classLoader.toString());
         if (cached != null) {
             return cached;
         }
-        Handles created = new Handles(classLoader, receiver);
-        HANDLES_BY_LOADER.put(key, created);
+        Handles created = new Handles(classLoader);
+        HANDLES_BY_LOADER.put(classLoader.toString(), created);
         return created;
     }
 
@@ -290,59 +285,27 @@ public final class GboardSymbolFooterOrderRuntime {
         final Method immutableSetToListMethod;
         final Field expressionCorpusManagerContextField;
 
-        Handles(ClassLoader classLoader, Object receiver) throws Throwable {
-            Log.i(TAG, "Creating Handles for receiver: " + receiver.getClass().getName());
-            Class<?> expressionCorpusManagerClass = receiver.getClass();
+        Handles(ClassLoader classLoader) throws Throwable {
+            Log.i(TAG, "Creating Handles for classLoader: " + classLoader);
             
-            // Find Context field
-            Field ctxField = null;
-            for (Field f : expressionCorpusManagerClass.getDeclaredFields()) {
-                if (android.content.Context.class.isAssignableFrom(f.getType())) {
-                    ctxField = f;
-                    break;
-                }
-            }
-            if (ctxField == null) throw new IllegalStateException("No Context field in " + expressionCorpusManagerClass.getName());
-            ctxField.setAccessible(true);
-            expressionCorpusManagerContextField = ctxField;
+            // Find keyboardType class - it's kvf in new APK
+            Class<?> keyboardTypeClass = Class.forName("kvf", false, classLoader);
+            keyboardTypeNameField = keyboardTypeClass.getDeclaredField("m");
+            keyboardTypeNameField.setAccessible(true);
+            Log.i(TAG, "Found keyboardType field m in kvf");
             
-            // Find keyboardType name field
-            Field nameField = null;
-            for (Field f : expressionCorpusManagerClass.getDeclaredFields()) {
-                if (f.getType().isArray()) continue;
-                try {
-                    Object sample = f.get(receiver);
-                    if (sample == null) continue;
-                    Field nf = sample.getClass().getDeclaredField("m");
-                    nf.setAccessible(true);
-                    if (nf.get(sample) instanceof String) {
-                        nameField = nf;
-                        break;
-                    }
-                } catch (Throwable ignored) {}
-            }
-            keyboardTypeNameField = nameField;
+            // Find expressionCorpusItem class
+            expressionCorpusItemClass = Class.forName("eei", false, classLoader);
+            expressionCorpusItemKeyboardTypeField = expressionCorpusItemClass.getDeclaredField("c");
+            expressionCorpusItemKeyboardTypeField.setAccessible(true);
+            Log.i(TAG, "Found expressionCorpusItem field c in eei");
             
-            // Load expressionCorpusItem class
-            Class<?> eeiClass;
-            Field eeiKbField;
-            try {
-                eeiClass = Class.forName("eei", false, classLoader);
-                eeiKbField = eeiClass.getDeclaredField("c");
-                eeiKbField.setAccessible(true);
-            } catch (Throwable t) {
-                Log.w(TAG, "Could not load eei", t);
-                eeiClass = Object.class;
-                eeiKbField = null;
-            }
-            expressionCorpusItemClass = eeiClass;
-            expressionCorpusItemKeyboardTypeField = eeiKbField;
-            
+            expressionCorpusManagerContextField = null;
             immutableListBuilderConstructor = null;
             immutableListBuilderAddMethod = null;
             immutableListBuilderBuildMethod = null;
             immutableSetToListMethod = null;
-            Log.i(TAG, "Handles created: ctxField=" + (ctxField != null) + " nameField=" + (nameField != null));
+            Log.i(TAG, "Handles created successfully");
         }
     }
 
