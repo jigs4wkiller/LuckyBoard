@@ -1,12 +1,11 @@
 package dev.lucky.gboardpatches.extension.symbolfooter;
 
-import android.content.ContentResolver;
 import android.content.Context;
-import android.net.Uri;
-import android.os.Bundle;
 import android.util.Log;
 
-import java.lang.reflect.Constructor;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -14,24 +13,18 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.io.File;
-import java.io.FileReader;
-import java.io.BufferedReader;
 import java.util.WeakHashMap;
-
-import dev.lucky.gboardpatches.extension.settings.GboardPatchesSettingsProvider;
 
 public final class GboardSymbolFooterOrderRuntime {
     private static final String TAG = "GboardPatches";
     private static final String LOG_LABEL = "expression footer tab order";
+
     private static final Map<String, Handles> HANDLES_BY_LOADER =
             Collections.synchronizedMap(new WeakHashMap<String, Handles>());
     private static final Object SETTINGS_LOCK = new Object();
-
     private static volatile CachedSettings cachedSettings;
 
-    private GboardSymbolFooterOrderRuntime() {
-    }
+    private GboardSymbolFooterOrderRuntime() {}
 
     public static Object reorderExpressionCorpusList(Object receiver, Object corpusList) {
         if (corpusList == null) {
@@ -46,54 +39,18 @@ public final class GboardSymbolFooterOrderRuntime {
                 return corpusList;
             }
             Handles handles = handles(classLoader);
-            Context context = applicationContext();
-            List<String> configuredOrder = resolveConfiguredOrder(context);
-            if (configuredOrder == null || configuredOrder.isEmpty()) {
-                configuredOrder = readPrefsDirectly();
-            }
-            if (configuredOrder == null || configuredOrder.isEmpty()) {
+            if (handles == null) {
                 return corpusList;
+            }
+            List<String> configuredOrder = readPrefsDirectly();
+            if (configuredOrder == null || configuredOrder.isEmpty()) {
+                configuredOrder = defaultOrderCopy();
             }
             return reorderExpressionCorpusList(handles, corpusList, configuredOrder);
         } catch (Throwable throwable) {
             Log.e(TAG, "Failed to reorder " + LOG_LABEL + " corpus list", throwable);
             return corpusList;
         }
-    }
-
-    private static List<String> readPrefsDirectly() {
-        try {
-            // Try to find the shared_prefs directory
-            String[] paths = new String[]{
-                "/data/data/pre.lucky.com.google.android.inputmethod.latin/shared_prefs/gboard_symbol_footer_order.xml",
-                "/data/data/com.google.android.inputmethod.latin/shared_prefs/gboard_symbol_footer_order.xml"
-            };
-            for (String path : paths) {
-                File file = new File(path);
-                if (file.exists()) {
-                    BufferedReader reader = new BufferedReader(new FileReader(file));
-                    StringBuilder sb = new StringBuilder();
-                    String line;
-                    while ((line = reader.readLine()) != null) {
-                        sb.append(line);
-                    }
-                    reader.close();
-                    String xml = sb.toString();
-                    // Extract value from XML
-                    java.util.regex.Matcher m = java.util.regex.Pattern
-                            .compile("name=\"pref_symbol_footer_order\">([^<]+)<")
-                            .matcher(xml);
-                    if (m.find()) {
-                        String value = m.group(1);
-                        Log.i(TAG, "Read " + LOG_LABEL + " directly from file: " + value);
-                        return Arrays.asList(value.split(","));
-                    }
-                }
-            }
-        } catch (Throwable throwable) {
-            Log.w(TAG, "Failed to read prefs directly", throwable);
-        }
-        return null;
     }
 
     public static void invalidateCachedSettings() {
@@ -112,9 +69,14 @@ public final class GboardSymbolFooterOrderRuntime {
         int index = 0;
         for (Object corpusItem : (Iterable) corpusList) {
             String keyboardTypeName = null;
-            if (corpusItem != null && handles.expressionCorpusItemClass.isInstance(corpusItem)) {
+            if (corpusItem != null && handles.expressionCorpusItemClass != null
+                    && handles.expressionCorpusItemClass.isInstance(corpusItem)
+                    && handles.expressionCorpusItemKeyboardTypeField != null) {
                 Object keyboardType = handles.expressionCorpusItemKeyboardTypeField.get(corpusItem);
-                keyboardTypeName = extractKeyboardTypeName(handles, keyboardType);
+                if (keyboardType != null && handles.keyboardTypeNameField != null) {
+                    Object nameObj = handles.keyboardTypeNameField.get(keyboardType);
+                    keyboardTypeName = nameObj != null ? String.valueOf(nameObj) : null;
+                }
             }
             entries.add(new OrderEntry(corpusItem, keyboardTypeName, index++));
         }
@@ -126,20 +88,23 @@ public final class GboardSymbolFooterOrderRuntime {
         Collections.sort(reorderedEntries, new java.util.Comparator<OrderEntry>() {
             @Override
             public int compare(OrderEntry left, OrderEntry right) {
-                int priorityCompare = Integer.compare(
-                        orderPriority(left.keyboardTypeName, configuredOrder),
-                        orderPriority(right.keyboardTypeName, configuredOrder));
-                if (priorityCompare != 0) {
-                    return priorityCompare;
+                if (left.keyboardTypeName != null && right.keyboardTypeName != null) {
+                    int configuredLeft = configuredOrder.indexOf(left.keyboardTypeName);
+                    int configuredRight = configuredOrder.indexOf(right.keyboardTypeName);
+                    if (configuredLeft >= 0 && configuredRight >= 0) {
+                        return Integer.compare(configuredLeft, configuredRight);
+                    }
+                    if (configuredLeft >= 0) return -1;
+                    if (configuredRight >= 0) return 1;
+                    return left.keyboardTypeName.compareTo(right.keyboardTypeName);
                 }
+                if (left.keyboardTypeName != null) return -1;
+                if (right.keyboardTypeName != null) return 1;
                 return Integer.compare(left.originalIndex, right.originalIndex);
             }
         });
 
         if (isSameOrder(entries, reorderedEntries)) {
-            Log.i(TAG, "Expression footer order unchanged: configured="
-                    + describeOrder(configuredOrder)
-                    + ", current=" + describeEntries(entries));
             return corpusList;
         }
 
@@ -147,10 +112,6 @@ public final class GboardSymbolFooterOrderRuntime {
         for (OrderEntry entry : reorderedEntries) {
             reorderedList.add(entry.corpusItem);
         }
-        Log.i(TAG, "Reordered " + LOG_LABEL + " corpus list: configured="
-                + describeOrder(configuredOrder)
-                + ", before=" + describeEntries(entries)
-                + ", after=" + describeEntries(reorderedEntries));
         return reorderedList;
     }
 
@@ -166,204 +127,45 @@ public final class GboardSymbolFooterOrderRuntime {
         return true;
     }
 
-    private static String describeOrder(List<String> configuredOrder) {
-        if (configuredOrder == null || configuredOrder.isEmpty()) {
-            return "<empty>";
-        }
-        return configuredOrder.toString();
-    }
-
-    private static String describeEntries(List<OrderEntry> entries) {
-        List<String> names = new ArrayList<String>();
-        if (entries != null) {
-            for (OrderEntry entry : entries) {
-                names.add(entry != null ? String.valueOf(entry.keyboardTypeName) : "null");
-            }
-        }
-        return names.toString();
-    }
-
-    private static int orderPriority(String keyboardTypeName, List<String> configuredOrder) {
-        if (configuredOrder == null || configuredOrder.isEmpty()) {
-            return GboardSymbolFooterOrderSettings.DEFAULT_SYMBOL_FOOTER_ORDER.size();
-        }
-        int index = configuredOrder.indexOf(keyboardTypeName);
-        return index >= 0 ? index : configuredOrder.size();
-    }
-
-    private static List<String> resolveConfiguredOrder(Context context) {
-        synchronized (SETTINGS_LOCK) {
-            CachedSettings cached = cachedSettings;
-            if (cached != null) {
-                return cached.order;
-            }
-            CachedSettings loaded = loadConfiguredOrder(context);
-            cachedSettings = loaded;
-            return loaded.order;
-        }
-    }
-
-    private static CachedSettings loadConfiguredOrder(Context context) {
-        List<String> fallbackOrder = defaultOrderCopy();
-        Context resolvedContext = context != null ? context : applicationContext();
-        if (resolvedContext == null) {
-            Log.i(TAG, "Expression footer order context unavailable; using fallback order");
-            return new CachedSettings(fallbackOrder);
-        }
-        try {
-            if (context == null) {
-                Log.i(TAG, "Resolved expression footer order context from application fallback");
-            }
-            List<String> configuredOrder = loadConfiguredOrderFromProvider(resolvedContext);
-            if (configuredOrder != null && !configuredOrder.isEmpty()) {
-                Log.i(TAG, "Loaded " + LOG_LABEL + " from provider: " + configuredOrder);
-                return new CachedSettings(copyOrder(configuredOrder));
-            }
-            List<String> directOrder = GboardSymbolFooterOrderSettings.readSymbolFooterOrder(
-                    resolvedContext);
-            Log.i(TAG, "Loaded " + LOG_LABEL + " from direct prefs fallback: " + directOrder);
-            return new CachedSettings(copyOrder(directOrder));
-        } catch (Throwable throwable) {
-            Log.w(TAG, "Failed to load " + LOG_LABEL + "; using defaults", throwable);
-            return new CachedSettings(fallbackOrder);
-        }
-    }
-
-    private static List<String> loadConfiguredOrderFromProvider(Context context) {
-        if (context == null) {
-            return null;
-        }
-        try {
-            ContentResolver contentResolver = context.getContentResolver();
-            if (contentResolver == null) {
-                return null;
-            }
-            Bundle result = contentResolver.call(
-                    buildSettingsProviderUri(context),
-                    GboardPatchesSettingsProvider.METHOD_GET_SYMBOL_FOOTER_ORDER_SETTINGS,
-                    null,
-                    null);
-            if (result == null) {
-                return null;
-            }
-            ArrayList<String> configuredOrder = result.getStringArrayList(
-                    GboardPatchesSettingsProvider.BUNDLE_KEY_SYMBOL_FOOTER_ORDER);
-            if (configuredOrder == null || configuredOrder.isEmpty()) {
-                Log.i(TAG, "Provider returned empty " + LOG_LABEL);
-                return null;
-            }
-            return configuredOrder;
-        } catch (Throwable throwable) {
-            Log.w(TAG, "Failed to load " + LOG_LABEL + " from provider", throwable);
-            return null;
-        }
-    }
-
-    private static Uri buildSettingsProviderUri(Context context) {
-        return Uri.parse("content://"
-                + context.getPackageName()
-                + GboardPatchesSettingsProvider.AUTHORITY_SUFFIX);
-    }
-
-    private static Context applicationContext() {
-        // Try settings provider first
-        Context providerContext = GboardPatchesSettingsProvider.getStaticContext();
-        if (providerContext != null) {
-            return providerContext;
-        }
-        // Try to get context via reflection
-        try {
-            Class<?> atClass = Class.forName("android.app.ActivityThread");
-            Method currentApp = atClass.getDeclaredMethod("currentApplication");
-            Object app = currentApp.invoke(null);
-            if (app instanceof Context) {
-                Context ctx = ((Context) app).getApplicationContext();
-                if (ctx != null) {
-                    return ctx;
-                }
-            }
-        } catch (Throwable ignored) {}
-        return null;
-    }
-
-    private static Context reflectedApplicationContext(String className, String methodName) {
-        try {
-            Class<?> owner = Class.forName(className);
-            Method method = owner.getDeclaredMethod(methodName);
-            Object application = method.invoke(null);
-            return application instanceof Context ? (Context) application : null;
-        } catch (Throwable ignored) {
-            return null;
-        }
-    }
-
-    private static Context extractExpressionCorpusManagerContext(Handles handles, Object receiver)
-            throws Throwable {
-        if (handles == null
-                || receiver == null
-                || handles.expressionCorpusManagerContextField == null
-                || !handles.expressionCorpusManagerContextField.getDeclaringClass()
-                        .isInstance(receiver)) {
-            return null;
-        }
-        Object context = handles.expressionCorpusManagerContextField.get(receiver);
-        return context instanceof Context ? (Context) context : null;
-    }
-
-    private static String extractKeyboardTypeName(Handles handles, Object keyboardType)
-            throws Throwable {
-        if (handles == null || keyboardType == null) {
-            return null;
-        }
-        Object keyboardTypeName = handles.keyboardTypeNameField.get(keyboardType);
-        return keyboardTypeName != null ? String.valueOf(keyboardTypeName) : null;
-    }
-
-    private static Handles handles(ClassLoader classLoader) throws Throwable {
-        Handles cached = HANDLES_BY_LOADER.get(classLoader.toString());
+    private static Handles handles(ClassLoader classLoader) {
+        String key = classLoader.toString();
+        Handles cached = HANDLES_BY_LOADER.get(key);
         if (cached != null) {
             return cached;
         }
-        Handles created = new Handles(classLoader);
-        HANDLES_BY_LOADER.put(classLoader.toString(), created);
-        return created;
-    }
-
-    private static final class Handles {
-        final Field keyboardTypeNameField;
-        final Class<?> expressionCorpusItemClass;
-        final Field expressionCorpusItemKeyboardTypeField;
-        final Constructor<?> immutableListBuilderConstructor;
-        final Method immutableListBuilderAddMethod;
-        final Method immutableListBuilderBuildMethod;
-        final Method immutableSetToListMethod;
-        final Field expressionCorpusManagerContextField;
-
-        Handles(ClassLoader classLoader) throws Throwable {
-            Log.i(TAG, "Creating Handles for classLoader: " + classLoader);
-            
-            // Find keyboardType class - it's kvf in new APK
-            Class<?> keyboardTypeClass = Class.forName("kvf", false, classLoader);
-            keyboardTypeNameField = keyboardTypeClass.getDeclaredField("m");
-            keyboardTypeNameField.setAccessible(true);
-            Log.i(TAG, "Found keyboardType field m in kvf");
-            
-            // Find expressionCorpusItem class
-            expressionCorpusItemClass = Class.forName("eei", false, classLoader);
-            expressionCorpusItemKeyboardTypeField = expressionCorpusItemClass.getDeclaredField("c");
-            expressionCorpusItemKeyboardTypeField.setAccessible(true);
-            Log.i(TAG, "Found expressionCorpusItem field c in eei");
-            
-            expressionCorpusManagerContextField = null;
-            immutableListBuilderConstructor = null;
-            immutableListBuilderAddMethod = null;
-            immutableListBuilderBuildMethod = null;
-            immutableSetToListMethod = null;
-            Log.i(TAG, "Handles created successfully");
+        try {
+            Handles created = new Handles(classLoader);
+            HANDLES_BY_LOADER.put(key, created);
+            return created;
+        } catch (Throwable throwable) {
+            Log.w(TAG, "Failed to create Handles for " + key, throwable);
+            return null;
         }
     }
 
-    private static final class OrderEntry {
+    private static final class Handles {
+        final Class<?> expressionCorpusItemClass;
+        final Field expressionCorpusItemKeyboardTypeField;
+        final Field keyboardTypeNameField;
+
+        Handles(ClassLoader classLoader) throws Throwable {
+            expressionCorpusItemClass = Class.forName("eei", false, classLoader);
+            expressionCorpusItemKeyboardTypeField = expressionCorpusItemClass.getDeclaredField("c");
+            expressionCorpusItemKeyboardTypeField.setAccessible(true);
+
+            Field keyboardTypeField = null;
+            try {
+                Object sample = expressionCorpusItemClass.getDeclaredField("c").get(null);
+                if (sample != null) {
+                    keyboardTypeField = sample.getClass().getDeclaredField("m");
+                    keyboardTypeField.setAccessible(true);
+                }
+            } catch (Throwable ignored) {}
+            keyboardTypeNameField = keyboardTypeField;
+        }
+    }
+
+    private static class OrderEntry {
         final Object corpusItem;
         final String keyboardTypeName;
         final int originalIndex;
@@ -375,23 +177,46 @@ public final class GboardSymbolFooterOrderRuntime {
         }
     }
 
-    private static final class CachedSettings {
+    private static class CachedSettings {
         final List<String> order;
-
         CachedSettings(List<String> order) {
             this.order = order;
         }
     }
 
-    private static List<String> copyOrder(List<String> order) {
-        if (order == null || order.isEmpty()) {
-            return defaultOrderCopy();
-        }
-        return Collections.unmodifiableList(new ArrayList<String>(order));
+    private static List<String> defaultOrderCopy() {
+        return new ArrayList<String>(GboardSymbolFooterOrderSettings.DEFAULT_SYMBOL_FOOTER_ORDER);
     }
 
-    private static List<String> defaultOrderCopy() {
-        return Collections.unmodifiableList(
-                new ArrayList<String>(GboardSymbolFooterOrderSettings.DEFAULT_SYMBOL_FOOTER_ORDER));
+    private static List<String> readPrefsDirectly() {
+        try {
+            String[] paths = new String[]{
+                "/data/data/pre.lucky.com.google.android.inputmethod.latin/shared_prefs/gboard_symbol_footer_order.xml",
+                "/data/data/com.google.android.inputmethod.latin/shared_prefs/gboard_symbol_footer_order.xml"
+            };
+            for (String path : paths) {
+                File file = new File(path);
+                if (file.exists()) {
+                    BufferedReader reader = new BufferedReader(new FileReader(file));
+                    StringBuilder sb = new StringBuilder();
+                    String line;
+                    while ((line = reader.readLine()) != null) {
+                        sb.append(line);
+                    }
+                    reader.close();
+                    String xml = sb.toString();
+                    java.util.regex.Matcher m = java.util.regex.Pattern
+                            .compile("name=\"pref_symbol_footer_order\">([^<]+)<")
+                            .matcher(xml);
+                    if (m.find()) {
+                        String value = m.group(1);
+                        return Arrays.asList(value.split(","));
+                    }
+                }
+            }
+        } catch (Throwable throwable) {
+            Log.w(TAG, "Failed to read prefs directly", throwable);
+        }
+        return null;
     }
 }
