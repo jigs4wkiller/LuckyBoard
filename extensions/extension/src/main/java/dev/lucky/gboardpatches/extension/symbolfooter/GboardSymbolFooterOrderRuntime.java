@@ -293,27 +293,56 @@ public final class GboardSymbolFooterOrderRuntime {
         Handles(ClassLoader classLoader, Object receiver) throws Throwable {
             Log.i(TAG, "Creating Handles for receiver: " + receiver.getClass().getName());
             Class<?> expressionCorpusManagerClass = receiver.getClass();
-            Log.i(TAG, "Step 1: Getting field 'c' (Context) from " + expressionCorpusManagerClass.getName());
-            expressionCorpusManagerContextField = expressionCorpusManagerClass.getDeclaredField("c");
-            expressionCorpusManagerContextField.setAccessible(true);
-            Log.i(TAG, "Step 2: Getting keyboardType field 'b' from " + expressionCorpusManagerClass.getName());
-            Field keyboardTypeField = expressionCorpusManagerClass.getDeclaredField("b");
-            keyboardTypeField.setAccessible(true);
-            Object keyboardTypeSample = keyboardTypeField.get(receiver);
-            Log.i(TAG, "Step 3: keyboardType sample class = " + (keyboardTypeSample != null ? keyboardTypeSample.getClass().getName() : "null"));
-            Class<?> keyboardTypeClass = keyboardTypeSample != null ? keyboardTypeSample.getClass() : Class.forName("kvf", false, classLoader);
-            keyboardTypeNameField = keyboardTypeClass.getDeclaredField("m");
-            keyboardTypeNameField.setAccessible(true);
-            Log.i(TAG, "Step 4: Getting expressionCorpusItem class from puv list");
-            expressionCorpusItemClass = Class.forName("eei", false, classLoader);
-            Log.i(TAG, "Step 5: Getting field 'c' from eei");
-            expressionCorpusItemKeyboardTypeField = expressionCorpusItemClass.getDeclaredField("c");
-            expressionCorpusItemKeyboardTypeField.setAccessible(true);
+            
+            // Find Context field
+            Field ctxField = null;
+            for (Field f : expressionCorpusManagerClass.getDeclaredFields()) {
+                if (android.content.Context.class.isAssignableFrom(f.getType())) {
+                    ctxField = f;
+                    break;
+                }
+            }
+            if (ctxField == null) throw new IllegalStateException("No Context field in " + expressionCorpusManagerClass.getName());
+            ctxField.setAccessible(true);
+            expressionCorpusManagerContextField = ctxField;
+            
+            // Find keyboardType name field
+            Field nameField = null;
+            for (Field f : expressionCorpusManagerClass.getDeclaredFields()) {
+                if (f.getType().isArray()) continue;
+                try {
+                    Object sample = f.get(receiver);
+                    if (sample == null) continue;
+                    Field nf = sample.getClass().getDeclaredField("m");
+                    nf.setAccessible(true);
+                    if (nf.get(sample) instanceof String) {
+                        nameField = nf;
+                        break;
+                    }
+                } catch (Throwable ignored) {}
+            }
+            keyboardTypeNameField = nameField;
+            
+            // Load expressionCorpusItem class
+            Class<?> eeiClass;
+            Field eeiKbField;
+            try {
+                eeiClass = Class.forName("eei", false, classLoader);
+                eeiKbField = eeiClass.getDeclaredField("c");
+                eeiKbField.setAccessible(true);
+            } catch (Throwable t) {
+                Log.w(TAG, "Could not load eei", t);
+                eeiClass = Object.class;
+                eeiKbField = null;
+            }
+            expressionCorpusItemClass = eeiClass;
+            expressionCorpusItemKeyboardTypeField = eeiKbField;
+            
             immutableListBuilderConstructor = null;
             immutableListBuilderAddMethod = null;
             immutableListBuilderBuildMethod = null;
             immutableSetToListMethod = null;
-            Log.i(TAG, "Handles created successfully");
+            Log.i(TAG, "Handles created: ctxField=" + (ctxField != null) + " nameField=" + (nameField != null));
         }
     }
 
