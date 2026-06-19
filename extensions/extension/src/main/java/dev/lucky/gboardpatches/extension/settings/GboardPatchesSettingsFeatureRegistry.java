@@ -8,6 +8,7 @@ import java.util.Collections;
 import java.util.List;
 
 import dev.lucky.gboardpatches.extension.clipboard.GboardClipboardSettingsFeature;
+import dev.lucky.gboardpatches.extension.debug.GboardDebugSettingsFeature;
 import dev.lucky.gboardpatches.extension.featureflags.GboardFeatureFlagsSettingsFeature;
 import dev.lucky.gboardpatches.extension.incognito.GboardIncognitoSettingsFeature;
 import dev.lucky.gboardpatches.extension.keyboard.GboardKeyboardSettingsGroupFeature;
@@ -27,6 +28,7 @@ public final class GboardPatchesSettingsFeatureRegistry {
         addIfAvailable(context, features, new GboardIncognitoSettingsFeature());
         addIfAvailable(context, features, new GboardFeatureFlagsSettingsFeature());
         addIfAvailable(context, features, new GboardSettingsHomepageSettingsFeature());
+        addIfAvailable(context, features, new GboardDebugSettingsFeature());
         return Collections.unmodifiableList(features);
     }
 
