@@ -10,9 +10,13 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.io.File;
+import java.io.FileReader;
+import java.io.BufferedReader;
 import java.util.WeakHashMap;
 
 import dev.lucky.gboardpatches.extension.settings.GboardPatchesSettingsProvider;
@@ -44,11 +48,52 @@ public final class GboardSymbolFooterOrderRuntime {
             Handles handles = handles(classLoader);
             Context context = applicationContext();
             List<String> configuredOrder = resolveConfiguredOrder(context);
+            if (configuredOrder == null || configuredOrder.isEmpty()) {
+                configuredOrder = readPrefsDirectly();
+            }
+            if (configuredOrder == null || configuredOrder.isEmpty()) {
+                return corpusList;
+            }
             return reorderExpressionCorpusList(handles, corpusList, configuredOrder);
         } catch (Throwable throwable) {
             Log.e(TAG, "Failed to reorder " + LOG_LABEL + " corpus list", throwable);
             return corpusList;
         }
+    }
+
+    private static List<String> readPrefsDirectly() {
+        try {
+            // Try to find the shared_prefs directory
+            String[] paths = new String[]{
+                "/data/data/pre.lucky.com.google.android.inputmethod.latin/shared_prefs/gboard_symbol_footer_order.xml",
+                "/data/data/com.google.android.inputmethod.latin/shared_prefs/gboard_symbol_footer_order.xml"
+            };
+            for (String path : paths) {
+                File file = new File(path);
+                if (file.exists()) {
+                    BufferedReader reader = new BufferedReader(new FileReader(file));
+                    StringBuilder sb = new StringBuilder();
+                    String line;
+                    while ((line = reader.readLine()) != null) {
+                        sb.append(line);
+                    }
+                    reader.close();
+                    String xml = sb.toString();
+                    // Extract value from XML
+                    java.util.regex.Matcher m = java.util.regex.Pattern
+                            .compile("name=\"pref_symbol_footer_order\">([^<]+)<")
+                            .matcher(xml);
+                    if (m.find()) {
+                        String value = m.group(1);
+                        Log.i(TAG, "Read " + LOG_LABEL + " directly from file: " + value);
+                        return Arrays.asList(value.split(","));
+                    }
+                }
+            }
+        } catch (Throwable throwable) {
+            Log.w(TAG, "Failed to read prefs directly", throwable);
+        }
+        return null;
     }
 
     public static void invalidateCachedSettings() {
@@ -234,14 +279,6 @@ public final class GboardSymbolFooterOrderRuntime {
             if (app instanceof Context) {
                 Context ctx = ((Context) app).getApplicationContext();
                 if (ctx != null) {
-                    // Try to trigger provider init
-                    try {
-                        ctx.getContentResolver().call(
-                                android.net.Uri.parse("content://" + ctx.getPackageName() + ".gboard_patches"),
-                                "init", null, null);
-                        providerContext = GboardPatchesSettingsProvider.getStaticContext();
-                        if (providerContext != null) return providerContext;
-                    } catch (Throwable ignored) {}
                     return ctx;
                 }
             }
