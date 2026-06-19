@@ -4,6 +4,8 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import java.lang.reflect.Method;
 
+import dev.lucky.gboardpatches.extension.settings.GboardPatchesSettingsProvider;
+
 public final class GboardIncognitoRuntime {
     private static final String PREFS_NAME = "luckyboard_incognito";
     private static final String KEY_FORCE_INCOGNITO = "force_incognito";
@@ -13,6 +15,12 @@ public final class GboardIncognitoRuntime {
     private GboardIncognitoRuntime() {}
 
     private static Context getApplicationContext() {
+        // Try settings provider first
+        Context providerContext = GboardPatchesSettingsProvider.getStaticContext();
+        if (providerContext != null) {
+            return providerContext;
+        }
+        // Fallback to ActivityThread
         try {
             Class<?> activityThread = Class.forName("android.app.ActivityThread");
             Method currentApplication = activityThread.getDeclaredMethod("currentApplication");

@@ -221,6 +221,12 @@ public final class GboardSymbolFooterOrderRuntime {
     }
 
     private static Context applicationContext() {
+        // Try to get context from the settings provider first
+        Context providerContext = GboardPatchesSettingsProvider.getStaticContext();
+        if (providerContext != null) {
+            return providerContext;
+        }
+        // Fallback to ActivityThread
         Context context = reflectedApplicationContext(
                 "android.app.ActivityThread",
                 "currentApplication");

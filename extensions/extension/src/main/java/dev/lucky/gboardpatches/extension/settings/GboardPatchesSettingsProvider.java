@@ -2,6 +2,7 @@ package dev.lucky.gboardpatches.extension.settings;
 
 import android.content.ContentProvider;
 import android.content.ContentValues;
+import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
@@ -20,8 +21,15 @@ public final class GboardPatchesSettingsProvider extends ContentProvider {
             "symbol_footer_order";
     public static final String AUTHORITY_SUFFIX = ".gboard_patches";
 
+    private static Context sContext;
+
+    public static Context getStaticContext() {
+        return sContext;
+    }
+
     @Override
     public boolean onCreate() {
+        sContext = getContext();
         return true;
     }
 
