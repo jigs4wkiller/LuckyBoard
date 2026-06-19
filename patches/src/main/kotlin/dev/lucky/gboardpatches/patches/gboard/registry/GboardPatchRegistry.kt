@@ -16,6 +16,7 @@ import dev.lucky.gboardpatches.patches.gboard.features.webclipboard.gboardWebCli
 import dev.lucky.gboardpatches.patches.gboard.features.englishqwerty.gboardEnglishQwertySlideResourcePatch
 import dev.lucky.gboardpatches.patches.gboard.features.englishqwerty.gboardEnglishQwertySoftKeyPatch
 import dev.lucky.gboardpatches.patches.gboard.features.incognito.gboardIncognitoEnhancementsBytecodePatch
+import dev.lucky.gboardpatches.patches.gboard.features.debug.gboardDebugPatch
 import dev.lucky.gboardpatches.patches.gboard.features.featureflags.gboardFeatureFlagsBytecodePatch
 import dev.lucky.gboardpatches.patches.gboard.features.featureflags.gboardFeatureFlagsPatch
 import dev.lucky.gboardpatches.patches.gboard.features.luckify.gboardLuckifyResourcePatch
@@ -192,6 +193,9 @@ val gboardSignatureBypassPatch = resourcePatch(
 // NOTE: gboardFeatureFlagsPatch and gboardIncognitoEnhancementsPatch are
 // discovered via @Suppress("unused") in their own feature subpackages.
 // Rebind aliases here trigger a NullPointerException in PatchLoader.getPatchMethods.
+
+@Suppress("unused")
+val gboardDebugPatchAlias = gboardDebugPatch
 
 // Universal Resource Cleaner — handles both density and language cleaning.
 @Suppress("unused")
