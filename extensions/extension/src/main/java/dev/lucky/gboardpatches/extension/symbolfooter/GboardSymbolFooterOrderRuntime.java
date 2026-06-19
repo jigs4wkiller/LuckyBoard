@@ -20,8 +20,8 @@ import dev.lucky.gboardpatches.extension.settings.GboardPatchesSettingsProvider;
 public final class GboardSymbolFooterOrderRuntime {
     private static final String TAG = "GboardPatches";
     private static final String LOG_LABEL = "expression footer tab order";
-    private static final Map<ClassLoader, Handles> HANDLES_BY_LOADER =
-            Collections.synchronizedMap(new WeakHashMap<ClassLoader, Handles>());
+    private static final Map<String, Handles> HANDLES_BY_LOADER =
+            Collections.synchronizedMap(new WeakHashMap<String, Handles>());
     private static final Object SETTINGS_LOCK = new Object();
 
     private static volatile CachedSettings cachedSettings;
@@ -42,7 +42,7 @@ public final class GboardSymbolFooterOrderRuntime {
                 Log.w(TAG, "reorderExpressionCorpusList: classLoader is null");
                 return corpusList;
             }
-            Handles handles = handles(classLoader);
+            Handles handles = handles(classLoader, receiver);
             Log.i(TAG, "reorderExpressionCorpusList: handles created");
             Context context = extractExpressionCorpusManagerContext(handles, receiver);
             Log.i(TAG, "reorderExpressionCorpusList: context=" + context);
@@ -269,13 +269,14 @@ public final class GboardSymbolFooterOrderRuntime {
         return keyboardTypeName != null ? String.valueOf(keyboardTypeName) : null;
     }
 
-    private static Handles handles(ClassLoader classLoader) throws Throwable {
-        Handles cached = HANDLES_BY_LOADER.get(classLoader);
+    private static Handles handles(ClassLoader classLoader, Object receiver) throws Throwable {
+        String key = classLoader + "|" + receiver.getClass().getName();
+        Handles cached = HANDLES_BY_LOADER.get(key);
         if (cached != null) {
             return cached;
         }
-        Handles created = new Handles(classLoader);
-        HANDLES_BY_LOADER.put(classLoader, created);
+        Handles created = new Handles(classLoader, receiver);
+        HANDLES_BY_LOADER.put(key, created);
         return created;
     }
 
@@ -289,23 +290,25 @@ public final class GboardSymbolFooterOrderRuntime {
         final Method immutableSetToListMethod;
         final Field expressionCorpusManagerContextField;
 
-        Handles(ClassLoader classLoader) throws Throwable {
-            Log.i(TAG, "Creating Handles for classLoader: " + classLoader);
-            Log.i(TAG, "Step 1: Loading kvf (keyboardType)");
-            Class<?> keyboardTypeClass = Class.forName("kvf", false, classLoader);
-            Log.i(TAG, "Step 2: Loading Leej (expressionCorpusManager)");
-            Class<?> expressionCorpusManagerClass = Class.forName("Leej", false, classLoader);
-            Log.i(TAG, "Step 3: Loading eei (expressionCorpusItem)");
-            expressionCorpusItemClass = Class.forName("eei", false, classLoader);
-            Log.i(TAG, "Step 4: Getting field 'm' from kvf");
+        Handles(ClassLoader classLoader, Object receiver) throws Throwable {
+            Log.i(TAG, "Creating Handles for receiver: " + receiver.getClass().getName());
+            Class<?> expressionCorpusManagerClass = receiver.getClass();
+            Log.i(TAG, "Step 1: Getting field 'c' (Context) from " + expressionCorpusManagerClass.getName());
+            expressionCorpusManagerContextField = expressionCorpusManagerClass.getDeclaredField("c");
+            expressionCorpusManagerContextField.setAccessible(true);
+            Log.i(TAG, "Step 2: Getting keyboardType field 'b' from " + expressionCorpusManagerClass.getName());
+            Field keyboardTypeField = expressionCorpusManagerClass.getDeclaredField("b");
+            keyboardTypeField.setAccessible(true);
+            Object keyboardTypeSample = keyboardTypeField.get(receiver);
+            Log.i(TAG, "Step 3: keyboardType sample class = " + (keyboardTypeSample != null ? keyboardTypeSample.getClass().getName() : "null"));
+            Class<?> keyboardTypeClass = keyboardTypeSample != null ? keyboardTypeSample.getClass() : Class.forName("kvf", false, classLoader);
             keyboardTypeNameField = keyboardTypeClass.getDeclaredField("m");
             keyboardTypeNameField.setAccessible(true);
+            Log.i(TAG, "Step 4: Getting expressionCorpusItem class from puv list");
+            expressionCorpusItemClass = Class.forName("eei", false, classLoader);
             Log.i(TAG, "Step 5: Getting field 'c' from eei");
             expressionCorpusItemKeyboardTypeField = expressionCorpusItemClass.getDeclaredField("c");
             expressionCorpusItemKeyboardTypeField.setAccessible(true);
-            Log.i(TAG, "Step 6: Getting field 'c' from Leej");
-            expressionCorpusManagerContextField = expressionCorpusManagerClass.getDeclaredField("c");
-            expressionCorpusManagerContextField.setAccessible(true);
             immutableListBuilderConstructor = null;
             immutableListBuilderAddMethod = null;
             immutableListBuilderBuildMethod = null;
