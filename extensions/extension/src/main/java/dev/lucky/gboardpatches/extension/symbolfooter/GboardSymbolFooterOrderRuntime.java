@@ -27,24 +27,32 @@ public final class GboardSymbolFooterOrderRuntime {
     private GboardSymbolFooterOrderRuntime() {}
 
     public static Object reorderExpressionCorpusList(Object receiver, Object corpusList) {
+        Log.i(TAG, "reorderExpressionCorpusList called: receiver=" + receiver.getClass().getName() + ", corpusList=" + corpusList.getClass().getName());
         if (corpusList == null) {
+            Log.w(TAG, "corpusList is null, returning");
             return corpusList;
         }
         try {
             ClassLoader classLoader = corpusList.getClass().getClassLoader();
+            Log.i(TAG, "classLoader=" + classLoader);
             if (classLoader == null && receiver != null) {
                 classLoader = receiver.getClass().getClassLoader();
             }
             if (classLoader == null) {
+                Log.w(TAG, "classLoader is null, returning");
                 return corpusList;
             }
             Handles handles = handles(classLoader);
             if (handles == null) {
+                Log.w(TAG, "handles is null, returning");
                 return corpusList;
             }
+            Log.i(TAG, "handles created, expressionCorpusItemClass=" + handles.expressionCorpusItemClass);
             List<String> configuredOrder = readPrefsDirectly();
+            Log.i(TAG, "configuredOrder=" + configuredOrder);
             if (configuredOrder == null || configuredOrder.isEmpty()) {
                 configuredOrder = defaultOrderCopy();
+                Log.i(TAG, "using default order");
             }
             return reorderExpressionCorpusList(handles, corpusList, configuredOrder);
         } catch (Throwable throwable) {

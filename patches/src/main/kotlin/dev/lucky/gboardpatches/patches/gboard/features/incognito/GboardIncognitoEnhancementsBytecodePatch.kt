@@ -22,11 +22,11 @@ internal val gboardIncognitoEnhancementsBytecodePatch = bytecodePatch(
     dependsOn(gboardSignatureBypassBytecodePatch)
 
     execute {
-        // Always incognito - replace jak.Z(EditorInfo)->boolean with hardcoded true
+        // Force incognito: replace AbstractIme.jC(EditorInfo)->boolean with hardcoded true
         try {
             val incognitoMethod = findMutableMethodOrThrow(
-                classType = "Ljak;",
-                name = "Z",
+                classType = "Lcom/google/android/libraries/inputmethod/ime/AbstractIme;",
+                name = "jC",
                 returnType = "Z",
                 parameterTypes = listOf("Landroid/view/inputmethod/EditorInfo;")
             )
