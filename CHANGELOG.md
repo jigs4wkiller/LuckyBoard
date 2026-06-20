@@ -4,6 +4,44 @@ All changes in this repository are for the initial public release of LuckyBoard,
 a rebranded and enhanced set of Morphe patches for Gboard from @jasonwu1994.
 
 
+## v1.0.2-dev - Incognito Toggle, Clipboard Fix, Emoji Reorder Fix
+
+### Incognito Mode — Runtime Toggle (Static Field Bridge)
+- **Fixed crash loop**: Previous approaches (ActivityThread.currentApplication, SharedPreferences from smali) failed on Android 16 due to hidden API restrictions and ClassLoader isolation.
+- **New approach: Static Field Bridge** — A `boolean sForceIncognito` field is injected into the Gboard `jak` class via `addFieldIfMissing`. The smali helper reads it via `sget-boolean`. The extension sets it via reflection on startup and on toggle.
+- Incognito can now be **toggled on/off** via LuckyBoard Settings → Incognito → Force Incognito switch.
+- `GboardIncognitoRuntime.updateStaticField()` called on provider init and after every preference change.
+
+### Clipboard in Incognito — Patch Restored
+- Re-added `OnPrimaryClipChangedFingerprint` and `EnableVoiceTypingFingerprint` patches that were accidentally removed during the incognito refactor.
+- Clipboard now works in incognito mode (newly copied text appears in the clipboard list).
+- Voice typing is also enabled in incognito mode.
+
+### Clipboard Extension — Obfuscation Update for 17.5.x
+- Updated `GboardClipboardRuntimeSupport.ReflectionHandles` with new obfuscated class names for Gboard 17.5.x:
+  - `emy` → `dch` (DataHandler)
+  - `emk` → `dbu` (Adapter)
+  - `emi` → `dbs` (ViewHolder)
+  - `elk` → `dap` (Clip model)
+  - `elm` → `dar` (ClipModel type)
+  - `emo` → `dby` (QueryUtils)
+  - `oql` → `lmm` (PreferencesAccessor)
+  - `bze` → `aow` (PreferenceBase)
+- Updated method names: `k(Cursor)` → `l(Cursor)`, `O(Context)` → `L(Context)`
+- No more "Failed to build custom clipboard loader result" errors.
+
+### Emoji Tab Reorder — Fixed
+- **Root cause**: `ExpressionCorpusItem` class renamed from `eei` to `jgg` in 17.5.x. The `Handles` constructor was using the old name, causing `isInstance` to fail for all items → keyboardTypeName was always null → sort fell back to original order.
+- Updated `GboardSymbolFooterOrderRuntime.Handles` to use `jgg` instead of `eei`.
+- Added diagnostic logging for reorder flow (original order, sorted order, isSameOrder, instance creation).
+
+### SessionManager Warning
+- Removed duplicate `invoke-static` injection into `onStartInputView` (only `onStartInput` is patched now). This eliminates the "Try to begin an already begun session" warning on rotation.
+
+### Version Bump
+- Version bumped from 1.0.1-dev to 1.0.2-dev.
+
+
 ## v1.1.0-beta - Gboard 17.5.x Update (Latest)
 
 **Highlights of this release:**

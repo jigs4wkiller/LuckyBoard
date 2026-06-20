@@ -30,8 +30,8 @@ final class GboardClipboardRuntimeSupport {
 
     static final String CLIPBOARD_LOADER_CALLABLE_CLASS = "eln";
     static final String CLIPBOARD_PRUNE_CALLABLE_CLASS = "emr";
-    static final String CLIPBOARD_ADAPTER_CLASS = "emk";
-    static final String CLIPBOARD_VIEW_HOLDER_CLASS = "emi";
+    static final String CLIPBOARD_ADAPTER_CLASS = "dbu";
+    static final String CLIPBOARD_VIEW_HOLDER_CLASS = "dbs";
 
     static final long MINUTE_MS = 60_000L;
     static final long INFINITE_TTL_MS = -1L;
@@ -610,15 +610,15 @@ final class GboardClipboardRuntimeSupport {
             Class<?> loaderClass = resolveClass(classLoader, "elo");
             Class<?> pruneCallableClass = resolveClass(classLoader,
                     CLIPBOARD_PRUNE_CALLABLE_CLASS);
-            Class<?> dataHandlerClass = resolveClass(classLoader, "emy");
+            Class<?> dataHandlerClass = resolveClass(classLoader, "dch");
             Class<?> adapterClass = resolveClass(classLoader, CLIPBOARD_ADAPTER_CLASS);
             Class<?> clipItemViewHolderClass = resolveClass(classLoader,
                     CLIPBOARD_VIEW_HOLDER_CLASS);
-            Class<?> clipClass = resolveClass(classLoader, "elk");
-            Class<?> clipModelClass = resolveClass(classLoader, "elm");
-            Class<?> queryUtilsClass = resolveClass(classLoader, "emo");
-            Class<?> preferencesClass = resolveClass(classLoader, "oql");
-            Class<?> preferenceBaseClass = resolveClass(classLoader, "bze");
+            Class<?> clipClass = resolveClass(classLoader, "dap");
+            Class<?> clipModelClass = resolveClass(classLoader, "dar");
+            Class<?> queryUtilsClass = resolveClass(classLoader, "dby");
+            Class<?> preferencesClass = resolveClass(classLoader, "lmm");
+            Class<?> preferenceBaseClass = resolveClass(classLoader, "aow");
 
             loaderCallableOwnerField = declaredField(loaderCallableClass, "a");
             loaderContextField = declaredField(loaderClass, "b");
@@ -647,9 +647,9 @@ final class GboardClipboardRuntimeSupport {
                     Context.class);
             dataHandlerQueryByItemTypeMethod = declaredMethod(dataHandlerClass, "b",
                     Uri.class, int.class);
-            dataHandlerCleanupCursorMethod = declaredMethod(dataHandlerClass, "k",
+            dataHandlerCleanupCursorMethod = declaredMethod(dataHandlerClass, "l",
                     Cursor.class);
-            preferencesAccessorMethod = declaredMethod(preferencesClass, "O", Context.class);
+            preferencesAccessorMethod = declaredMethod(preferencesClass, "L", Context.class);
             preferenceReadLongMethod = declaredMethod(preferenceBaseClass, "m",
                     int.class, long.class);
             preferenceWriteLongMethod = declaredMethod(preferenceBaseClass, "r",

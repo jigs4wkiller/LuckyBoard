@@ -93,4 +93,12 @@ public final class GboardIncognitoRuntime {
         }
         return readBooleanDirectly(KEY_ALLOW_VOICE, true);
     }
+
+    public static void updateStaticField() {
+        try {
+            Class<?> jakClass = Class.forName("jak");
+            java.lang.reflect.Field field = jakClass.getDeclaredField("sForceIncognito");
+            field.setBoolean(null, shouldForceIncognito());
+        } catch (Throwable ignored) {}
+    }
 }

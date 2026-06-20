@@ -120,6 +120,7 @@ public final class GboardIncognitoSettings {
         } else {
             writeBooleanDirectly(KEY_FORCE_INCOGNITO, enabled);
         }
+        GboardIncognitoRuntime.updateStaticField();
     }
 
     public static boolean isAllowClipboardEnabled(Context context) {

@@ -71,6 +71,7 @@ public final class GboardSymbolFooterOrderRuntime {
             Object corpusList,
             List<String> configuredOrder) throws Throwable {
         if (!(corpusList instanceof Iterable)) {
+            Log.w(TAG, "corpusList is not Iterable: " + corpusList.getClass().getName());
             return corpusList;
         }
         List<OrderEntry> entries = new ArrayList<OrderEntry>();
@@ -85,12 +86,26 @@ public final class GboardSymbolFooterOrderRuntime {
                     Object nameObj = handles.keyboardTypeNameField.get(keyboardType);
                     keyboardTypeName = nameObj != null ? String.valueOf(nameObj) : null;
                 }
+            } else {
+                Log.w(TAG, "item type mismatch: item=" + corpusItem.getClass().getName()
+                        + " expected=" + (handles.expressionCorpusItemClass != null ? handles.expressionCorpusItemClass.getName() : "null")
+                        + " isInstance=" + (handles.expressionCorpusItemClass != null && handles.expressionCorpusItemClass.isInstance(corpusItem))
+                        + " keyboardTypeField=" + (handles.expressionCorpusItemKeyboardTypeField != null));
             }
             entries.add(new OrderEntry(corpusItem, keyboardTypeName, index++));
         }
         if (entries.isEmpty()) {
+            Log.w(TAG, "entries is empty, returning original list");
             return corpusList;
         }
+
+        StringBuilder sb = new StringBuilder("original order: [");
+        for (int i = 0; i < entries.size(); i++) {
+            if (i > 0) sb.append(", ");
+            sb.append(entries.get(i).keyboardTypeName);
+        }
+        sb.append("]");
+        Log.i(TAG, sb.toString());
 
         List<OrderEntry> reorderedEntries = new ArrayList<OrderEntry>(entries);
         Collections.sort(reorderedEntries, new java.util.Comparator<OrderEntry>() {
@@ -112,15 +127,37 @@ public final class GboardSymbolFooterOrderRuntime {
             }
         });
 
+        StringBuilder sb2 = new StringBuilder("sorted order: [");
+        for (int i = 0; i < reorderedEntries.size(); i++) {
+            if (i > 0) sb2.append(", ");
+            sb2.append(reorderedEntries.get(i).keyboardTypeName);
+        }
+        sb2.append("]");
+        Log.i(TAG, sb2.toString());
+
         if (isSameOrder(entries, reorderedEntries)) {
+            Log.i(TAG, "isSameOrder=true, returning original list unchanged");
             return corpusList;
         }
 
-        java.util.ArrayList<Object> reorderedList = new java.util.ArrayList<>();
+        Log.i(TAG, "order changed, creating new pzy instance via reflection");
+        Object[] sortedArray = new Object[reorderedEntries.size()];
+        int idx = 0;
         for (OrderEntry entry : reorderedEntries) {
-            reorderedList.add(entry.corpusItem);
+            sortedArray[idx++] = entry.corpusItem;
         }
-        return reorderedList;
+        try {
+            java.lang.reflect.Constructor<?> ctor =
+                    corpusList.getClass().getConstructor(Object[].class, int.class);
+            Object result = ctor.newInstance(sortedArray, reorderedEntries.size());
+            Log.i(TAG, "SUCCESS: new list type=" + result.getClass().getName()
+                    + " size=" + ((java.util.List) result).size());
+            return result;
+        } catch (Throwable t) {
+            Log.e(TAG, "FAILED to create reordered list: " + t.getClass().getSimpleName()
+                    + ": " + t.getMessage(), t);
+            return corpusList;
+        }
     }
 
     private static boolean isSameOrder(List<OrderEntry> left, List<OrderEntry> right) {
@@ -157,19 +194,13 @@ public final class GboardSymbolFooterOrderRuntime {
         final Field keyboardTypeNameField;
 
         Handles(ClassLoader classLoader) throws Throwable {
-            expressionCorpusItemClass = Class.forName("eei", false, classLoader);
+            expressionCorpusItemClass = Class.forName("jgg", false, classLoader);
             expressionCorpusItemKeyboardTypeField = expressionCorpusItemClass.getDeclaredField("c");
             expressionCorpusItemKeyboardTypeField.setAccessible(true);
 
-            Field keyboardTypeField = null;
-            try {
-                Object sample = expressionCorpusItemClass.getDeclaredField("c").get(null);
-                if (sample != null) {
-                    keyboardTypeField = sample.getClass().getDeclaredField("m");
-                    keyboardTypeField.setAccessible(true);
-                }
-            } catch (Throwable ignored) {}
-            keyboardTypeNameField = keyboardTypeField;
+            Class<?> keyboardTypeClass = Class.forName("kvf", false, classLoader);
+            keyboardTypeNameField = keyboardTypeClass.getDeclaredField("m");
+            keyboardTypeNameField.setAccessible(true);
         }
     }
 

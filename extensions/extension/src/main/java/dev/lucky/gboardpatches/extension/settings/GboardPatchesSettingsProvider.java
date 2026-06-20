@@ -10,6 +10,7 @@ import android.util.Log;
 
 import java.util.ArrayList;
 
+import dev.lucky.gboardpatches.extension.incognito.GboardIncognitoRuntime;
 import dev.lucky.gboardpatches.extension.symbolfooter.GboardSymbolFooterOrderSettings;
 
 public final class GboardPatchesSettingsProvider extends ContentProvider {
@@ -33,6 +34,7 @@ public final class GboardPatchesSettingsProvider extends ContentProvider {
         if (sContext != null) {
             sContext = sContext.getApplicationContext();
         }
+        GboardIncognitoRuntime.updateStaticField();
         return true;
     }
 

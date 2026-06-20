@@ -13,15 +13,15 @@
 
 ---
 
-> **🚀 v1.0.1-dev — Gboard 17.5.x Support with Pre-release Patches**
+> **🚀 v1.0.2-dev — Incognito Toggle, Clipboard Fix, Emoji Reorder Fix**
 > 
-> - Incognito Enhancements with **runtime toggle** (enable/disable via preferences)
-> - Configurable `package_name` in **Luckify Gboard** for flexible side-by-side installation
-> - 25+ new **Feature Flags** for the latest Gboard 17.5.x settings UI
-> - Incognito emoji drawable with correct proportions
-> - Many bytecode & resource fixes for the new APK
->
-> Pre-built `.mpp` bundle available in [Releases](https://github.com/jigs4wkiller/LuckyBoard/releases/tag/v1.0.1-dev).
+> - **Incognito toggle**: Enable/disable via LuckyBoard Settings (Static Field Bridge approach — no hidden API issues on Android 16)
+> - **Clipboard in incognito**: Newly copied text now appears in clipboard list; voice typing enabled
+> - **Emoji tab reorder fixed**: Updated obfuscated class references for Gboard 17.5.x (`eei` → `jgg`)
+> - **Clipboard extension updated**: All 8 obfuscated class names + 2 method names updated for 17.5.x
+> - **SessionManager warning fixed**: Removed duplicate `onStartInputView` injection
+> 
+> Pre-built `.mpp` bundle available in [Releases](https://github.com/jigs4wkiller/LuckyBoard/releases/tag/v1.0.2-dev).
 
 ---
 
@@ -37,7 +37,7 @@ All patches and the UI are in clean English. Privacy-related improvements are a 
 - Runtime toggleable **Feature Flags** (40+ flags including Writing Tools, Dynamic Art, Float Keyboard)
 - **Web Clipboard** – sync with desktop browser over LAN
 - Strong **Clipboard** improvements + editing
-- Better **Incognito** mode (clipboard + voice + forced incognito)
+- Better **Incognito** mode with **runtime toggle** (clipboard + voice + forced incognito, toggleable on/off)
 - Custom symbols, emoji tab reordering, Undo/Redo
 - **Luckify Gboard** — rename package + rebrand with custom app name and now configurable package name
 - Universal optimization & cleanup patches
